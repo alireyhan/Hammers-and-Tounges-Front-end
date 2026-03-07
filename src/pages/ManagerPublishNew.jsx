@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { adminService } from '../services/interceptors/admin.service';
 import { auctionService } from '../services/interceptors/auction.service';
+import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
 import './ManagerPublishNew.css';
 
@@ -12,7 +13,8 @@ const ManagerPublishNew = () => {
   const location = useLocation();
   const fileInputRef = useRef(null);
 
-  const { eventId, event } = location.state || {};
+  const { eventId, event, lotId, lot: existingLot, isEdit } = location.state || {};
+  const lot = existingLot;
 
   const [sellers, setSellers] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -27,22 +29,46 @@ const ManagerPublishNew = () => {
     initial_price: '',
     reserve_price: '',
     stc_eligible: false,
-    specific_data: '',
+    specific_data: {},
   });
 
   const [images, setImages] = useState([]); // { id, file, label }
 
-  // Redirect if no event context
+  // Redirect if no event context (unless editing, we need eventId from lot's auction_event)
   useEffect(() => {
-    if (!eventId) {
+    const effectiveEventId = eventId || existingLot?.auction_event;
+    if (!effectiveEventId) {
       toast.info('Please select an event first.');
       navigate('/manager/dashboard');
     }
-  }, [eventId, navigate]);
+  }, [eventId, existingLot?.auction_event, navigate]);
+
+  // Pre-populate form when editing
+  useEffect(() => {
+    if (!isEdit || !existingLot) return;
+    setFormData({
+      seller: String(existingLot.seller ?? existingLot.seller_details?.id ?? ''),
+      title: existingLot.title ?? '',
+      description: existingLot.description ?? '',
+      category: String(existingLot.category ?? existingLot.category_id ?? ''),
+      initial_price: existingLot.initial_price ?? '',
+      reserve_price: existingLot.reserve_price ?? '',
+      stc_eligible: Boolean(existingLot.stc_eligible),
+      specific_data: existingLot.specific_data && typeof existingLot.specific_data === 'object' ? { ...existingLot.specific_data } : {},
+    });
+    if (existingLot.media?.length) {
+      setImages(
+        existingLot.media
+          .filter((m) => m.media_type === 'image' && m.file)
+          .map((m, i) => ({ id: m.id, file: m.file, label: `Image ${i + 1}` }))
+      );
+    }
+  }, [isEdit, existingLot]);
 
   // Fetch sellers and categories from admin flow
+  const effectiveEventId = eventId || existingLot?.auction_event;
   useEffect(() => {
-    if (!eventId) return;
+    if (!effectiveEventId) return;
     let cancelled = false;
     (async () => {
       setLoadingData(true);
@@ -67,15 +93,181 @@ const ManagerPublishNew = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [eventId]);
+  }, [effectiveEventId]);
 
   const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
+    if (name === 'category') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        specific_data: {},
+      }));
+      return;
+    }
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
   }, []);
+
+  const handleSpecificDataChange = useCallback((fieldName, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      specific_data: {
+        ...prev.specific_data,
+        [fieldName]: value,
+      },
+    }));
+  }, []);
+
+  const formatFieldLabel = (fieldName) =>
+    fieldName
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+  const selectedCategory = categories.find((c) => String(c.id) === String(formData.category));
+  const validationSchema = selectedCategory?.validation_schema || {};
+
+  const renderSpecificField = useCallback(
+    (fieldName, fieldConfig) => {
+      const label = formatFieldLabel(fieldName);
+      const value = formData.specific_data[fieldName];
+      const isRequired = fieldConfig.required;
+
+      // Dropdown (enum)
+      if (fieldConfig.enum && Array.isArray(fieldConfig.enum)) {
+        return (
+          <div key={fieldName} className="mpn-form-group">
+            <label className="mpn-form-label">
+              {label} {isRequired && <span className="mpn-required">*</span>}
+            </label>
+            <select
+              className="mpn-select"
+              value={value ?? ''}
+              onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+              required={isRequired}
+            >
+              <option value="">Select {label}</option>
+              {fieldConfig.enum.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+      }
+
+      // Textarea
+      if (fieldConfig.type === 'textarea') {
+        return (
+          <div key={fieldName} className="mpn-form-group">
+            <label className="mpn-form-label">
+              {label} {isRequired && <span className="mpn-required">*</span>}
+            </label>
+            <textarea
+              className="mpn-textarea"
+              value={value ?? ''}
+              onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+              placeholder={`Enter ${label.toLowerCase()}...`}
+              rows={3}
+              required={isRequired}
+            />
+          </div>
+        );
+      }
+
+      // Checkbox
+      if (fieldConfig.type === 'checkbox') {
+        return (
+          <div key={fieldName} className="mpn-form-group mpn-checkbox-field">
+            <label className="mpn-checkbox-field-label">
+              <input
+                type="checkbox"
+                className="mpn-checkbox-native"
+                checked={!!value}
+                onChange={(e) => handleSpecificDataChange(fieldName, e.target.checked)}
+              />
+              <span className="mpn-checkbox-field-text">
+                {label} {isRequired && <span className="mpn-required">*</span>}
+              </span>
+            </label>
+          </div>
+        );
+      }
+
+      // Range
+      if (fieldConfig.type === 'range') {
+        const numValue = value !== '' && value !== undefined ? Number(value) : (fieldConfig.min ?? 0);
+        return (
+          <div key={fieldName} className="mpn-form-group">
+            <label className="mpn-form-label">
+              {label} {isRequired && <span className="mpn-required">*</span>}
+            </label>
+            <div className="mpn-form-row" style={{ alignItems: 'center', gap: '1rem' }}>
+              <input
+                type="range"
+                className="mpn-input"
+                min={fieldConfig.min ?? 0}
+                max={fieldConfig.max ?? 100}
+                value={numValue}
+                onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+              />
+              <input
+                type="number"
+                className="mpn-input"
+                style={{ maxWidth: '100px' }}
+                min={fieldConfig.min ?? 0}
+                max={fieldConfig.max ?? 100}
+                value={numValue}
+                onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+              />
+            </div>
+          </div>
+        );
+      }
+
+      // Number
+      if (fieldConfig.type === 'number' || fieldConfig.type === 'integer') {
+        return (
+          <div key={fieldName} className="mpn-form-group">
+            <label className="mpn-form-label">
+              {label} {isRequired && <span className="mpn-required">*</span>}
+            </label>
+            <input
+              type="number"
+              className="mpn-input"
+              value={value ?? ''}
+              onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+              placeholder={`Enter ${label.toLowerCase()}...`}
+              step={fieldConfig.type === 'integer' ? 1 : 'any'}
+              required={isRequired}
+            />
+          </div>
+        );
+      }
+
+      // Text (default)
+      return (
+        <div key={fieldName} className="mpn-form-group">
+          <label className="mpn-form-label">
+            {label} {isRequired && <span className="mpn-required">*</span>}
+          </label>
+          <input
+            type="text"
+            className="mpn-input"
+            value={value ?? ''}
+            onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+            placeholder={`Enter ${label.toLowerCase()}...`}
+            required={isRequired}
+          />
+        </div>
+      );
+    },
+    [formData.specific_data, handleSpecificDataChange]
+  );
 
   const handleImageUpload = useCallback((files) => {
     const valid = Array.from(files).filter((f) => f.type.startsWith('image/'));
@@ -118,36 +310,36 @@ const ManagerPublishNew = () => {
 
   const buildFormData = useCallback(
     (status = 'DRAFT') => {
+      const evId = eventId || existingLot?.auction_event;
       const fd = new FormData();
       fd.append('seller', formData.seller);
       fd.append('title', formData.title);
       fd.append('description', formData.description);
       fd.append('category', formData.category);
-      fd.append('auction_event', eventId);
+      fd.append('auction_event', evId);
       fd.append('initial_price', formData.initial_price || '0');
       fd.append('reserve_price', formData.reserve_price || '0');
       fd.append('stc_eligible', formData.stc_eligible ? 'true' : 'false');
       fd.append('status', status);
-      if (formData.specific_data?.trim()) {
-        try {
-          JSON.parse(formData.specific_data);
-          fd.append('specific_data', formData.specific_data.trim());
-        } catch {
-          fd.append('specific_data', JSON.stringify({ note: formData.specific_data }));
-        }
+      const specificData = formData.specific_data;
+      if (specificData && typeof specificData === 'object' && Object.keys(specificData).length > 0) {
+        fd.append('specific_data', JSON.stringify(specificData));
       }
       images.forEach((img, idx) => {
-        fd.append(`image_${idx + 1}`, img.file);
-        fd.append('media_labels', img.label || `Image ${idx + 1}`);
+        if (img.file instanceof File) {
+          fd.append(`image_${idx + 1}`, img.file);
+          fd.append('media_labels', img.label || `Image ${idx + 1}`);
+        }
       });
       return fd;
     },
-    [formData, eventId, images]
+    [formData, eventId, existingLot?.auction_event, images]
   );
 
   const handleSubmit = useCallback(
     async (status = 'DRAFT') => {
-      if (!eventId) return;
+      const evId = eventId || existingLot?.auction_event;
+      if (!evId) return;
       if (!formData.seller || !formData.title || !formData.description || !formData.category) {
         toast.error('Please fill in required fields: Seller, Title, Description, Category.');
         return;
@@ -159,36 +351,57 @@ const ManagerPublishNew = () => {
       }
       setSubmitting(true);
       try {
-        const fd = buildFormData(status);
-        await auctionService.createLot(fd);
-        toast.success('Lot created successfully.');
-        navigate(`/manager/event/${eventId}`, { state: { event } });
+        if (isEdit && lotId) {
+          const evId = eventId || existingLot?.auction_event;
+          const payload = {
+            seller: Number(formData.seller),
+            title: formData.title,
+            description: formData.description,
+            category: Number(formData.category),
+            auction_event: Number(evId),
+            initial_price: String(formData.initial_price || '0'),
+            reserve_price: String(formData.reserve_price || '0'),
+            stc_eligible: Boolean(formData.stc_eligible),
+            status: status,
+            specific_data: formData.specific_data && Object.keys(formData.specific_data).length > 0
+              ? formData.specific_data
+              : {},
+          };
+          await auctionService.updateLot(lotId, payload);
+          toast.success('Lot updated successfully.');
+        } else {
+          const fd = buildFormData(status);
+          await auctionService.createLot(fd);
+          toast.success('Lot created successfully.');
+        }
+        navigate(`/manager/event/${evId}`, { state: { event, lotCreated: true } });
       } catch (err) {
         const msg =
           err?.response?.data?.detail ||
           err?.response?.data?.message ||
           err?.message ||
-          'Failed to create lot.';
+          (isEdit ? 'Failed to update lot.' : 'Failed to create lot.');
         toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
       } finally {
         setSubmitting(false);
       }
     },
-    [eventId, event, formData, buildFormData, navigate]
+    [eventId, existingLot?.auction_event, event, formData, buildFormData, navigate, isEdit, lotId]
   );
 
   const handleSaveDraft = useCallback(() => handleSubmit('DRAFT'), [handleSubmit]);
   const handlePublish = useCallback(() => handleSubmit('DRAFT'), [handleSubmit]);
 
   const handleBack = useCallback(() => {
-    if (eventId) {
-      navigate(`/manager/event/${eventId}`, { state: { event } });
+    const evId = eventId || existingLot?.auction_event;
+    if (evId) {
+      navigate(`/manager/event/${evId}`, { state: { event } });
     } else {
       navigate('/manager/dashboard');
     }
-  }, [eventId, event, navigate]);
+  }, [eventId, existingLot?.auction_event, event, navigate]);
 
-  if (!eventId) return null;
+  if (!eventId && !existingLot?.auction_event) return null;
 
   if (loadingData) {
     return (
@@ -215,7 +428,7 @@ const ManagerPublishNew = () => {
               </svg>
               Back
             </button>
-            <h1 className="mpn-title">Create Lot</h1>
+            <h1 className="mpn-title">{isEdit ? 'Edit Lot' : 'Create Lot'}</h1>
             <p className="mpn-subtitle">
               {event?.title ? `Event: ${event.title}` : 'Add a new lot to this event'}
             </p>
@@ -369,17 +582,13 @@ const ManagerPublishNew = () => {
               </div>
             </div>
 
-            <div className="mpn-form-group">
-              <label className="mpn-form-label">Specific Data (JSON)</label>
-              <textarea
-                className="mpn-textarea mpn-textarea-json"
-                placeholder='{"mileage": 150000, "transmission": "Automatic"}'
-                name="specific_data"
-                value={formData.specific_data}
-                onChange={handleChange}
-                rows={2}
-              />
-            </div>
+            {formData.category && Object.keys(validationSchema).length > 0 && (
+              <div className="mpn-specific-data-section">
+                {Object.entries(validationSchema).map(([fieldName, fieldConfig]) =>
+                  renderSpecificField(fieldName, fieldConfig)
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -422,38 +631,44 @@ const ManagerPublishNew = () => {
 
             {images.length > 0 && (
               <div className="mpn-image-grid">
-                {images.map((img) => (
-                  <div key={img.id} className="mpn-image-preview">
-                    <img
-                      src={URL.createObjectURL(img.file)}
-                      alt={img.label}
-                      className="mpn-preview-img"
-                      loading="lazy"
-                    />
-                    <button
-                      type="button"
-                      className="mpn-remove-image"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeImage(img.id);
-                      }}
-                      aria-label={`Remove ${img.label}`}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </button>
-                    <input
-                      type="text"
-                      className="mpn-image-label"
-                      placeholder="Label"
-                      value={img.label}
-                      onChange={(e) => updateImageLabel(img.id, e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                ))}
+                {images.map((img) => {
+                  const src =
+                    img.file instanceof File || img.file instanceof Blob
+                      ? URL.createObjectURL(img.file)
+                      : getMediaUrl(img.file) || '';
+                  return (
+                    <div key={img.id} className="mpn-image-preview">
+                      <img
+                        src={src}
+                        alt={img.label}
+                        className="mpn-preview-img"
+                        loading="lazy"
+                      />
+                      <button
+                        type="button"
+                        className="mpn-remove-image"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage(img.id);
+                        }}
+                        aria-label={`Remove ${img.label}`}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                          <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                      <input
+                        type="text"
+                        className="mpn-image-label"
+                        placeholder="Label"
+                        value={img.label}
+                        onChange={(e) => updateImageLabel(img.id, e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -469,7 +684,7 @@ const ManagerPublishNew = () => {
                 onClick={handlePublish}
                 disabled={submitting}
               >
-                {submitting ? 'Creating...' : 'Create Lot'}
+                {submitting ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Lot' : 'Create Lot')}
               </button>
             </div>
           </div>

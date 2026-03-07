@@ -389,7 +389,13 @@ body {
 .manager-dashboard-cell-status { text-align: center; }
 .manager-dashboard-cell-start,
 .manager-dashboard-cell-end { font-size: 0.8125rem; color: rgba(255, 255, 255, 0.85); }
-.manager-dashboard-cell-actions { text-align: center; }
+.manager-dashboard-cell-actions {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
 
 .manager-dashboard-event-info {
   display: flex;
@@ -455,6 +461,35 @@ body {
 .manager-dashboard-icon-btn:hover {
   background: rgba(140, 198, 63, 0.2);
   color: #8cc63f;
+}
+
+.manager-dashboard-actions-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.manager-dashboard-icon-btn--view {
+  color: #8cc63f;
+  background: rgba(140, 198, 63, 0.15);
+}
+
+.manager-dashboard-icon-btn--view:hover {
+  background: rgba(140, 198, 63, 0.3);
+  color: #a3e635;
+}
+
+.manager-dashboard-icon-btn--delete {
+  color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.25) !important;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.manager-dashboard-icon-btn--delete:hover {
+  background: rgba(239, 68, 68, 0.45) !important;
+  color: #fff !important;
+  border-color: #ef4444;
 }
 
 /* Create Event Button */

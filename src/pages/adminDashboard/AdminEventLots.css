@@ -135,6 +135,27 @@
   color: rgba(255, 255, 255, 0.2);
 }
 
+.admin-event-lots__card-slider-dots {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+}
+
+.admin-event-lots__card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.2s;
+}
+
+.admin-event-lots__card-dot.active {
+  background: #8cc63f;
+}
+
 .admin-event-lots__card-status {
   position: absolute;
   top: 0.5rem;

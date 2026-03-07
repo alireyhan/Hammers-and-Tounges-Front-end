@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { auctionService } from '../services/interceptors/auction.service';
-import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
+import { getMediaUrl } from '../config/api.config';
 import './ManagerEventLots.css';
 
 const PAGE_SIZE = 12;
@@ -51,18 +51,49 @@ const SpecificDataList = ({ data }) => {
   );
 };
 
-const LotCard = ({ lot }) => {
+const LotCard = ({ lot, eventId, event, onOpenDetail }) => {
   const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
-  const mainImage = imageMedia[0]?.file;
-  const imageUrl = mainImage ? getMediaUrl(mainImage) : null;
+  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (imageUrls.length <= 1) return;
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
+    }, 3000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [imageUrls.length]);
+
+  const displayUrl = imageUrls[currentImageIndex] || imageUrls[0];
+  const hasMultipleImages = imageUrls.length > 1;
 
   return (
-    <article className="manager-event-lots__card">
+    <article
+      className="manager-event-lots__card manager-event-lots__card--clickable"
+      onClick={() => onOpenDetail?.(lot)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onOpenDetail?.(lot)}
+    >
       <div className="manager-event-lots__card-media">
-        {imageUrl ? (
-          <img src={imageUrl} alt={lot.title} loading="lazy" />
+        {displayUrl ? (
+          <img src={displayUrl} alt={lot.title} loading="lazy" />
         ) : (
           <div className="manager-event-lots__card-placeholder">📷</div>
+        )}
+        {hasMultipleImages && (
+          <div className="manager-event-lots__card-slider-dots">
+            {imageUrls.map((_, i) => (
+              <span
+                key={i}
+                className={`manager-event-lots__card-dot ${i === currentImageIndex ? 'active' : ''}`}
+                aria-hidden
+              />
+            ))}
+          </div>
         )}
         <span className={`manager-event-lots__card-status manager-event-lots__card-status--${(lot.status || '').toLowerCase()}`}>
           {lot.status || '—'}
@@ -124,6 +155,7 @@ const ManagerEventLots = () => {
           page: pageNum,
           page_size: PAGE_SIZE,
         });
+        console.log('get lots response:', res);
         lotsSucceeded = true;
         items = res.results || [];
         total = res.count ?? items.length;
@@ -140,6 +172,7 @@ const ManagerEventLots = () => {
             page: pageNum,
             page_size: PAGE_SIZE,
           });
+          console.log('get lots response (fallback):', listingsRes);
           const rawItems = listingsRes.results || [];
           items = rawItems.map((l) => ({
             ...l,
@@ -173,6 +206,16 @@ const ManagerEventLots = () => {
     fetchLots(page);
   }, [fetchLots, page]);
 
+  // Refetch lots when returning from create lot
+  const lotCreated = location.state?.lotCreated;
+  useEffect(() => {
+    if (lotCreated && id) {
+      setPage(1);
+      fetchLots(1);
+      navigate(`/manager/event/${id}`, { state: { event: eventFromState }, replace: true });
+    }
+  }, [lotCreated, id, eventFromState, fetchLots, navigate]);
+
   // Fetch event details when not in state (e.g. direct URL)
   useEffect(() => {
     if (!id || eventFromState) return;
@@ -196,7 +239,23 @@ const ManagerEventLots = () => {
     navigate('/manager/publishnew', { state: { eventId: id, event: eventData } });
   };
 
+  const [deletingEvent, setDeletingEvent] = useState(false);
+  const handleDeleteEvent = async () => {
+    if (!window.confirm(`Are you sure you want to delete the event "${eventTitle}"? This will remove the event and all its lots.`)) return;
+    setDeletingEvent(true);
+    try {
+      await auctionService.deleteEvent(id);
+      toast.success('Event deleted successfully.');
+      navigate('/manager/dashboard');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to delete event');
+    } finally {
+      setDeletingEvent(false);
+    }
+  };
+
   const showCreateLot = eventStatus === 'SCHEDULED';
+  const showDeleteEvent = eventStatus === 'SCHEDULED';
 
   return (
     <div className="manager-event-lots">
@@ -217,15 +276,27 @@ const ManagerEventLots = () => {
             {totalCount} lot{totalCount !== 1 ? 's' : ''} in this event
           </p>
         </div>
-        {showCreateLot && (
-          <button
-            className="manager-event-lots__create-lot"
-            onClick={handleCreateLot}
-            aria-label="Create lot"
-          >
-            Create Lot
-          </button>
-        )}
+        <div className="manager-event-lots__header-actions">
+          {showCreateLot && (
+            <button
+              className="manager-event-lots__create-lot"
+              onClick={handleCreateLot}
+              aria-label="Create lot"
+            >
+              Create Lot
+            </button>
+          )}
+          {showDeleteEvent && (
+            <button
+              className="manager-event-lots__delete-event"
+              onClick={handleDeleteEvent}
+              disabled={deletingEvent}
+              aria-label="Delete event"
+            >
+              {deletingEvent ? 'Deleting...' : 'Delete Event'}
+            </button>
+          )}
+        </div>
       </header>
 
       <main className="manager-event-lots__main">
@@ -247,7 +318,16 @@ const ManagerEventLots = () => {
           <>
             <div className="manager-event-lots__grid">
               {lots.map((lot) => (
-                <LotCard key={lot.id} lot={lot} />
+                <LotCard
+                  key={lot.id}
+                  lot={lot}
+                  onOpenDetail={() => {
+                    const eventData = eventFromState || { id, title: eventTitle, status: eventStatus };
+                    navigate(`/manager/event/${id}/lot/${lot.id}`, {
+                      state: { lot, event: eventData },
+                    });
+                  }}
+                />
               ))}
             </div>
             {totalPages > 1 && (

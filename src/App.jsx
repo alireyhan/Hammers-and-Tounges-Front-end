@@ -42,6 +42,7 @@ import ManagerLiveAuctions from './pages/ManagerLiveAuctions'
 import ManagerAuctionControlPanel from './pages/ManagerAuctionControlPanel'
 import ManagerAuctionResults from './pages/ManagerAuctionResults'
 import ManagerAuctionDetails from './pages/ManagerAuctionDetails'
+import ManagerLotDetail from './pages/ManagerLotDetail'
 import CategoryManagement from './pages/categoryManagement/CategoryManagement'
 import ManagerCreateCategory from './pages/managerCreateCategory/ManagerCreateCategory'
 import ManagerProductFields from './pages/managerProductFields/ManagerProductFields'
@@ -142,6 +143,7 @@ function App() {
               <Route element={<ManagerLayout />}>
                 <Route path="/manager/dashboard" element={<ManagerDashboard />} />
                 <Route path="/manager/event/create" element={<ManagerCreateEvent />} />
+                <Route path="/manager/event/:eventId/lot/:lotId" element={<ManagerLotDetail />} />
                 <Route path="/manager/event/:id" element={<ManagerEventLots />} />
                 <Route path="/manager/inspection" element={
                   <>

@@ -54,6 +54,17 @@ export const auctionService = {
       throw error;
     }
   },
+  // Delete auction event
+  deleteEvent: async (eventId) => {
+    try {
+      await apiClient.delete(`${API_ROUTES.AUCTIONS_EVENTS}${eventId}/`);
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
   // Get all auctions (with optional filters)
   getAuctions: async (params) => {
     try {
@@ -80,11 +91,50 @@ export const auctionService = {
       throw error;
     }
   },
+  // Get single lot by ID
+  getLot: async (lotId) => {
+    try {
+      const { data } = await apiClient.get(`${API_ROUTES.AUCTIONS_LOTS}${lotId}/`);
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
   // Create lot (multipart/form-data)
   createLot: async (formData) => {
     try {
       const { data } = await apiClient.post(API_ROUTES.AUCTIONS_LOTS, formData);
       return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+  // Update lot (PUT to /update/ with JSON body)
+  updateLot: async (lotId, payload) => {
+    try {
+      const { data } = await apiClient.put(
+        `${API_ROUTES.AUCTIONS_LOTS}${lotId}/update/`,
+        payload,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+  // Delete lot (DELETE to same /update/ endpoint as update)
+  deleteLot: async (lotId) => {
+    try {
+      await apiClient.delete(`${API_ROUTES.AUCTIONS_LOTS}${lotId}/update/`);
     } catch (error) {
       if (error.isNetworkError) {
         throw new Error('Unable to connect to server. Please try again later.');

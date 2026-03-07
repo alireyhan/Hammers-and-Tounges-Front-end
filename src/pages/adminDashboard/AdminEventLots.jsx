@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { auctionService } from '../../services/interceptors/auction.service';
 import { getMediaUrl } from '../../config/api.config';
@@ -53,16 +53,41 @@ const SpecificDataList = ({ data }) => {
 
 const LotCard = ({ lot }) => {
   const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
-  const mainImage = imageMedia[0]?.file;
-  const imageUrl = mainImage ? getMediaUrl(mainImage) : null;
+  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (imageUrls.length <= 1) return;
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
+    }, 3000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [imageUrls.length]);
+
+  const displayUrl = imageUrls[currentImageIndex] || imageUrls[0];
+  const hasMultipleImages = imageUrls.length > 1;
 
   return (
     <article className="admin-event-lots__card">
       <div className="admin-event-lots__card-media">
-        {imageUrl ? (
-          <img src={imageUrl} alt={lot.title} loading="lazy" />
+        {displayUrl ? (
+          <img src={displayUrl} alt={lot.title} loading="lazy" />
         ) : (
           <div className="admin-event-lots__card-placeholder">📷</div>
+        )}
+        {hasMultipleImages && (
+          <div className="admin-event-lots__card-slider-dots">
+            {imageUrls.map((_, i) => (
+              <span
+                key={i}
+                className={`admin-event-lots__card-dot ${i === currentImageIndex ? 'active' : ''}`}
+                aria-hidden
+              />
+            ))}
+          </div>
         )}
         <span className={`admin-event-lots__card-status admin-event-lots__card-status--${(lot.status || '').toLowerCase()}`}>
           {lot.status || '—'}

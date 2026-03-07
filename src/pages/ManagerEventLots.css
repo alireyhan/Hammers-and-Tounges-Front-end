@@ -35,6 +35,36 @@
   box-shadow: 0 4px 12px rgba(140, 198, 63, 0.3);
 }
 
+.manager-event-lots__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.manager-event-lots__delete-event {
+  padding: 0.5rem 1rem;
+  background: rgba(239, 68, 68, 0.9);
+  border: 1px solid rgba(239, 68, 68, 0.9);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.manager-event-lots__delete-event:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.95);
+  border-color: rgba(220, 38, 38, 0.95);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.manager-event-lots__delete-event:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .manager-event-lots__back {
   display: flex;
   align-items: center;
@@ -133,6 +163,31 @@
 
 .manager-event-lots__card:hover {
   border-color: rgba(140, 198, 63, 0.4);
+}
+
+.manager-event-lots__card--clickable {
+  cursor: pointer;
+}
+
+.manager-event-lots__card-slider-dots {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+}
+
+.manager-event-lots__card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.2s;
+}
+
+.manager-event-lots__card-dot.active {
+  background: #8cc63f;
 }
 
 .manager-event-lots__card-media {

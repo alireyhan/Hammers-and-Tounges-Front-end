@@ -32,7 +32,7 @@ const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
   </div>
 ));
 
-const EventRow = React.memo(({ event, onViewDetails }) => {
+const EventRow = React.memo(({ event, onViewDetails, onDeleteEvent }) => {
   const getStatusColor = useCallback((status) => {
     const s = (status || '').toUpperCase();
     switch (s) {
@@ -74,8 +74,9 @@ const EventRow = React.memo(({ event, onViewDetails }) => {
         {formatEventDate(event.end_time)}
       </td>
       <td className="manager-dashboard-table-cell manager-dashboard-cell-actions" data-label="Actions">
+        <div className="manager-dashboard-actions-wrap">
         <button
-          className="manager-dashboard-icon-btn"
+          className="manager-dashboard-icon-btn manager-dashboard-icon-btn--view"
           onClick={(e) => {
             e.stopPropagation();
             onViewDetails(event.id, event);
@@ -88,6 +89,24 @@ const EventRow = React.memo(({ event, onViewDetails }) => {
             <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
           </svg>
         </button>
+        {(event.status || '').toUpperCase() === 'SCHEDULED' && onDeleteEvent && (
+          <button
+            className="manager-dashboard-icon-btn manager-dashboard-icon-btn--delete"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteEvent(event.id, event);
+            }}
+            title="Delete Event"
+            aria-label={`Delete event ${event.title}`}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+        )}
+        </div>
       </td>
     </tr>
   );
@@ -138,6 +157,20 @@ function ManagerDashboard() {
       navigate(`/manager/event/${eventId}`, { state: { event } });
     },
     [navigate],
+  );
+
+  const handleDeleteEvent = useCallback(
+    async (eventId, event) => {
+      if (!window.confirm(`Are you sure you want to delete "${event?.title || 'this event'}"? This will remove the event and all its lots.`)) return;
+      try {
+        await auctionService.deleteEvent(eventId);
+        toast.success('Event deleted successfully.');
+        fetchEventsData();
+      } catch (err) {
+        toast.error(err?.message || 'Failed to delete event');
+      }
+    },
+    [fetchEventsData],
   );
 
   const statCards = useMemo(
@@ -243,7 +276,7 @@ function ManagerDashboard() {
                 </thead>
                 <tbody>
                   {filteredEvents.map((event) => (
-                    <EventRow key={event.id} event={event} onViewDetails={handleViewDetails} />
+                    <EventRow key={event.id} event={event} onViewDetails={handleViewDetails} onDeleteEvent={handleDeleteEvent} />
                   ))}
                 </tbody>
               </table>
