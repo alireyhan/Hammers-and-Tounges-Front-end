@@ -1,226 +1,267 @@
-import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAuctionsList } from '../store/actions/AuctionsActions';
+import { fetchEvents } from '../store/actions/AuctionsActions';
 import { clearBuyerError } from '../store/slices/buyerSlice';
 import './BuyerDashboard.css';
 import { toast } from 'react-toastify';
 
-const AuctionCard = lazy(() => import('../components/AuctionCard'));
+const formatEventDate = (isoStr) => {
+  if (!isoStr) return '—';
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '—';
+  }
+};
+
+const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
+  <div className="buyer-dashboard-stat-card" role="article" aria-label={`${label}: ${value}`}>
+    <div className={`buyer-dashboard-stat-icon ${colorClass}`}>
+      <Icon />
+    </div>
+    <div className="buyer-dashboard-stat-content">
+      <div className="buyer-dashboard-stat-value" aria-live="polite">{value}</div>
+      <div className="buyer-dashboard-stat-label">{label}</div>
+    </div>
+  </div>
+));
+
+const EventRow = React.memo(({ event, onClick, formatEventDate }) => (
+  <tr
+    className="buyer-dashboard-event-row"
+    onClick={() => onClick(event)}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => e.key === 'Enter' && onClick(event)}
+  >
+    <td className="buyer-dashboard-event-cell buyer-dashboard-event-cell--title">
+      <div className="buyer-dashboard-event-cell__title">{event.title || 'Untitled Event'}</div>
+      <div className="buyer-dashboard-event-cell__lots">{event.lots_count ?? 0} lots</div>
+    </td>
+    <td className="buyer-dashboard-event-cell buyer-dashboard-event-cell--date">
+      {formatEventDate(event.start_time)} – {formatEventDate(event.end_time)}
+    </td>
+    <td className="buyer-dashboard-event-cell buyer-dashboard-event-cell--status">
+      <span className="buyer-dashboard-status-badge buyer-dashboard-status-badge--live">
+        {event.status || 'Live'}
+      </span>
+    </td>
+    <td className="buyer-dashboard-event-cell buyer-dashboard-event-cell--action">
+      <span className="buyer-dashboard-event-arrow">View lots →</span>
+    </td>
+  </tr>
+));
+
+EventRow.displayName = 'EventRow';
+
+const ITEMS_PER_PAGE = 15;
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
 
-  // Redux state
-  const { auctions, error } = useSelector(state => state.buyer);
-  const { token } = useSelector(state => state.auth);
+  const { events, eventsLoading, eventsError } = useSelector(state => state.buyer);
 
-  // Local state for complete dataset
-  const [allAuctions, setAllAuctions] = useState([]);
-  const [isLoadingAllPages, setIsLoadingAllPages] = useState(false);
+  // Filter events: show only LIVE (currently running)
+  const liveEvents = useMemo(() => {
+    if (!events?.length) return [];
+    return events.filter((e) => (e.status || '').toUpperCase() === 'LIVE');
+  }, [events]);
 
-  const handleCheckAuth = useCallback(() => {
-    if (!token) {
-      toast.info('Please sign in to view auction details');
-      navigate('/signin');
-    }
-  }, [token, navigate]);
+  // Search filter
+  const filteredEvents = useMemo(() => {
+    if (!searchQuery.trim()) return liveEvents;
+    const q = searchQuery.toLowerCase().trim();
+    return liveEvents.filter(
+      (e) =>
+        (e.title || '').toLowerCase().includes(q)
+    );
+  }, [liveEvents, searchQuery]);
 
-  // Fetch all pages of auctions
+  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / ITEMS_PER_PAGE));
+  const startIdx = (page - 1) * ITEMS_PER_PAGE;
+  const paginatedEvents = filteredEvents.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+  const handleEventClick = useCallback((event) => {
+    navigate(`/buyer/event/${event.id}`, { state: { event } });
+  }, [navigate]);
+
   useEffect(() => {
-    const fetchAllPages = async () => {
-      setIsLoadingAllPages(true);
-      try {
-        let allResults = [];
-        let nextPage = 1;
-        let hasMore = true;
+    setPage(1);
+  }, [searchQuery]);
 
-        while (hasMore) {
-          const response = await dispatch(fetchAuctionsList({ page: nextPage })).unwrap();
-          allResults = [...allResults, ...(response.results || [])];
-
-          if (response.next) {
-            nextPage += 1;
-          } else {
-            hasMore = false;
-          }
-        }
-
-        setAllAuctions(allResults);
-      } catch (err) {
-        console.error('Error fetching all auctions:', err);
-        toast.error('Failed to load complete auction list');
-      } finally {
-        setIsLoadingAllPages(false);
-      }
-    };
-
-    fetchAllPages();
+  useEffect(() => {
+    dispatch(fetchEvents({}));
   }, [dispatch]);
 
-  // Handle favorite update from AuctionCard
-  const handleFavoriteUpdate = useCallback((auctionId, isFavorite) => {
-    setAllAuctions(prevAuctions =>
-      prevAuctions.map(auction =>
-        auction.id === auctionId
-          ? { ...auction, is_favourite: isFavorite }
-          : auction
-      )
-    );
-  }, []);
-
-  // Apply filters to show only ACTIVE and APPROVED auctions
-  const filteredAuctions = useMemo(() => {
-    return allAuctions.filter(auction => {
-      // Show both ACTIVE and APPROVED status
-      return auction.status === 'ACTIVE' || auction.status === 'APPROVED';
-    });
-  }, [allAuctions]);
-
-  // Paginate filtered results (10 per page)
-  const itemsPerPage = 10;
-  const totalFilteredCount = filteredAuctions.length;
-  const totalPages = Math.ceil(totalFilteredCount / itemsPerPage);
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedAuctions = filteredAuctions.slice(startIndex, endIndex);
-
-  // Pagination handlers
-  const handleNext = useCallback(() => {
-    if (page < totalPages) {
-      setPage(prev => prev + 1);
-    }
-  }, [page, totalPages]);
-
-  const handlePrevious = useCallback(() => {
-    if (page > 1) {
-      setPage(prev => prev - 1);
-    }
-  }, [page]);
-
-  const hasNextPage = page < totalPages;
-  const hasPrevPage = page > 1;
-
-  // Cleanup
   useEffect(() => {
     return () => {
       dispatch(clearBuyerError());
     };
   }, [dispatch]);
 
+  const statCards = useMemo(
+    () => [
+      {
+        icon: () => (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ),
+        value: filteredEvents.length.toLocaleString(),
+        label: 'Live Events',
+        colorClass: 'buyer-dashboard-icon-auctions',
+      },
+    ],
+    [filteredEvents.length],
+  );
+
   return (
-    <div className="buyer-dashboard-page">
-      <main className="buyer-dashboard-main">
-        <div className="dashboard-container">
-          <div className="dashboard-welcome">
-            <div className="welcome-content">
-              <h1 className="welcome-title">Welcome</h1>
-            </div>
+    <div className="buyer-dashboard-container" role="main">
+      <header className="buyer-dashboard-header">
+        <div className="buyer-dashboard-header-content">
+          <h1 className="buyer-dashboard-title">Buyer Dashboard</h1>
+          <p className="buyer-dashboard-subtitle">
+            Browse events and bid on lots
+          </p>
+        </div>
+      </header>
+
+      <section className="buyer-dashboard-stats-overview" aria-label="Statistics overview">
+        {statCards.map((stat, index) => (
+          <StatCard key={index} {...stat} />
+        ))}
+      </section>
+
+      <div className="buyer-dashboard-main">
+        <section className="buyer-dashboard-card" aria-label="Available events">
+          <div className="buyer-dashboard-card-header">
+            <h2 className="buyer-dashboard-card-title">Live Events</h2>
+            {liveEvents.length > 0 && (
+              <span className="buyer-dashboard-auction-count">({searchQuery.trim() ? filteredEvents.length : liveEvents.length})</span>
+            )}
+            {liveEvents.length > 0 && (
+              <div className="buyer-dashboard-search-wrap">
+                <input
+                  type="search"
+                  placeholder="Search events..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="buyer-dashboard-search"
+                  aria-label="Search events"
+                />
+                {searchQuery.trim() && (
+                  <button
+                    type="button"
+                    className="buyer-dashboard-search-clear"
+                    onClick={() => setSearchQuery('')}
+                    aria-label="Clear search"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Loading State */}
-          {isLoadingAllPages && allAuctions.length === 0 && (
+          {eventsLoading && liveEvents.length === 0 && (
             <div className="auctions-loading">
               <div className="auctions-spinner"></div>
-              <p>Loading auctions...</p>
+              <p>Loading events...</p>
             </div>
           )}
 
-          {/* Error State */}
-          {error && !isLoadingAllPages && allAuctions.length === 0 && (
+          {eventsError && !eventsLoading && liveEvents.length === 0 && (
             <div className="auctions-error">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="#fca5a5" strokeWidth="2" />
                 <path d="M12 8v4M12 16h.01" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <p className="auctions-error-message">
-                {error.message || error.detail || 'Failed to load auctions'}
+                {eventsError?.message || eventsError?.detail || 'Failed to load events'}
               </p>
               <button
                 className="auctions-retry-btn"
-                onClick={() => window.location.reload()}
+                onClick={() => dispatch(fetchEvents({}))}
               >
                 Retry
               </button>
             </div>
           )}
 
-          {/* Empty State */}
-          {!isLoadingAllPages && !error && paginatedAuctions.length === 0 && (
+          {!eventsLoading && !eventsError && liveEvents.length === 0 && (
             <div className="auctions-empty">
               <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-                <path d="M9 11L12 14L22 4" stroke="#d1d5db" strokeWidth="2" strokeLinecap="round" />
-                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="#d1d5db" strokeWidth="2" />
+                <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke="#d1d5db" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <h2>No auctions found</h2>
-              <p>Check back later for new auctions</p>
+              <h2>No live events</h2>
+              <p>There are no live events right now. Check back when auctions are running.</p>
             </div>
           )}
 
-          {/* Auctions Grid */}
-          {!isLoadingAllPages && !error && paginatedAuctions.length > 0 && (
-            <>
-              <div className="auctions-grid">
-                <Suspense fallback={
-                  <div className="auctions-loading">
-                    <div className="auctions-spinner"></div>
-                  </div>
-                }>
-                  {paginatedAuctions.map(auction => (
-                    <AuctionCard
-                      key={auction.id}
-                      auction={{
-                        ...auction,
-                        categoryname: auction.category_name,
-                        initialprice: auction.initial_price,
-                        startdate: auction.start_date,
-                        enddate: auction.end_date,
-                        totalbids: auction.total_bids,
-                        status: auction.status
-                      }}
-                      onClick={() => {
-                        if (token) {
-                          navigate(`/buyer/auction/${auction.id}`, {
-                            state: {
-                              from: 'buyer-dashboard',
-                              listing: auction
-                            }
-                          });
-                        } else {
-                          handleCheckAuth();
-                        }
-                      }}
-                      onFavoriteUpdate={handleFavoriteUpdate}
-                    />
-                  ))}
-                </Suspense>
-              </div>
+          {!eventsLoading && !eventsError && liveEvents.length > 0 && filteredEvents.length === 0 && (
+            <div className="auctions-empty">
+              <h2>No matching events</h2>
+              <p>Try a different search term or clear your search.</p>
+              <button
+                className="auctions-retry-btn"
+                onClick={() => setSearchQuery('')}
+              >
+                Clear search
+              </button>
+            </div>
+          )}
 
-              {/* Pagination Controls */}
-              {totalFilteredCount > itemsPerPage && (
-                <div className="flex justify-center gap-4 mt-6">
+          {!eventsLoading && !eventsError && filteredEvents.length > 0 && (
+            <>
+              <div className="buyer-dashboard-events-table-wrap">
+                <table className="buyer-dashboard-events-table">
+                  <thead>
+                    <tr>
+                      <th>Event</th>
+                      <th>Date & Time</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedEvents.map((event) => (
+                      <EventRow
+                        key={event.id}
+                        event={event}
+                        onClick={handleEventClick}
+                        formatEventDate={formatEventDate}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {totalPages > 1 && (
+                <div className="buyer-dashboard-pagination">
                   <button
-                    onClick={handlePrevious}
-                    disabled={!hasPrevPage}
-                    className={`px-4 py-2 rounded border-[1px] ${hasPrevPage
-                      ? 'text-[#8cc63f] border-[#8cc63f] hover:bg-[#8cc63f] hover:text-black cursor-pointer transition-all duration-200'
-                      : 'border-white/20 bg-black text-white/40 cursor-not-allowed'
-                      }`}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                    aria-label="Previous page"
                   >
                     Previous
                   </button>
-                  <button disabled className="px-4 py-2 rounded-sm border-[1px] border-[#8cc63f] text-[#8cc63f] bg-black">
-                    <strong className='text-sm'>{page} of {totalPages}</strong>
-                  </button>
+                  <span className="buyer-dashboard-pagination-info">
+                    Page {page} of {totalPages}
+                  </span>
                   <button
-                    onClick={handleNext}
-                    disabled={!hasNextPage}
-                    className={`px-4 py-2 rounded border-[1px] ${hasNextPage
-                      ? 'text-[#8cc63f] border-[#8cc63f] hover:bg-[#8cc63f] hover:text-black cursor-pointer transition-all duration-200'
-                      : 'border-white/20 bg-black text-white/40 cursor-not-allowed'
-                      }`}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                    aria-label="Next page"
                   >
                     Next
                   </button>
@@ -228,8 +269,8 @@ const BuyerDashboard = () => {
               )}
             </>
           )}
-        </div>
-      </main>
+        </section>
+      </div>
     </div>
   );
 };

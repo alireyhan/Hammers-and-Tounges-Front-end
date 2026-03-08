@@ -8,26 +8,26 @@
   overflow-x: hidden;
   width: 100%;
   box-sizing: border-box;
-  background: #000;
-  color: #fff;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .create-seller-header {
   margin-bottom: 25px;
-  color: white;
+  color: var(--color-text);
 }
 
 .create-seller-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
   letter-spacing: -0.5px;
 }
 
 .create-seller-subtitle {
   font-size: 0.9375rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -38,11 +38,11 @@
 }
 
 .create-seller-card {
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 14px;
   padding: 30px;
-  color: white;
+  color: var(--color-text);
 }
 
 .create-seller-form {
@@ -64,7 +64,7 @@
 
 .create-seller-form-group label {
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
   font-weight: 500;
   margin-bottom: 6px;
 }
@@ -75,10 +75,10 @@
 }
 
 .create-seller-form-group input {
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 8px;
-  color: #fff;
+  color: var(--color-text);
   padding: 12px;
   font-size: 0.9rem;
   font-family: inherit;
@@ -96,7 +96,7 @@
 }
 
 .create-seller-form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-input-placeholder);
 }
 
 .create-seller-form-group input.error {
@@ -110,7 +110,7 @@
 }
 
 .create-seller-form-group .form-hint {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   font-size: 0.75rem;
   margin-top: 4px;
 }
@@ -125,7 +125,7 @@
   gap: 10px;
   margin-top: 10px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--color-border);
 }
 
 .create-seller-btn-primary {
@@ -157,9 +157,9 @@
 }
 
 .create-seller-btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
   padding: 0.75rem 1.75rem;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -169,8 +169,9 @@
 }
 
 .create-seller-btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
   transform: translateY(-1px);
 }
 

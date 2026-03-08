@@ -7,9 +7,9 @@
 }
 
 body {
-  background-color: #000;
+  background-color: var(--color-bg);
   font-family: "Inter", sans-serif;
-  color: #fff;
+  color: var(--color-text);
 }
 
 html,
@@ -21,6 +21,8 @@ body {
   width: 100%;
   min-height: 100vh;
   padding: 1.5rem;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .live-auction-container {
@@ -34,7 +36,7 @@ body {
 
 .breadcrumb-text {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -44,7 +46,7 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--color-border);
   gap: 1rem;
 }
 
@@ -55,14 +57,14 @@ body {
 .live-auction-page-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
   letter-spacing: -0.5px;
 }
 
 .live-auction-page-subtitle {
   font-size: 0.9375rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -119,7 +121,7 @@ body {
   left: 0.7rem;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   padding: 0.25rem;
   display: flex;
   align-items: center;
@@ -136,17 +138,17 @@ body {
 .live-auction-search-input {
   width: 100%;
   padding: 0.75rem 2.5rem 0.75rem 2.75rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 8px;
-  color: #ffffff;
+  color: var(--color-text);
   font-size: 0.875rem;
   transition: all 0.2s;
   font-family: "Inter", sans-serif;
 }
 
 .live-auction-search-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-input-placeholder);
 }
 
 .live-auction-search-input:hover {
@@ -175,15 +177,15 @@ body {
 }
 
 .live-auction-clear-search:hover {
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .live-auction-date-input {
   padding: 0.75rem 1rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 8px;
-  color: #ffffff;
+  color: var(--color-text);
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -210,8 +212,8 @@ body {
 
 /* TABLE SECTION */
 .live-auction-data-table-section {
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   margin-top: 1.5rem;
 }
@@ -232,9 +234,9 @@ body {
   text-align: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
-  background-color: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-elevated);
+  border-bottom: 1px solid var(--color-border);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -243,8 +245,8 @@ body {
 .live-auction-data-table td {
   padding: 1.25rem 1.5rem;
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
   text-align: center;
 }
@@ -269,13 +271,13 @@ body {
 
 .live-auction-bid-id {
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-text);
   font-size: 0.9375rem;
 }
 
 .live-auction-user-name {
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-secondary);
 }
 
 .live-auction-amount {
@@ -286,7 +288,7 @@ body {
 
 .live-auction-time {
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-muted);
   font-size: 0.8125rem;
 }
 
@@ -335,24 +337,24 @@ body {
   justify-content: center;
   padding: 3rem 1.5rem;
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
 }
 
 .live-auction-empty-icon {
   margin-bottom: 1rem;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--color-text-muted);
 }
 
 .live-auction-empty-state h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text);
   margin: 0 0 0.5rem 0;
 }
 
 .live-auction-empty-state p {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -362,8 +364,8 @@ body {
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface-elevated);
   flex-direction: row;
 }
 
@@ -372,10 +374,10 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -385,9 +387,9 @@ body {
 }
 
 .live-auction-pagination-btn:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background-color: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
   transform: translateY(-1px);
 }
 
@@ -414,9 +416,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -425,9 +427,9 @@ body {
 }
 
 .live-auction-page-number:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background-color: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
 }
 
 .live-auction-page-number.active {
@@ -438,7 +440,7 @@ body {
 }
 
 .live-auction-page-dots {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   font-size: 0.875rem;
   padding: 0 0.5rem;
 }

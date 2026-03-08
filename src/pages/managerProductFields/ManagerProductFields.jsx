@@ -28,7 +28,7 @@ const ManagerProductFields = () => {
       const field = {
         id: Date.now() + index,
         name: fieldName,
-        type: schema.type === 'string' && schema.enum ? 'select' : schema.type || 'text',
+        type: schema.type === 'string' && schema.enum ? 'select' : (schema.type === 'string' ? 'text' : schema.type) || 'text',
         required: schema.required || false,
         placeholder: '',
         sortOrder: index + 1,
@@ -434,6 +434,7 @@ const ManagerProductFields = () => {
           </div>
 
           <div className="fields-management-section">
+            <div className="fields-config-column">
             <div className="section-card">
               <div className="section-header">
                 <h3 className="section-title">Current Fields ({fields.length})</h3>
@@ -688,6 +689,7 @@ const ManagerProductFields = () => {
                 )}
               </div>
             </div>
+            </div>
 
             <div className="preview-section">
               <div className="section-card">
@@ -740,6 +742,14 @@ const ManagerProductFields = () => {
                             className="preview-textarea"
                             placeholder={field.placeholder || `Enter ${field.name.toLowerCase()}`}
                             rows="3"
+                            disabled
+                          />
+                        )}
+                        {!['text', 'number', 'select', 'textarea'].includes(field.type) && (
+                          <input
+                            type="text"
+                            className="preview-input"
+                            placeholder={field.placeholder || `Enter ${field.name.toLowerCase()}`}
                             disabled
                           />
                         )}

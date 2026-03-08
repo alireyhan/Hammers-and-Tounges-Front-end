@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import ThemeToggle from './ThemeToggle'
 import logo from '../assets/logo.png'
 import './SideDrawer.css'
 
@@ -43,6 +44,8 @@ const SideDrawer = ({ isOpen, onClose }) => {
             </svg>
           </button>
         </div>
+
+        <ThemeToggle className="side-drawer__theme-toggle" />
 
         <nav className="side-drawer__nav">
           {navItems.map((item) => (

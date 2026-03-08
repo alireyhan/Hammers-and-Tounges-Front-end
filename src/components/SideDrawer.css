@@ -16,8 +16,8 @@
   width: min(var(--drawer-width), 85vw);
   max-width: var(--drawer-width);
   height: 100vh;
-  background: rgba(0, 0, 0, 0.98);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   z-index: 1000;
@@ -36,7 +36,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.625rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
@@ -45,7 +45,7 @@
   align-items: center;
   gap: 0.375rem;
   text-decoration: none;
-  color: #fff;
+  color: var(--color-text);
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -65,7 +65,7 @@
   background: transparent;
   border: none;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
@@ -73,6 +73,55 @@
 .side-drawer__close:hover {
   background: rgba(140, 198, 63, 0.15);
   color: #8cc63f;
+}
+
+/* Theme toggle */
+.side-drawer__theme-toggle {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.side-drawer__theme-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.375rem;
+}
+
+.side-drawer__theme-btns {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.side-drawer__theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.side-drawer__theme-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: rgba(140, 198, 63, 0.1);
+}
+
+.side-drawer__theme-btn.active {
+  background: rgba(140, 198, 63, 0.15);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 /* Nav links */
@@ -90,7 +139,7 @@
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-secondary);
   text-decoration: none;
   font-size: 0.8125rem;
   font-weight: 500;
@@ -101,12 +150,12 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-muted);
 }
 
 .side-drawer__link:hover {
   background: rgba(140, 198, 63, 0.1);
-  color: #fff;
+  color: var(--color-text);
 }
 
 .side-drawer__link:hover svg {
@@ -134,7 +183,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   margin-bottom: 0.375rem;
   padding: 0 0.25rem;
 }
@@ -148,9 +197,9 @@
 .side-drawer__category-tag {
   padding: 0.3rem 0.5rem;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-secondary);
   font-size: 0.7rem;
   text-decoration: none;
   transition: all 0.2s;
@@ -169,7 +218,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-border);
 }
 
 .side-drawer__btn {
@@ -185,20 +234,20 @@
 
 .side-drawer__btn--outline {
   background: transparent;
-  color: #8cc63f;
-  border: 1px solid #8cc63f;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
 }
 
 .side-drawer__btn--outline:hover {
   background: rgba(140, 198, 63, 0.15);
-  color: #fff;
-  border-color: #8cc63f;
+  color: var(--color-text);
+  border-color: var(--color-accent);
 }
 
 .side-drawer__btn--primary {
-  background: #8cc63f;
+  background: var(--color-accent);
   color: #000;
-  border: 1px solid #8cc63f;
+  border: 1px solid var(--color-accent);
 }
 
 .side-drawer__btn--primary:hover {

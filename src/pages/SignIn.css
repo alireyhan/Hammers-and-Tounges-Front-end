@@ -1,11 +1,11 @@
-/* Unified dark theme - matches drawer and guest layout (#000) */
+/* System theme - auto light/dark via prefers-color-scheme */
 .signin-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: #000;
+  background: var(--color-bg);
   position: relative;
 }
 
@@ -31,23 +31,23 @@
 .signin-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text);
   margin: 0 0 0.25rem;
 }
 
 .signin-subtitle {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   margin: 0 0 1.5rem;
 }
 
 .signin-card {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
   border-radius: 12px;
   padding: 1.75rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px var(--color-shadow);
 }
 
 .signin-form {
@@ -75,29 +75,29 @@
 .signin-form__label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-secondary);
 }
 
 .signin-form__input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 8px;
-  color: #fff;
+  color: var(--color-text);
   font-size: 0.9rem;
   font-family: inherit;
   transition: border-color 0.2s, background 0.2s;
 }
 
 .signin-form__input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--color-input-placeholder);
 }
 
 .signin-form__input:focus {
   outline: none;
-  border-color: #8cc63f;
-  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--color-accent);
+  background: var(--color-surface-elevated);
 }
 
 .signin-form__input.error {
@@ -125,7 +125,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 0.25rem;
   display: flex;
@@ -133,7 +133,7 @@
 }
 
 .signin-form__toggle:hover {
-  color: #8cc63f;
+  color: var(--color-accent);
 }
 
 .signin-form__options {
@@ -147,18 +147,18 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--color-text-secondary);
   cursor: pointer;
 }
 
 .signin-form__remember input {
-  accent-color: #8cc63f;
+  accent-color: var(--color-accent);
 }
 
 .signin-form__forgot {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: var(--color-accent);
   text-decoration: none;
 }
 
@@ -169,7 +169,7 @@
 .signin-form__submit {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: #8cc63f;
+  background: var(--color-accent);
   color: #000;
   border: none;
   border-radius: 8px;
@@ -208,15 +208,15 @@
 
 .signin-form__register {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--color-text-muted);
   text-align: center;
   margin: 0.5rem 0 0;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-border);
 }
 
 .signin-form__register a {
-  color: #8cc63f;
+  color: var(--color-accent);
   font-weight: 600;
   text-decoration: none;
 }

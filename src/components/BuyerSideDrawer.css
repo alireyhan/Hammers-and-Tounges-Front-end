@@ -1,4 +1,4 @@
-.manager-side-drawer__overlay {
+.buyer-side-drawer__overlay {
   position: fixed;
   inset: 0;
   background: transparent;
@@ -6,7 +6,7 @@
   z-index: 999;
 }
 
-.manager-side-drawer {
+.buyer-side-drawer {
   --drawer-width: 220px;
   position: fixed;
   top: 0;
@@ -24,20 +24,21 @@
   overflow-y: auto;
 }
 
-.manager-side-drawer.open {
+.buyer-side-drawer.open {
   transform: translateX(0);
 }
 
-.manager-side-drawer__header {
+.buyer-side-drawer__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.625rem 1rem;
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
-.manager-side-drawer__logo {
+.buyer-side-drawer__logo {
   display: flex;
   align-items: center;
   gap: 0.375rem;
@@ -47,13 +48,13 @@
   font-weight: 600;
 }
 
-.manager-side-drawer__logo img {
+.buyer-side-drawer__logo img {
   width: 24px;
   height: 24px;
   object-fit: contain;
 }
 
-.manager-side-drawer__close {
+.buyer-side-drawer__close {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,12 +68,12 @@
   transition: background 0.2s, color 0.2s;
 }
 
-.manager-side-drawer__close:hover {
+.buyer-side-drawer__close:hover {
   background: rgba(140, 198, 63, 0.15);
   color: #8cc63f;
 }
 
-.manager-side-drawer__nav {
+.buyer-side-drawer__nav {
   display: flex;
   flex-direction: column;
   padding: 0.5rem 0.5rem;
@@ -80,7 +81,7 @@
   flex-shrink: 0;
 }
 
-.manager-side-drawer__link {
+.buyer-side-drawer__link {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -93,32 +94,32 @@
   transition: all 0.2s;
 }
 
-.manager-side-drawer__link svg {
+.buyer-side-drawer__link svg {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
   color: var(--color-text-muted);
 }
 
-.manager-side-drawer__link:hover {
+.buyer-side-drawer__link:hover {
   background: rgba(140, 198, 63, 0.1);
   color: var(--color-text);
 }
 
-.manager-side-drawer__link:hover svg {
+.buyer-side-drawer__link:hover svg {
   color: #8cc63f;
 }
 
-.manager-side-drawer__link.active {
+.buyer-side-drawer__link.active {
   background: rgba(140, 198, 63, 0.15);
   color: #8cc63f;
 }
 
-.manager-side-drawer__link.active svg {
+.buyer-side-drawer__link.active svg {
   color: #8cc63f;
 }
 
-.manager-side-drawer__actions {
+.buyer-side-drawer__actions {
   margin-top: auto;
   padding: 0.75rem;
   display: flex;
@@ -127,7 +128,7 @@
   border-top: 1px solid var(--color-border);
 }
 
-.manager-side-drawer__badge {
+.buyer-side-drawer__badge {
   font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -136,7 +137,7 @@
   padding: 0 0.25rem 0.25rem;
 }
 
-.manager-side-drawer__logout {
+.buyer-side-drawer__logout {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,13 +154,13 @@
   transition: all 0.2s;
 }
 
-.manager-side-drawer__logout:hover {
+.buyer-side-drawer__logout:hover {
   background: rgba(255, 77, 77, 0.2);
   border-color: rgba(255, 77, 77, 0.5);
 }
 
 @media (max-width: 480px) {
-  .manager-side-drawer {
+  .buyer-side-drawer {
     width: min(200px, 85vw);
   }
 }

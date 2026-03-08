@@ -51,11 +51,24 @@ const SpecificDataList = ({ data }) => {
   );
 };
 
+const getStatusModifier = (status) => {
+  const s = (status || '').toUpperCase();
+  switch (s) {
+    case 'DRAFT': return '--draft';
+    case 'SCHEDULED': case 'LIVE': case 'ACTIVE': case 'APPROVED': return '--active';
+    case 'CLOSING': case 'CLOSED': case 'COMPLETED': return '--closed';
+    case 'PENDING': return '--pending';
+    case 'REJECTED': return '--rejected';
+    default: return '--active';
+  }
+};
+
 const LotCard = ({ lot }) => {
   const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const intervalRef = useRef(null);
+  const lotStatus = lot.status || lot.listing_status;
 
   useEffect(() => {
     if (imageUrls.length <= 1) return;
@@ -73,6 +86,11 @@ const LotCard = ({ lot }) => {
   return (
     <article className="admin-event-lots__card">
       <div className="admin-event-lots__card-media">
+        {lotStatus && (
+          <span className={`admin-event-lots__card-status admin-event-lots__card-status${getStatusModifier(lotStatus)}`}>
+            {lotStatus}
+          </span>
+        )}
         {displayUrl ? (
           <img src={displayUrl} alt={lot.title} loading="lazy" />
         ) : (
@@ -89,9 +107,6 @@ const LotCard = ({ lot }) => {
             ))}
           </div>
         )}
-        <span className={`admin-event-lots__card-status admin-event-lots__card-status--${(lot.status || '').toLowerCase()}`}>
-          {lot.status || '—'}
-        </span>
       </div>
       <div className="admin-event-lots__card-body">
         <div className="admin-event-lots__card-lot-no">Lot #{lot.lot_number || lot.id}</div>
@@ -125,6 +140,7 @@ const AdminEventLots = () => {
 
   const [lots, setLots] = useState([]);
   const [eventTitle, setEventTitle] = useState(eventFromState?.title || 'Event Lots');
+  const [eventStatus, setEventStatus] = useState(eventFromState?.status ?? null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -161,6 +177,23 @@ const AdminEventLots = () => {
     fetchLots(page);
   }, [fetchLots, page]);
 
+  useEffect(() => {
+    if (!id || eventFromState) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const ev = await auctionService.getEvent(id);
+        if (!cancelled) {
+          setEventTitle(ev.title || eventTitle);
+          setEventStatus(ev.status ?? null);
+        }
+      } catch {
+        if (!cancelled) setEventStatus(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id, eventFromState]);
+
   return (
     <div className="admin-event-lots">
       <header className="admin-event-lots__header">
@@ -175,7 +208,14 @@ const AdminEventLots = () => {
           Back
         </button>
         <div className="admin-event-lots__header-content">
-          <h1 className="admin-event-lots__title">{eventTitle}</h1>
+          <div className="admin-event-lots__header-title-row">
+            <h1 className="admin-event-lots__title">{eventTitle}</h1>
+            {eventStatus && (
+              <span className={`admin-event-lots__header-status admin-event-lots__header-status${getStatusModifier(eventStatus)}`}>
+                {eventStatus}
+              </span>
+            )}
+          </div>
           <p className="admin-event-lots__subtitle">
             {totalCount} lot{totalCount !== 1 ? 's' : ''} in this event
           </p>

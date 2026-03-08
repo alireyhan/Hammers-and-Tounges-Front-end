@@ -1,6 +1,9 @@
+/* Theme-aware - works in light and dark mode */
 .manager-lot-detail {
   min-height: 100vh;
   padding: 1rem 1.5rem 2rem;
+  color: var(--color-text);
+  background: var(--color-bg);
 }
 
 .manager-lot-detail__header {
@@ -9,7 +12,7 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .manager-lot-detail__back {
@@ -17,10 +20,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border-strong);
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -42,13 +45,13 @@
 .manager-lot-detail__title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text);
   margin: 0 0 0.25rem;
 }
 
 .manager-lot-detail__subtitle {
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -99,13 +102,13 @@
   align-items: center;
   justify-content: center;
   padding: 4rem 1rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-muted);
 }
 
 .manager-lot-detail__spinner {
   width: 32px;
   height: 32px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--color-border);
   border-top-color: #8cc63f;
   border-radius: 50%;
   animation: manager-lot-detail-spin 0.8s linear infinite;
@@ -136,7 +139,7 @@
 .manager-lot-detail__image-wrap {
   position: relative;
   aspect-ratio: 16 / 10;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-input-bg);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -160,7 +163,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--color-text-muted);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -172,13 +175,13 @@
 
 .manager-lot-detail__placeholder {
   aspect-ratio: 16 / 10;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-input-bg);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--color-text-muted);
 }
 
 .manager-lot-detail__status {
@@ -225,13 +228,13 @@
 .manager-lot-detail__lot-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text);
   margin: 0 0 0.5rem;
 }
 
 .manager-lot-detail__desc {
   font-size: 0.9375rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--color-text-secondary);
   line-height: 1.5;
   margin: 0 0 1rem;
 }
@@ -245,7 +248,7 @@
 
 .manager-lot-detail__category {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 .manager-lot-detail__price {
@@ -257,7 +260,7 @@
 .manager-lot-detail__section-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
   margin: 0 0 0.75rem;
 }
 
@@ -277,16 +280,16 @@
   gap: 1rem;
   font-size: 0.875rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .manager-lot-detail__specific-key {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
 .manager-lot-detail__specific-value {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-secondary);
   text-align: right;
   word-break: break-word;
 }

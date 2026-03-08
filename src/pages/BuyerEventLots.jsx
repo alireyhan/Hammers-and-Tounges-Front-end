@@ -1,0 +1,293 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { auctionService } from '../services/interceptors/auction.service';
+import { toast } from 'react-toastify';
+import { getMediaUrl } from '../config/api.config';
+import './BuyerEventLots.css';
+
+const PAGE_SIZE = 12;
+
+const getStatusModifier = (status) => {
+  const s = (status || '').toUpperCase();
+  if (s === 'LIVE' || s === 'ACTIVE') return '--live';
+  if (s === 'CLOSING') return '--closing';
+  if (s === 'CLOSED') return '--closed';
+  return '--live';
+};
+
+const formatPrice = (price) => {
+  if (!price) return '—';
+  return parseFloat(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const getLotStatusModifier = (status) => {
+  const s = (status || '').toUpperCase();
+  if (s === 'DRAFT') return '--draft';
+  if (s === 'ACTIVE' || s === 'APPROVED' || s === 'LIVE') return '--active';
+  if (s === 'CLOSED' || s === 'COMPLETED') return '--closed';
+  if (s === 'PENDING') return '--pending';
+  return '--active';
+};
+
+const LotCard = ({ lot, onOpenDetail }) => {
+  const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
+  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const intervalRef = useRef(null);
+  const lotStatus = lot.status || lot.listing_status;
+
+  useEffect(() => {
+    if (imageUrls.length <= 1) return;
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
+    }, 3000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [imageUrls.length]);
+
+  const displayUrl = imageUrls[currentImageIndex] || imageUrls[0];
+  const hasMultipleImages = imageUrls.length > 1;
+
+  return (
+    <article
+      className="buyer-event-lots__card"
+      onClick={() => onOpenDetail?.(lot)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onOpenDetail?.(lot)}
+    >
+      <div className="buyer-event-lots__card-media">
+        {lotStatus && (
+          <span className={`buyer-event-lots__card-status buyer-event-lots__card-status${getLotStatusModifier(lotStatus)}`}>
+            {lotStatus}
+          </span>
+        )}
+        {displayUrl ? (
+          <img src={displayUrl} alt={lot.title} loading="lazy" />
+        ) : (
+          <div className="buyer-event-lots__card-placeholder">📷</div>
+        )}
+        {hasMultipleImages && (
+          <div className="buyer-event-lots__card-slider-dots">
+            {imageUrls.map((_, i) => (
+              <span
+                key={i}
+                className={`buyer-event-lots__card-dot ${i === currentImageIndex ? 'active' : ''}`}
+                aria-hidden
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="buyer-event-lots__card-body">
+        <div className="buyer-event-lots__card-lot-no">Lot #{lot.lot_number || lot.id}</div>
+        <h3 className="buyer-event-lots__card-title">{lot.title || 'Untitled'}</h3>
+        {lot.description && (
+          <p className="buyer-event-lots__card-desc">{lot.description}</p>
+        )}
+        <div className="buyer-event-lots__card-meta">
+          <span className="buyer-event-lots__card-category">{lot.category_name || '—'}</span>
+          <span className="buyer-event-lots__card-price">
+            {lot.currency || 'USD'} {formatPrice(lot.initial_price)}
+          </span>
+        </div>
+        <div className="buyer-event-lots__card-footer">
+          {lot.total_bids != null && (
+            <span className="buyer-event-lots__card-bids">{lot.total_bids} bid(s)</span>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+};
+
+const BuyerEventLots = () => {
+  const { eventId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const eventFromState = location.state?.event;
+
+  const [lots, setLots] = useState([]);
+  const [eventTitle, setEventTitle] = useState(eventFromState?.title || 'Event Lots');
+  const [eventStatus, setEventStatus] = useState(eventFromState?.status ?? 'LIVE');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+
+  const fetchLots = useCallback(async (pageNum = 1) => {
+    if (!eventId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      let items = [];
+      let total = 0;
+      let lotsSucceeded = false;
+
+      try {
+        const res = await auctionService.getLots({
+          event: eventId,
+          page: pageNum,
+          page_size: PAGE_SIZE,
+        });
+        lotsSucceeded = true;
+        items = res.results || [];
+        total = res.count ?? items.length;
+      } catch (lotsErr) {
+        console.warn('Lots endpoint failed, trying listings fallback:', lotsErr);
+      }
+
+      if (!lotsSucceeded) {
+        try {
+          const listingsRes = await auctionService.getAuctions({
+            event: eventId,
+            event_id: eventId,
+            page: pageNum,
+            page_size: PAGE_SIZE,
+          });
+          const rawItems = listingsRes.results || [];
+          items = rawItems.map((l) => ({
+            ...l,
+            seller_name: l.seller_name ?? l.seller_details?.name ?? '—',
+            category_name: l.category_name ?? l.category?.name ?? '—',
+          }));
+          total = listingsRes.count ?? rawItems.length;
+        } catch (listingsErr) {
+          throw listingsErr || new Error('Failed to load lots');
+        }
+      }
+
+      setLots(items);
+      setTotalCount(total);
+      if (items[0]?.event_title && !eventFromState?.title) {
+        setEventTitle(items[0].event_title);
+      }
+    } catch (err) {
+      if (err) {
+        console.error('Error fetching lots:', err);
+        setError(err?.message || err?.response?.data?.detail || 'Failed to load lots');
+        toast.error('Failed to load lots');
+      }
+      setLots([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [eventId, eventFromState?.title]);
+
+  useEffect(() => {
+    fetchLots(page);
+  }, [fetchLots, page]);
+
+  useEffect(() => {
+    if (!eventId || eventFromState) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const ev = await auctionService.getEvent(eventId);
+        if (!cancelled) {
+          setEventTitle(ev.title || eventTitle);
+          setEventStatus(ev.status ?? 'LIVE');
+        }
+      } catch {
+        if (!cancelled) {
+          setEventTitle('Event Lots');
+          setEventStatus('LIVE');
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [eventId, eventFromState]);
+
+  const handleLotClick = useCallback((lot) => {
+    navigate(`/buyer/auction/${lot.id}`, {
+      state: {
+        from: 'buyer-event-lots',
+        listing: lot,
+        eventId,
+        event: eventFromState || { id: eventId, title: eventTitle },
+      },
+    });
+  }, [navigate, eventId, eventFromState, eventTitle]);
+
+  return (
+    <div className="buyer-event-lots">
+      <header className="buyer-event-lots__header">
+        <button
+          className="buyer-event-lots__back"
+          onClick={() => navigate('/buyer/dashboard')}
+          aria-label="Back to dashboard"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5M12 19l-5-7 5-7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back
+        </button>
+        <div className="buyer-event-lots__header-content">
+          <div className="buyer-event-lots__header-title-row">
+            <h1 className="buyer-event-lots__title">{eventTitle}</h1>
+            {eventStatus && (
+              <span className={`buyer-event-lots__header-status buyer-event-lots__header-status${getStatusModifier(eventStatus)}`}>
+                {eventStatus}
+              </span>
+            )}
+          </div>
+          <p className="buyer-event-lots__subtitle">
+            {totalCount} lot{totalCount !== 1 ? 's' : ''} in this event
+          </p>
+        </div>
+      </header>
+
+      <main className="buyer-event-lots__main">
+        {loading && lots.length === 0 ? (
+          <div className="buyer-event-lots__loading">
+            <div className="buyer-event-lots__spinner" />
+            <p>Loading lots...</p>
+          </div>
+        ) : error ? (
+          <div className="buyer-event-lots__error">
+            <p>{error}</p>
+            <button onClick={() => fetchLots(page)}>Retry</button>
+          </div>
+        ) : lots.length === 0 ? (
+          <div className="buyer-event-lots__empty">
+            <p>No lots found for this event.</p>
+          </div>
+        ) : (
+          <>
+            <div className="buyer-event-lots__grid">
+              {lots.map((lot) => (
+                <LotCard key={lot.id} lot={lot} onOpenDetail={handleLotClick} />
+              ))}
+            </div>
+            {totalPages > 1 && (
+              <div className="buyer-event-lots__pagination">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  aria-label="Previous page"
+                >
+                  Previous
+                </button>
+                <span className="buyer-event-lots__page-info">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  aria-label="Next page"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default BuyerEventLots;

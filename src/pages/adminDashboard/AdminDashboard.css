@@ -1,15 +1,16 @@
-/* AdminDashboard.css */
+/* AdminDashboard.css - Theme-aware (light/dark) */
 
 .admin-dashboard-container {
   min-height: 100vh;
-  color: #f8fafc;
+  color: var(--color-text);
+  background: var(--color-bg);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Header - compact */
 .admin-dashboard-header {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -24,12 +25,12 @@
 .admin-dashboard-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text);
   margin-bottom: 0.125rem;
 }
 
 .admin-dashboard-subtitle {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--color-text-muted);
   font-size: 0.8rem;
 }
 
@@ -59,8 +60,8 @@ background-color: #8CC63F;
 
 .admin-dashboard-btn-outline {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #cbd5e1;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-secondary);
 }
 .admin-dashboard-btn-outline:hover {
   border-color: #8CC63F;
@@ -77,14 +78,14 @@ background-color: #8CC63F;
 }
 
 .admin-dashboard-stat-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 0.875rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   transition: transform 0.2s, border-color 0.2s;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-surface-elevated);
 }
 
 .admin-dashboard-stat-card:hover {
@@ -134,13 +135,13 @@ background-color: #8CC63F;
 .admin-dashboard-stat-value {
   font-size: 1.125rem;
   font-weight: 700;
-  color: white;
+  color: var(--color-text);
   margin-bottom: 0.125rem;
 }
 
 .admin-dashboard-stat-label {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--color-text-muted);
 }
 
 /* Main Content Layout - compact */
@@ -155,11 +156,11 @@ background-color: #8CC63F;
 
 /* Cards - compact */
 .admin-dashboard-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-surface-elevated);
 }
 
 .admin-dashboard-card:last-child {
@@ -183,13 +184,13 @@ background-color: #8CC63F;
 .admin-dashboard-card-title {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
   margin: 0;
 }
 
 .admin-dashboard-event-count {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   font-weight: 400;
 }
 
@@ -244,14 +245,14 @@ background-color: #8CC63F;
 }
 
 .admin-dashboard-activity-text {
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   margin-bottom: 0.25rem;
   font-size: 0.875rem;
 }
 
 .admin-dashboard-activity-user {
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
 }
 
 .admin-dashboard-activity-amount {
@@ -261,7 +262,7 @@ background-color: #8CC63F;
 
 .admin-dashboard-activity-time {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 /* Sellers List */
@@ -302,7 +303,7 @@ background-color: #8CC63F;
 
 .admin-dashboard-seller-name {
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
   margin-bottom: 0.125rem;
 }
 
@@ -310,7 +311,7 @@ background-color: #8CC63F;
   display: flex;
   gap: 0.5rem;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 .admin-dashboard-seller-rating {
@@ -350,10 +351,10 @@ background-color: #8CC63F;
   text-align: left;
   font-size: 0.75rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--color-border-strong);
 }
 
 .admin-dashboard-th-event {
@@ -378,7 +379,7 @@ background-color: #8CC63F;
 
 .admin-dashboard-table-cell {
   padding: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
 }
 
@@ -394,18 +395,18 @@ background-color: #8CC63F;
 
 .admin-dashboard-event-title {
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
 }
 
 .admin-dashboard-event-lots {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 .admin-dashboard-cell-start,
 .admin-dashboard-cell-end {
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-text-secondary);
 }
 
 .admin-dashboard-cell-status {
@@ -440,7 +441,7 @@ background-color: #8CC63F;
   height: 3rem;
   border-radius: 0.5rem;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-surface-elevated);
   flex-shrink: 0;
 }
 
@@ -456,7 +457,7 @@ background-color: #8CC63F;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--color-text-muted);
   font-size: 1.25rem;
 }
 
@@ -466,13 +467,13 @@ background-color: #8CC63F;
 
 .admin-dashboard-auction-title {
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
   margin-bottom: 0.25rem;
 }
 
 .admin-dashboard-auction-category {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 /* Status Badges */
@@ -509,7 +510,7 @@ background-color: #8CC63F;
 /* Auction Price */
 .admin-dashboard-auction-price {
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
 }
 
 /* Manager Info */
@@ -521,18 +522,18 @@ background-color: #8CC63F;
 
 .admin-dashboard-manager-name {
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
   font-size: 0.875rem;
 }
 
 .admin-dashboard-manager-email {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 .admin-dashboard-no-manager {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   font-style: italic;
 }
 
@@ -547,8 +548,8 @@ background-color: #8CC63F;
   height: 2.5rem;
   border-radius: 0.5rem;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -568,8 +569,8 @@ background-color: #8CC63F;
 }
 
 .admin-dashboard-quick-action {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong) !important;
   border-radius: 0.75rem;
   padding: 1.5rem;
   display: flex;
@@ -579,13 +580,14 @@ background-color: #8CC63F;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  color: white;
+  color: var(--color-text);
   text-align: center;
   position: relative;
 }
 
 .admin-dashboard-quick-action:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-surface-elevated);
+  border-color: var(--color-accent) !important;
   transform: translateY(-2px);
 }
 
@@ -593,7 +595,8 @@ background-color: #8CC63F;
   font-size: 2rem;
   width: 3.5rem;
   height: 3.5rem;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
   border-radius: 9999px;
   display: flex;
   align-items: center;
@@ -623,11 +626,11 @@ background-color: #8CC63F;
 
 /* Filter Select */
 .admin-dashboard-filter-select {
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 0.5rem;
   padding: 0.625rem 2.5rem 0.625rem 0.875rem;
-  color: white;
+  color: var(--color-text);
   font-size: 0.875rem;
   cursor: pointer;
   min-height: 2.75rem;
@@ -729,8 +732,8 @@ background-color: #8CC63F;
 }
 
 .admin-dashboard-modal-content {
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
   border-radius: 0.75rem;
   width: 100%;
   max-width: 500px;
@@ -744,13 +747,13 @@ background-color: #8CC63F;
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--color-border-strong);
 }
 
 .admin-dashboard-modal-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -759,8 +762,8 @@ background-color: #8CC63F;
   height: 2rem;
   border-radius: 0.5rem;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.6);
+  background: var(--color-input-bg);
+  color: var(--color-text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -769,8 +772,8 @@ background-color: #8CC63F;
 }
 
 .admin-dashboard-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: var(--color-border);
+  color: var(--color-text);
 }
 
 .admin-dashboard-modal-body {
@@ -784,19 +787,19 @@ background-color: #8CC63F;
 .admin-dashboard-modal-auction-info h4 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
   margin: 0 0 0.5rem 0;
 }
 
 .admin-dashboard-modal-auction-category {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   margin: 0 0 0.75rem 0;
 }
 
 .admin-dashboard-modal-auction-status {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
   margin: 0;
   display: flex;
   align-items: center;
@@ -811,7 +814,7 @@ background-color: #8CC63F;
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: white;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
 }
 
@@ -822,11 +825,11 @@ background-color: #8CC63F;
 
 .admin-dashboard-modal-select {
   width: 100%;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 0.5rem;
   padding: 0.75rem;
-  color: white;
+  color: var(--color-text);
   font-size: 0.875rem;
   cursor: pointer;
   appearance: none;
@@ -848,13 +851,13 @@ background-color: #8CC63F;
 }
 
 .admin-dashboard-modal-select option {
-  background: #1a1a1a;
-  color: white;
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .admin-dashboard-modal-hint {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   margin-top: 0.5rem;
 }
 
@@ -863,7 +866,7 @@ background-color: #8CC63F;
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid var(--color-border-strong);
 }
 
 .admin-dashboard-modal-btn {
@@ -883,14 +886,14 @@ background-color: #8CC63F;
 
 .admin-dashboard-modal-btn-cancel {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-secondary);
 }
 
 .admin-dashboard-modal-btn-cancel:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: white;
+  background: var(--color-input-bg);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
 }
 
 .admin-dashboard-modal-btn-primary {

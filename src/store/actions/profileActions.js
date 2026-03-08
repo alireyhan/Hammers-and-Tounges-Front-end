@@ -11,11 +11,14 @@ export const fetchProfile = createAsyncThunk(
       const response = await profileService.getProfile();
       return response;
     } catch (error) {
-      const message = error.response?.data?.message || 
-                     error.response?.data?.error ||
-                     'Failed to fetch profile';
+      const data = error.response?.data;
+      const message = data?.message || data?.error ||
+        (typeof data?.detail === 'string' ? data.detail : null) ||
+        (Array.isArray(data?.detail) ? data.detail.map(d => d?.msg || d?.message || JSON.stringify(d)).join(', ') : null) ||
+        ((error?.message && !error.message.includes('Network')) ? error.message : null) ||
+        'Failed to fetch profile. Check VITE_API_BASE_URL in .env and ensure the backend is running.';
       toast.error(message);
-      return rejectWithValue(error.response?.data || { message });
+      return rejectWithValue({ ...(data || {}), message });
     }
   }
 );

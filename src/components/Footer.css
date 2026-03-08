@@ -1,9 +1,9 @@
 .main-footer {
-  background: linear-gradient(180deg, #000000 0%, #0b0b0b 100%);
-  color: #ffffff;
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-alt) 100%);
+  color: var(--color-text);
   padding: 2rem 1rem 1.5rem;
   width: 100%;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--color-border);
 }
 
 .footer-container {
@@ -24,7 +24,7 @@
   font-weight: 600;
   letter-spacing: 0.3px;
   margin-bottom: 0.625rem;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .footer-links {
@@ -38,13 +38,13 @@
 
 .footer-links a {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--color-text-muted);
   text-decoration: none;
   transition: color 0.25s ease, transform 0.2s ease;
 }
 
 .footer-links a:hover {
-  color: #8cc63f;
+  color: var(--color-accent);
   transform: translateX(2px);
 }
 
@@ -58,16 +58,16 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-surface-elevated);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
   transition: all 0.3s ease;
 }
 
 .social-icon:hover {
-  background: #8cc63f;
+  background: var(--color-accent);
   color: #000;
   transform: translateY(-3px);
 }
@@ -76,13 +76,13 @@
   max-width: 1400px;
   margin: 1.5rem auto 0;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-border);
   text-align: center;
 }
 
 .footer-copyright p {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   margin: 0;
 }
 

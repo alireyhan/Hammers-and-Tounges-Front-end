@@ -115,6 +115,22 @@ export const auctionService = {
       throw error;
     }
   },
+  // Patch lot status (PATCH to /api/auctions/lots/{id}/)
+  patchLotStatus: async (lotId, status) => {
+    try {
+      const { data } = await apiClient.patch(
+        `${API_ROUTES.AUCTIONS_LOTS}${lotId}/`,
+        { status },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
   // Update lot (PUT to /update/ with JSON body)
   updateLot: async (lotId, payload) => {
     try {

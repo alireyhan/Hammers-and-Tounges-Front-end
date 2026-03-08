@@ -1,18 +1,24 @@
 .buyer-dashboard-page {
   min-height: 100vh;
-  background-color: #000000;
-  color: #ffffff;
+  background: var(--color-bg);
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
 }
 
 .buyer-dashboard-header {
-  background-color: rgba(0, 0, 0, 0.95);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 1000;
   backdrop-filter: blur(10px);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .buyer-dashboard-main {
@@ -26,8 +32,464 @@
 }
 
 .buyer-dashboard-container {
-  margin: 0 auto;
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.buyer-dashboard-header-content {
+  flex: 1;
+}
+
+.buyer-dashboard-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.125rem;
+}
+
+.buyer-dashboard-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.buyer-dashboard-stats-overview {
+  padding: 1rem 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.buyer-dashboard-stat-card {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: transform 0.2s, border-color 0.2s;
+  background: var(--color-surface-elevated);
+}
+
+.buyer-dashboard-stat-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(140, 198, 63, 0.4);
+}
+
+.buyer-dashboard-stat-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.buyer-dashboard-stat-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.buyer-dashboard-icon-auctions {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.buyer-dashboard-stat-content {
+  min-width: 0;
+}
+
+.buyer-dashboard-stat-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.buyer-dashboard-stat-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.buyer-dashboard-main {
+  flex: 1;
+  padding: 1rem 1.5rem;
+}
+
+.buyer-dashboard-card {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  background: var(--color-surface-elevated);
+}
+
+.buyer-dashboard-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.buyer-dashboard-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.buyer-dashboard-auction-count {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.buyer-dashboard-card-header {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.buyer-dashboard-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.buyer-dashboard-search {
+  padding: 0.5rem 0.75rem;
+  min-width: 200px;
+  max-width: 280px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.buyer-dashboard-search-clear {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.buyer-dashboard-search-clear:hover {
+  background: rgba(140, 198, 63, 0.15);
+  border-color: rgba(140, 198, 63, 0.4);
+  color: #8cc63f;
+}
+
+.buyer-dashboard-search::placeholder {
+  color: var(--color-text-muted);
+}
+
+.buyer-dashboard-search:focus {
+  outline: none;
+  border-color: rgba(140, 198, 63, 0.5);
+}
+
+.buyer-dashboard-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.buyer-dashboard-search-wrap .buyer-dashboard-search {
+  margin-left: 0;
+}
+
+.buyer-dashboard-search-clear {
+  padding: 0.5rem 0.75rem;
+  background: rgba(140, 198, 63, 0.15);
+  border: 1px solid rgba(140, 198, 63, 0.4);
+  border-radius: 8px;
+  color: #8cc63f;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.buyer-dashboard-search-clear:hover {
+  background: rgba(140, 198, 63, 0.25);
+  border-color: #8cc63f;
+}
+
+/* Events table - scalable for 100+ events */
+.buyer-dashboard-events-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.buyer-dashboard-events-table {
   width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.buyer-dashboard-events-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.buyer-dashboard-events-table th:last-child {
+  text-align: right;
+}
+
+.buyer-dashboard-event-row {
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.buyer-dashboard-event-row:last-child {
+  border-bottom: none;
+}
+
+.buyer-dashboard-event-row:hover {
+  background: rgba(140, 198, 63, 0.08);
+}
+
+.buyer-dashboard-event-cell {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.buyer-dashboard-event-cell--title {
+  min-width: 180px;
+}
+
+.buyer-dashboard-event-cell--date {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.buyer-dashboard-event-cell--status {
+  white-space: nowrap;
+}
+
+.buyer-dashboard-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.buyer-dashboard-status-badge--live {
+  background: rgba(34, 197, 94, 0.2);
+  color: #8cc63f;
+}
+
+.buyer-dashboard-event-cell--action {
+  text-align: right;
+}
+
+.buyer-dashboard-event-cell__title {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.buyer-dashboard-event-cell__lots {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 0.125rem;
+}
+
+.buyer-dashboard-event-arrow {
+  color: #8cc63f;
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+
+/* Pagination */
+.buyer-dashboard-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.buyer-dashboard-pagination button {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.buyer-dashboard-pagination button:hover:not(:disabled) {
+  background: rgba(140, 198, 63, 0.15);
+  border-color: rgba(140, 198, 63, 0.4);
+  color: #8cc63f;
+}
+
+.buyer-dashboard-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buyer-dashboard-pagination-info {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* Event cards grid (legacy - kept for compatibility) */
+.buyer-dashboard-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.buyer-dashboard-event-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.buyer-dashboard-event-card:hover {
+  border-color: rgba(140, 198, 63, 0.4);
+  transform: translateY(-2px);
+}
+
+.buyer-dashboard-event-card__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  background: rgba(140, 198, 63, 0.2);
+  color: #8cc63f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.buyer-dashboard-event-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.buyer-dashboard-event-card__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 0.25rem;
+}
+
+.buyer-dashboard-event-card__lots {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.25rem;
+}
+
+.buyer-dashboard-event-card__date {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.buyer-dashboard-event-card__arrow {
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* Events grid */
+.buyer-dashboard-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.buyer-dashboard-event-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-elevated);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.buyer-dashboard-event-card:hover {
+  border-color: rgba(140, 198, 63, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.buyer-dashboard-event-card__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  background: rgba(140, 198, 63, 0.2);
+  color: #8cc63f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.buyer-dashboard-event-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.buyer-dashboard-event-card__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 0.25rem;
+}
+
+.buyer-dashboard-event-card__lots {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.buyer-dashboard-event-card__date {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0.25rem 0 0;
+}
+
+.buyer-dashboard-event-card__arrow {
+  font-size: 1.25rem;
+  color: rgba(140, 198, 63, 0.8);
+  flex-shrink: 0;
 }
 
 .dashboard-welcome {

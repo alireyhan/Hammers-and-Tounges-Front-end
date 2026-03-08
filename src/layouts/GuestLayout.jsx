@@ -7,12 +7,15 @@ import './GuestLayout.css'
 
 const getDashboardForRole = (user) => {
   if (!user) return '/'
+  const role = (user.role || '').toLowerCase()
   const isStaff = user.is_staff === true || user.is_staff === 1 || String(user?.is_staff).toLowerCase() === 'true'
-  if (isStaff) return '/admin/dashboard'
-  const role = user.role || ''
-  if (role === 'manager') return '/manager/dashboard'
+
+  // Buyer and seller always go to their dashboards regardless of is_staff
   if (role === 'buyer') return '/buyer/dashboard'
   if (role === 'seller') return '/seller/dashboard'
+  // is_staff = admin; otherwise manager
+  if (isStaff) return '/admin/dashboard'
+  if (role === 'manager') return '/manager/dashboard'
   return '/'
 }
 

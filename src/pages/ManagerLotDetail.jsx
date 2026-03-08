@@ -31,7 +31,9 @@ const ManagerLotDetail = () => {
   const intervalRef = useRef(null);
 
   const eventStatus = event?.status ?? eventFromState?.status ?? null;
-  const canEditDelete = eventStatus === 'SCHEDULED';
+  const lotStatus = (lot?.status ?? lot?.listing_status ?? '').toUpperCase();
+  const isLotActive = lotStatus === 'ACTIVE';
+  const canEditDelete = eventStatus === 'SCHEDULED' && !isLotActive;
 
   const imageMedia = lot?.media?.filter((m) => m.media_type === 'image') || [];
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
@@ -294,9 +296,6 @@ const ManagerLotDetail = () => {
           ) : (
             <div className="manager-lot-detail__placeholder">📷 No image</div>
           )}
-          <span className={`manager-lot-detail__status manager-lot-detail__status--${(lot.status || '').toLowerCase()}`}>
-            {lot.status || '—'}
-          </span>
         </div>
 
         <div className="manager-lot-detail__body">

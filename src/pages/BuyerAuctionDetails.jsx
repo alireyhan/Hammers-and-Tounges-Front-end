@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { placeBid, fetchAuctionBids } from '../store/actions/buyerActions';
+import { auctionService } from '../services/interceptors/auction.service';
 import { getMediaUrl } from '../config/api.config';
 import './BuyerAuctionDetails.css';
 import { fetchProfile } from '../store/actions/profileActions';
@@ -51,7 +52,7 @@ const ErrorState = memo(({ error }) => (
         </svg>
         <h3>Error loading auction</h3>
         <p>{error}</p>
-        <Link to="/auctions" className="buyer-details-back-link">Back to Auctions</Link>
+        <Link to="/buyer/dashboard" className="buyer-details-back-link">Back to Dashboard</Link>
       </div>
     </div>
   </div>
@@ -68,7 +69,7 @@ const NotFoundState = memo(() => (
         </svg>
         <h3>Auction not found</h3>
         <p>The auction you're looking for doesn't exist or has been removed.</p>
-        <Link to="/auctions" className="buyer-details-back-link">Back to Auctions</Link>
+        <Link to="/buyer/dashboard" className="buyer-details-back-link">Back to Dashboard</Link>
       </div>
     </div>
   </div>
@@ -245,8 +246,31 @@ const BuyerAuctionDetails = () => {
   }, [id, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchProfile())
-  }, dispatch)
+    dispatch(fetchProfile());
+  }, [dispatch]);
+
+  // Fetch lot by id when no listing in state (e.g. direct URL or refresh)
+  useEffect(() => {
+    if (auctionObj || !id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const lot = await auctionService.getLot(id);
+        if (!cancelled) {
+          setState((prev) => ({ ...prev, selectedAuction: lot, isLoading: false }));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setState((prev) => ({
+            ...prev,
+            error: err?.message || err?.response?.data?.detail || 'Failed to load lot',
+            isLoading: false,
+          }));
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id, auctionObj]);
 
   // const [state, setState] = useState({
   //   selectedAuction: auctionObj || null,
@@ -458,12 +482,6 @@ const BuyerAuctionDetails = () => {
 
         <div className="buyer-details-header-section">
           <h1 className="buyer-details-title">{auction?.title || 'Auction'}</h1>
-          <div className="buyer-details-status-badge" data-status={auction?.status}>
-            {auction?.status === 'ACTIVE' && 'ACTIVE'}
-            {auction?.status === 'APPROVED' && 'APPROVED'}
-            {auction?.status === 'CLOSED' && 'Closed'}
-            {auction?.status === 'AWAITING_PAYMENT' && 'Awaiting Payment'}
-          </div>
         </div>
 
         <div className="buyer-details-content">

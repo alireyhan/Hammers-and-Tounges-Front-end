@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { logout } from '../store/slices/authSlice'
 import { useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import ThemeToggle from './ThemeToggle'
 import './AdminSideDrawer.css'
 
 const AdminSideDrawer = ({ isOpen, onClose }) => {
@@ -46,6 +47,8 @@ const AdminSideDrawer = ({ isOpen, onClose }) => {
             </svg>
           </button>
         </div>
+
+        <ThemeToggle className="admin-side-drawer__theme-toggle" />
 
         <nav className="admin-side-drawer__nav">
           {navItems.map((item) => (

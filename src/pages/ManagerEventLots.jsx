@@ -51,11 +51,24 @@ const SpecificDataList = ({ data }) => {
   );
 };
 
-const LotCard = ({ lot, eventId, event, onOpenDetail }) => {
+const getStatusModifier = (status) => {
+  const s = (status || '').toUpperCase();
+  switch (s) {
+    case 'DRAFT': return '--draft';
+    case 'SCHEDULED': case 'LIVE': case 'ACTIVE': case 'APPROVED': return '--active';
+    case 'CLOSING': case 'CLOSED': case 'COMPLETED': return '--closed';
+    case 'PENDING': return '--pending';
+    case 'REJECTED': return '--rejected';
+    default: return '--active';
+  }
+};
+
+const LotCard = ({ lot, onOpenDetail, onSetActive, isSettingActive }) => {
   const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const intervalRef = useRef(null);
+  const lotStatus = lot.status || lot.listing_status;
 
   useEffect(() => {
     if (imageUrls.length <= 1) return;
@@ -79,6 +92,11 @@ const LotCard = ({ lot, eventId, event, onOpenDetail }) => {
       onKeyDown={(e) => e.key === 'Enter' && onOpenDetail?.(lot)}
     >
       <div className="manager-event-lots__card-media">
+        {lotStatus && (
+          <span className={`manager-event-lots__card-status manager-event-lots__card-status${getStatusModifier(lotStatus)}`}>
+            {lotStatus}
+          </span>
+        )}
         {displayUrl ? (
           <img src={displayUrl} alt={lot.title} loading="lazy" />
         ) : (
@@ -95,9 +113,6 @@ const LotCard = ({ lot, eventId, event, onOpenDetail }) => {
             ))}
           </div>
         )}
-        <span className={`manager-event-lots__card-status manager-event-lots__card-status--${(lot.status || '').toLowerCase()}`}>
-          {lot.status || '—'}
-        </span>
       </div>
       <div className="manager-event-lots__card-body">
         <div className="manager-event-lots__card-lot-no">Lot #{lot.lot_number || lot.id}</div>
@@ -118,6 +133,21 @@ const LotCard = ({ lot, eventId, event, onOpenDetail }) => {
             <span className="manager-event-lots__card-bids">{lot.total_bids} bid(s)</span>
           )}
         </div>
+        {(lotStatus || '').toUpperCase() === 'DRAFT' && onSetActive && (
+          <button
+            type="button"
+            className="manager-event-lots__active-lot-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onSetActive(lot);
+            }}
+            disabled={isSettingActive}
+            aria-label={`Set lot ${lot.lot_number || lot.id} as active`}
+          >
+            {isSettingActive ? 'Activating...' : 'Active lot'}
+          </button>
+        )}
       </div>
     </article>
   );
@@ -257,6 +287,35 @@ const ManagerEventLots = () => {
   const showCreateLot = eventStatus === 'SCHEDULED';
   const showDeleteEvent = eventStatus === 'SCHEDULED';
 
+  const [activatingLotId, setActivatingLotId] = useState(null);
+  const handleSetLotActive = useCallback(async (lot) => {
+    if (!lot?.id) return;
+    setActivatingLotId(lot.id);
+    try {
+      // Use edit lot API (PUT to /update/) - fetch full lot first to get required fields
+      const fullLot = await auctionService.getLot(lot.id);
+      const payload = {
+        seller: Number(fullLot.seller ?? fullLot.seller_id ?? fullLot.seller_details?.id ?? 0),
+        title: fullLot.title ?? '',
+        description: fullLot.description ?? '',
+        category: Number(fullLot.category ?? fullLot.category_id ?? 0),
+        auction_event: Number(fullLot.auction_event ?? fullLot.event_id ?? id),
+        initial_price: String(fullLot.initial_price ?? '0'),
+        reserve_price: String(fullLot.reserve_price ?? '0'),
+        stc_eligible: Boolean(fullLot.stc_eligible),
+        status: 'ACTIVE',
+        specific_data: fullLot.specific_data && typeof fullLot.specific_data === 'object' ? fullLot.specific_data : {},
+      };
+      await auctionService.updateLot(lot.id, payload);
+      toast.success(`Lot #${lot.lot_number || lot.id} set to Active`);
+      fetchLots(page);
+    } catch (err) {
+      toast.error(err?.message || err?.response?.data?.detail || 'Failed to set lot active');
+    } finally {
+      setActivatingLotId(null);
+    }
+  }, [page, fetchLots, id]);
+
   return (
     <div className="manager-event-lots">
       <header className="manager-event-lots__header">
@@ -271,7 +330,14 @@ const ManagerEventLots = () => {
           Back
         </button>
         <div className="manager-event-lots__header-content">
-          <h1 className="manager-event-lots__title">{eventTitle}</h1>
+          <div className="manager-event-lots__header-title-row">
+            <h1 className="manager-event-lots__title">{eventTitle}</h1>
+            {eventStatus && (
+              <span className={`manager-event-lots__header-status manager-event-lots__header-status${getStatusModifier(eventStatus)}`}>
+                {eventStatus}
+              </span>
+            )}
+          </div>
           <p className="manager-event-lots__subtitle">
             {totalCount} lot{totalCount !== 1 ? 's' : ''} in this event
           </p>
@@ -327,6 +393,8 @@ const ManagerEventLots = () => {
                       state: { lot, event: eventData },
                     });
                   }}
+                  onSetActive={handleSetLotActive}
+                  isSettingActive={activatingLotId === lot.id}
                 />
               ))}
             </div>

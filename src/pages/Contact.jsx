@@ -111,7 +111,7 @@ const Contact = () => {
                 </div>
               </div>
               <div className="contact-form__group">
-                <label className="contact-form__label">Subject</label>
+                <label className="contact-form__label">Are you looking to buy? Or Sell?</label>
                 <input
                   type="text"
                   name="subject"
@@ -119,7 +119,7 @@ const Contact = () => {
                   onChange={handleChange}
                   required
                   className="contact-form__input"
-                  placeholder="How can we help?"
+                  placeholder="Buy or Sell"
                 />
               </div>
               <div className="contact-form__group">

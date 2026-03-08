@@ -14,6 +14,7 @@ import KYCVerification from "./pages/KYCVerification";
 
 import BuyerDashboard from "./pages/BuyerDashboard";
 import BuyerAuctions from "./pages/BuyerAuctions";
+import BuyerEventLots from "./pages/BuyerEventLots";
 import BuyerAuctionDetails from "./pages/BuyerAuctionDetails";
 import BuyerBids from "./pages/BuyerBids";
 import BuyerWonItems from "./pages/BuyerWonItems";
@@ -109,6 +110,7 @@ function App() {
             <Route element={<BuyerGuard />}>
               <Route element={<BuyerLayout />}>
                 <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
+                <Route path="/buyer/event/:eventId" element={<BuyerEventLots />} />
                 <Route path="/buyer/auctions" element={<BuyerAuctions />} />
                 <Route path="/buyer/auction/:id" element={<BuyerAuctionDetails />} />
                 <Route path="/buyer/bid/:id" element={<BuyerBidDetails />} />

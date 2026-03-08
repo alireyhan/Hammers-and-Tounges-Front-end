@@ -102,10 +102,11 @@ const authSlice = createSlice({
         cookieStorage.setItem(cookieStorage.AUTH_KEYS.TOKEN, action.payload.access);
         cookieStorage.setItem(cookieStorage.AUTH_KEYS.REFRESH_TOKEN, action.payload.refresh);
         cookieStorage.setItem(cookieStorage.AUTH_KEYS.TOKEN_TIMESTAMP, Date.now());
-        // is_staff=true means admin (store effective role for profile/nav)
+        // Store role: buyer/seller use their role; only manager+is_staff → admin
         const u = action.payload.user;
+        const role = (u?.role || '').toLowerCase();
         const isStaff = u?.is_staff === true || u?.is_staff === 1 || String(u?.is_staff).toLowerCase() === 'true';
-        const effectiveRole = isStaff ? 'admin' : (u?.role || 'buyer');
+        const effectiveRole = (role === 'buyer' || role === 'seller') ? role : (isStaff ? 'admin' : (role || 'buyer'));
         cookieStorage.setItem(cookieStorage.AUTH_KEYS.ROLE, effectiveRole);
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -131,6 +132,12 @@ const authSlice = createSlice({
           cookieStorage.setItem(cookieStorage.AUTH_KEYS.TOKEN, action.payload.access);
           cookieStorage.setItem(cookieStorage.AUTH_KEYS.REFRESH_TOKEN, action.payload.refresh);
           cookieStorage.setItem(cookieStorage.AUTH_KEYS.TOKEN_TIMESTAMP, Date.now());
+          // Store role: buyer/seller use their role; only manager+is_staff → admin
+          const u = action.payload.user;
+          const role = (u?.role || '').toLowerCase();
+          const isStaff = u?.is_staff === true || u?.is_staff === 1 || String(u?.is_staff).toLowerCase() === 'true';
+          const effectiveRole = (role === 'buyer' || role === 'seller') ? role : (isStaff ? 'admin' : (role || 'buyer'));
+          cookieStorage.setItem(cookieStorage.AUTH_KEYS.ROLE, effectiveRole);
         }
       })
       .addCase(verifyOtp.rejected, (state, action) => {

@@ -443,7 +443,7 @@ const ManagerPublishNew = () => {
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" strokeWidth="2" />
               <path d="M17 21v-8H7v8M7 3v5h8" stroke="currentColor" strokeWidth="2" />
             </svg>
-            {submitting ? 'Saving...' : 'Save Draft'}
+            {submitting ? 'Saving...' : 'Save'}
           </button>
         </div>
       </header>
@@ -673,21 +673,6 @@ const ManagerPublishNew = () => {
             )}
           </div>
 
-          <div className="mpn-card">
-            <div className="mpn-card-header">
-              <h2 className="mpn-card-title">Publishing</h2>
-            </div>
-            <div className="mpn-publish-actions">
-              <button
-                type="button"
-                className="mpn-btn mpn-btn-primary mpn-btn-publish"
-                onClick={handlePublish}
-                disabled={submitting}
-              >
-                {submitting ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Lot' : 'Create Lot')}
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux'
 import { logout } from '../store/slices/authSlice'
 import { useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import ThemeToggle from './ThemeToggle'
 import './ManagerSideDrawer.css'
 
 const ManagerSideDrawer = ({ isOpen, onClose }) => {
@@ -44,6 +45,8 @@ const ManagerSideDrawer = ({ isOpen, onClose }) => {
             </svg>
           </button>
         </div>
+
+        <ThemeToggle className="manager-side-drawer__theme-toggle" />
 
         <nav className="manager-side-drawer__nav">
           {navItems.map((item) => (

@@ -49,6 +49,36 @@ const BuyerProfile = () => {
     dispatch(fetchProfile());
   }, [dispatch]);
 
+  const handleRetry = useCallback(() => {
+    dispatch(fetchProfile());
+  }, [dispatch]);
+
+  // Loading state
+  if (loading && !profileData) {
+    return (
+      <div className="buyer-profile-container">
+        <div className="buyer-profile-loading">
+          <div className="buyer-profile-spinner" />
+          <p>Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state - show retry when fetch failed and no cached data
+  if (error && !profileData) {
+    return (
+      <div className="buyer-profile-container">
+        <div className="buyer-profile-error">
+          <p>{error?.message || error?.detail || 'Failed to load profile. Please check your connection.'}</p>
+          <button className="b-action-btn b-primary" onClick={handleRetry}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Update formData when profileData changes from API
   useEffect(() => {
     if (profileData) {
@@ -187,6 +217,37 @@ const BuyerProfile = () => {
       confirmPassword: ""
     });
   };
+
+  // Loading state
+  if (loading && !profileData) {
+    return (
+      <div className="buyer-profile-container">
+        <div className="profile-loading">
+          <div className="profile-loading-spinner" />
+          <p>Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && !profileData) {
+    return (
+      <div className="buyer-profile-container">
+        <div className="profile-error">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4M12 16h.01" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <h3>Unable to load profile</h3>
+          <p>{error?.message || error?.detail || 'Failed to fetch your profile. Please check your connection and try again.'}</p>
+          <button className="b-action-btn b-primary" onClick={handleRetry}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="buyer-profile-container">
@@ -568,7 +629,7 @@ const BuyerProfile = () => {
                         /> */}
                       {/* ) : ( */}
                         <div className="info-value">
-                          {profileData?.buyer_profile?.points}
+                          {profileData?.buyer_profile?.points ?? profileData?.points ?? '-'}
                         </div>
                       {/* )} */}
                     </div>

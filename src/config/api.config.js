@@ -108,8 +108,9 @@ export const API_ROUTES = {
   PASSWORD_OTP_VERIFY: '/users/password-OTP-verify/',
   PASSWORD_RESET_CONFIRM: '/users/password-reset-confirm/',
 
-  // Profile
+  // Profile (try /users/profile/ first; some backends use /users/me/)
   PROFILE: '/users/profile/',
+  PROFILE_ME: '/users/me/',
   PROFILE_DELETE: '/users/profile/delete/',
   PROFILE_UPDATE: '/users/profile/',
 

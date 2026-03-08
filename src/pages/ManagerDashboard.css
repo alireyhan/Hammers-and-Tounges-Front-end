@@ -7,9 +7,9 @@
 }
 
 body {
-  background-color: #000;
+  background-color: var(--color-bg);
   font-family: "Inter", sans-serif;
-  color: #fff;
+  color: var(--color-text);
 }
 
 html,
@@ -20,13 +20,14 @@ body {
 /* Manager Dashboard - card-based layout (like admin) */
 .manager-dashboard-container {
   min-height: 100vh;
-  color: #f8fafc;
+  color: var(--color-text);
+  background: var(--color-bg);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .manager-dashboard-header {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -202,12 +203,12 @@ body {
 .manager-dashboard-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text);
   margin-bottom: 0.125rem;
 }
 
 .manager-dashboard-subtitle {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--color-text-muted);
   font-size: 0.8rem;
 }
 
@@ -217,11 +218,11 @@ body {
 }
 
 .manager-dashboard-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-surface-elevated);
 }
 
 .manager-dashboard-card-header {
@@ -236,7 +237,7 @@ body {
 .manager-dashboard-card-title {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -248,16 +249,16 @@ body {
 
 .manager-dashboard-event-count {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   font-weight: 400;
 }
 
 .manager-dashboard-filter-select {
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 0.5rem;
   padding: 0.625rem 2.5rem 0.625rem 0.875rem;
-  color: white;
+  color: var(--color-text);
   font-size: 0.875rem;
   cursor: pointer;
   min-height: 2.75rem;
@@ -300,14 +301,14 @@ body {
 }
 
 .manager-dashboard-stat-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 0.875rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   transition: transform 0.2s, border-color 0.2s;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-surface-elevated);
 }
 
 .manager-dashboard-stat-card:hover {
@@ -340,13 +341,13 @@ body {
 .manager-dashboard-stat-value {
   font-size: 1.125rem;
   font-weight: 700;
-  color: white;
+  color: var(--color-text);
   margin-bottom: 0.125rem;
 }
 
 .manager-dashboard-stat-label {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--color-text-muted);
 }
 
 /* Events Table */
@@ -367,10 +368,10 @@ body {
   text-align: left;
   font-size: 0.75rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--color-border-strong);
 }
 
 .manager-dashboard-th-event { text-align: left; }
@@ -381,14 +382,14 @@ body {
 
 .manager-dashboard-table-cell {
   padding: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
 }
 
 .manager-dashboard-cell-event { text-align: left; }
 .manager-dashboard-cell-status { text-align: center; }
 .manager-dashboard-cell-start,
-.manager-dashboard-cell-end { font-size: 0.8125rem; color: rgba(255, 255, 255, 0.85); }
+.manager-dashboard-cell-end { font-size: 0.8125rem; color: var(--color-text-secondary); }
 .manager-dashboard-cell-actions {
   text-align: center;
   display: flex;
@@ -403,8 +404,8 @@ body {
   gap: 0.25rem;
 }
 
-.manager-dashboard-event-title { font-weight: 600; color: white; }
-.manager-dashboard-event-lots { font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); }
+.manager-dashboard-event-title { font-weight: 600; color: var(--color-text); }
+.manager-dashboard-event-lots { font-size: 0.75rem; color: var(--color-text-muted); }
 
 .manager-dashboard-event-row:last-child .manager-dashboard-table-cell { border-bottom: none; }
 

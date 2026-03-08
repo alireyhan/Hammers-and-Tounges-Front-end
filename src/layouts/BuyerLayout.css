@@ -1,12 +1,11 @@
-.guest-layout {
+.buyer-layout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-bg);
+  background: var(--color-bg);
 }
 
-/* Floating menu button - only when drawer is closed */
-.guest-drawer-toggle {
+.buyer-layout__toggle {
   position: fixed;
   top: 1rem;
   left: 1rem;
@@ -24,25 +23,28 @@
   transition: all 0.2s;
 }
 
-.guest-drawer-toggle:hover {
+.buyer-layout__toggle:hover {
   background: rgba(140, 198, 63, 0.2);
   color: #8cc63f;
   border-color: rgba(140, 198, 63, 0.3);
 }
 
-.guest-main {
+.buyer-layout__main {
   flex: 1;
+  min-height: 100vh;
 }
 
-/* Shift content right when drawer is open so it's not hidden */
-.guest-layout.drawer-open .guest-main,
-.guest-layout.drawer-open .main-footer {
+.buyer-layout:not(.drawer-open) .buyer-layout__main {
+  padding-left: 5rem;
+}
+
+.buyer-layout.drawer-open .buyer-layout__main {
   margin-left: 220px;
+  padding-left: 0;
 }
 
 @media (max-width: 480px) {
-  .guest-layout.drawer-open .guest-main,
-  .guest-layout.drawer-open .main-footer {
+  .buyer-layout.drawer-open .buyer-layout__main {
     margin-left: 200px;
   }
 }

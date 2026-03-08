@@ -22,24 +22,25 @@ const SignIn = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      const role = user.role
-      const isStaff = user.is_staff === true || String(user.is_staff).toLowerCase() === 'true'
+      const role = (user.role || '').toLowerCase()
+      const isStaff = user.is_staff === true || user.is_staff === 1 || String(user.is_staff).toLowerCase() === 'true'
 
-      // is_staff=true means admin (e.g. manager with is_staff=true) → admin flow
-      if (isStaff) {
-        navigate('/admin/dashboard', { replace: true })
-        return
-      }
-      if (role === 'manager') {
-        navigate('/manager/dashboard', { replace: true })
-        return
-      }
+      // Check role first: buyer and seller always go to their dashboards regardless of is_staff
       if (role === 'buyer') {
         navigate('/buyer/dashboard', { replace: true })
         return
       }
       if (role === 'seller') {
         navigate('/seller/dashboard', { replace: true })
+        return
+      }
+      // is_staff = admin; otherwise manager goes to manager dashboard
+      if (isStaff) {
+        navigate('/admin/dashboard', { replace: true })
+        return
+      }
+      if (role === 'manager') {
+        navigate('/manager/dashboard', { replace: true })
         return
       }
       navigate('/', { replace: true })
