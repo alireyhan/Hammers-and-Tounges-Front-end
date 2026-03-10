@@ -151,6 +151,39 @@
   min-height: 200px;
 }
 
+.manager-event-lots__body {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.manager-event-lots__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.manager-event-lots__clear-filters {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: #8cc63f;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.manager-event-lots__clear-filters:hover {
+  background: #7ab32e;
+}
+
+@media (max-width: 1024px) {
+  .manager-event-lots__body {
+    flex-direction: column-reverse;
+  }
+}
+
 .manager-event-lots__loading,
 .manager-event-lots__error,
 .manager-event-lots__empty {

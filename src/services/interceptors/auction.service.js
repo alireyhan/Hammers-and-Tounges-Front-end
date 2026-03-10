@@ -159,6 +159,21 @@ export const auctionService = {
     }
   },
 
+  // Get lot facets for filtering (optionally scoped by event)
+  getLotsFacets: async (params = {}) => {
+    try {
+      const { data } = await apiClient.get(API_ROUTES.AUCTIONS_LOTS_FACETS, {
+        params,
+      });
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
   // Get category detail
   getCategoryDetail: async (categoryId) => {
     try {

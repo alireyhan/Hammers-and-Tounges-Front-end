@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Auctions from "./pages/Auctions";
 import GuestBuy from "./pages/GuestBuy";
 import GuestSell from "./pages/GuestSell";
+import GuestEventLots from "./pages/GuestEventLots";
 import AuctionDetails from "./pages/AuctionDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -103,6 +104,7 @@ function App() {
             <Route element={<GuestLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/auctions" element={<Auctions />} />
+              <Route path="/event/:eventId" element={<GuestEventLots />} />
               <Route path="/buy" element={<GuestBuy />} />
               <Route path="/sell" element={<GuestSell />} />
               <Route path="/auction/:id" element={<AuctionDetails />} />

@@ -62,10 +62,11 @@ const Home = () => {
     page * itemsPerPage
   )
 
-  const handleEventClick = () => {
-    if (!token) {
-      toast.info('Login is required to continue further')
-      navigate('/signin')
+  const handleEventClick = (event) => {
+    if (token) {
+      navigate(`/buyer/event/${event.id}`, { state: { event } })
+    } else {
+      navigate(`/event/${event.id}`, { state: { event } })
     }
   }
 
@@ -109,10 +110,10 @@ const Home = () => {
                   <article
                     key={event.id}
                     className="home-event-card"
-                    onClick={handleEventClick}
+                    onClick={() => handleEventClick(event)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && handleEventClick()}
+                    onKeyDown={(e) => e.key === 'Enter' && handleEventClick(event)}
                   >
                     <div className="home-event-card__header">
                       <span className={`home-event-card__status home-event-card__status--${(event.status || '').toLowerCase()}`}>

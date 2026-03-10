@@ -142,6 +142,7 @@ export const API_ROUTES = {
   //// Auction Routes (Common for all)
   AUCTIONS_EVENTS: '/auctions/events/',
   AUCTIONS_LOTS: '/auctions/lots/',
+  AUCTIONS_LOTS_FACETS: '/auctions/lots/facets/',
   AUCTIONS_LIST: '/auctions/listings/',
   // AUCTION_DETAIL: '/auctions/listings/', // + auction_id
   AUCTION_CATEGORIES: '/auctions/categories/',

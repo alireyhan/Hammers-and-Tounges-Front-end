@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { auctionService } from '../services/interceptors/auction.service';
 import { addToFavorite, deleteFavorite, getMyFavoriteAuctions } from '../store/actions/buyerActions';
+import { fetchCategories } from '../store/actions/AuctionsActions';
 import { toast } from 'react-toastify';
 import { getMediaUrl } from '../config/api.config';
+import BuyerEventLotsFilterBar from '../components/BuyerEventLotsFilterBar';
 import './BuyerEventLots.css';
 
 const PAGE_SIZE = 12;
@@ -161,8 +163,13 @@ const BuyerEventLots = () => {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
+  const [selectedFilters, setSelectedFilters] = useState({});
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const fetchLots = useCallback(async (pageNum = 1) => {
     if (!eventId) return;
@@ -281,6 +288,48 @@ const BuyerEventLots = () => {
     });
   }, [navigate, eventId, eventFromState, eventTitle]);
 
+  const filteredLots = useMemo(() => {
+    const filters = selectedFilters;
+    const hasAnyFilter = Object.keys(filters).some(
+      (k) => filters[k] && filters[k].size > 0
+    );
+    if (!hasAnyFilter) return lots;
+
+    return lots.filter((lot) => {
+      let sd = lot.specific_data;
+      if (typeof sd === 'string') {
+        try {
+          sd = JSON.parse(sd) || {};
+        } catch {
+          sd = {};
+        }
+      }
+      sd = sd || {};
+      const catName = lot.category_name ?? lot.category?.name ?? '';
+
+      for (const [sectionKey, selected] of Object.entries(filters)) {
+        if (!selected || selected.size === 0) continue;
+
+        if (sectionKey === 'category') {
+          if (!selected.has(catName)) return false;
+          continue;
+        }
+
+        if (sectionKey === 'make') {
+          const lotMake = sd.make ?? sd.Make ?? '';
+          const makeStr = String(lotMake).trim();
+          if (!selected.has(makeStr)) return false;
+          continue;
+        }
+
+        const lotVal = sd[sectionKey] ?? sd[sectionKey.replace(/_/g, ' ')];
+        const lotValStr = lotVal != null ? String(lotVal) : '';
+        if (!selected.has(lotValStr)) return false;
+      }
+      return true;
+    });
+  }, [lots, selectedFilters]);
+
   return (
     <div className="buyer-event-lots">
       <header className="buyer-event-lots__header">
@@ -325,40 +374,61 @@ const BuyerEventLots = () => {
             <p>No lots found for this event.</p>
           </div>
         ) : (
-          <>
-            <div className="buyer-event-lots__grid">
-              {lots.map((lot) => (
-                <LotCard
-                  key={lot.id}
-                  lot={lot}
-                  onOpenDetail={handleLotClick}
-                  onFavoriteToggle={handleFavoriteToggle}
-                  favoriteIds={favoriteIds}
-                />
-              ))}
+          <div className="buyer-event-lots__body">
+            <div className="buyer-event-lots__content">
+              {filteredLots.length === 0 ? (
+                <div className="buyer-event-lots__empty">
+                  <p>No lots match your filters.</p>
+                  <button
+                    onClick={() => setSelectedFilters({})}
+                    className="buyer-event-lots__clear-filters"
+                  >
+                    Clear filters
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="buyer-event-lots__grid">
+                    {filteredLots.map((lot) => (
+                      <LotCard
+                        key={lot.id}
+                        lot={lot}
+                        onOpenDetail={handleLotClick}
+                        onFavoriteToggle={handleFavoriteToggle}
+                        favoriteIds={favoriteIds}
+                      />
+                    ))}
+                  </div>
+                  {totalPages > 1 && (
+                    <div className="buyer-event-lots__pagination">
+                      <button
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page <= 1}
+                        aria-label="Previous page"
+                      >
+                        Previous
+                      </button>
+                      <span className="buyer-event-lots__page-info">
+                        Page {page} of {totalPages}
+                      </span>
+                      <button
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={page >= totalPages}
+                        aria-label="Next page"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-            {totalPages > 1 && (
-              <div className="buyer-event-lots__pagination">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  aria-label="Previous page"
-                >
-                  Previous
-                </button>
-                <span className="buyer-event-lots__page-info">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                  aria-label="Next page"
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </>
+            <BuyerEventLotsFilterBar
+              eventId={eventId}
+              lots={lots}
+              onFiltersChange={setSelectedFilters}
+            />
+          </div>
         )}
       </main>
     </div>

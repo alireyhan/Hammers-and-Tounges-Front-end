@@ -1,28 +1,21 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { auctionService } from '../../services/interceptors/auction.service';
-import { getMediaUrl } from '../../config/api.config';
+import { auctionService } from '../services/interceptors/auction.service';
+import { fetchCategories } from '../store/actions/AuctionsActions';
 import { toast } from 'react-toastify';
-import { fetchCategories } from '../../store/actions/AuctionsActions';
-import BuyerEventLotsFilterBar from '../../components/BuyerEventLotsFilterBar';
-import './AdminEventLots.css';
+import { getMediaUrl } from '../config/api.config';
+import BuyerEventLotsFilterBar from '../components/BuyerEventLotsFilterBar';
+import './GuestEventLots.css';
 
 const PAGE_SIZE = 12;
 
-const formatDate = (str) => {
-  if (!str) return '—';
-  try {
-    return new Date(str).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return '—';
-  }
+const getStatusModifier = (status) => {
+  const s = (status || '').toUpperCase();
+  if (s === 'LIVE' || s === 'ACTIVE') return '--live';
+  if (s === 'CLOSING') return '--closing';
+  if (s === 'CLOSED') return '--closed';
+  return '--live';
 };
 
 const formatPrice = (price) => {
@@ -30,43 +23,16 @@ const formatPrice = (price) => {
   return parseFloat(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-const formatSpecificKey = (key) => {
-  return String(key)
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
-const SpecificDataList = ({ data }) => {
-  if (!data || typeof data !== 'object') return null;
-  const entries = Object.entries(data).filter(([, v]) => v != null && v !== '');
-  if (entries.length === 0) return null;
-  return (
-    <div className="admin-event-lots__specific-data">
-      {entries.map(([key, value]) => (
-        <div key={key} className="admin-event-lots__specific-item">
-          <span className="admin-event-lots__specific-key">{formatSpecificKey(key)}</span>
-          <span className="admin-event-lots__specific-value">
-            {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-const getStatusModifier = (status) => {
+const getLotStatusModifier = (status) => {
   const s = (status || '').toUpperCase();
-  switch (s) {
-    case 'DRAFT': return '--draft';
-    case 'SCHEDULED': case 'LIVE': case 'ACTIVE': case 'APPROVED': return '--active';
-    case 'CLOSING': case 'CLOSED': case 'COMPLETED': return '--closed';
-    case 'PENDING': return '--pending';
-    case 'REJECTED': return '--rejected';
-    default: return '--active';
-  }
+  if (s === 'DRAFT') return '--draft';
+  if (s === 'ACTIVE' || s === 'APPROVED' || s === 'LIVE') return '--active';
+  if (s === 'CLOSED' || s === 'COMPLETED') return '--closed';
+  if (s === 'PENDING') return '--pending';
+  return '--active';
 };
 
-const LotCard = ({ lot }) => {
+const GuestLotCard = ({ lot, onOpenDetail }) => {
   const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -87,47 +53,51 @@ const LotCard = ({ lot }) => {
   const hasMultipleImages = imageUrls.length > 1;
 
   return (
-    <article className="admin-event-lots__card">
-      <div className="admin-event-lots__card-media">
+    <article
+      className="guest-event-lots__card"
+      onClick={() => onOpenDetail?.(lot)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onOpenDetail?.(lot)}
+    >
+      <div className="guest-event-lots__card-media">
         {lotStatus && (
-          <span className={`admin-event-lots__card-status admin-event-lots__card-status${getStatusModifier(lotStatus)}`}>
+          <span className={`guest-event-lots__card-status guest-event-lots__card-status${getLotStatusModifier(lotStatus)}`}>
             {lotStatus}
           </span>
         )}
         {displayUrl ? (
           <img src={displayUrl} alt={lot.title} loading="lazy" />
         ) : (
-          <div className="admin-event-lots__card-placeholder">📷</div>
+          <div className="guest-event-lots__card-placeholder">📷</div>
         )}
         {hasMultipleImages && (
-          <div className="admin-event-lots__card-slider-dots">
+          <div className="guest-event-lots__card-slider-dots">
             {imageUrls.map((_, i) => (
               <span
                 key={i}
-                className={`admin-event-lots__card-dot ${i === currentImageIndex ? 'active' : ''}`}
+                className={`guest-event-lots__card-dot ${i === currentImageIndex ? 'active' : ''}`}
                 aria-hidden
               />
             ))}
           </div>
         )}
       </div>
-      <div className="admin-event-lots__card-body">
-        <div className="admin-event-lots__card-lot-no">Lot #{lot.lot_number || lot.id}</div>
-        <h3 className="admin-event-lots__card-title">{lot.title || 'Untitled'}</h3>
+      <div className="guest-event-lots__card-body">
+        <div className="guest-event-lots__card-lot-no">Lot #{lot.lot_number || lot.id}</div>
+        <h3 className="guest-event-lots__card-title">{lot.title || 'Untitled'}</h3>
         {lot.description && (
-          <p className="admin-event-lots__card-desc">{lot.description}</p>
+          <p className="guest-event-lots__card-desc">{lot.description}</p>
         )}
-        <div className="admin-event-lots__card-meta">
-          <span className="admin-event-lots__card-category">{lot.category_name || '—'}</span>
-          <span className="admin-event-lots__card-price">
+        <div className="guest-event-lots__card-meta">
+          <span className="guest-event-lots__card-category">{lot.category_name || '—'}</span>
+          <span className="guest-event-lots__card-price">
             {lot.currency || 'USD'} {formatPrice(lot.initial_price)}
           </span>
         </div>
-        <SpecificDataList data={lot.specific_data} />
-        <div className="admin-event-lots__card-footer">
-          <span className="admin-event-lots__card-seller">{lot.seller_name || '—'}</span>
+        <div className="guest-event-lots__card-footer">
           {lot.total_bids != null && (
-            <span className="admin-event-lots__card-bids">{lot.total_bids} bid(s)</span>
+            <span className="guest-event-lots__card-bids">{lot.total_bids} bid(s)</span>
           )}
         </div>
       </div>
@@ -135,8 +105,8 @@ const LotCard = ({ lot }) => {
   );
 };
 
-const AdminEventLots = () => {
-  const { id } = useParams();
+const GuestEventLots = () => {
+  const { eventId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -144,7 +114,7 @@ const AdminEventLots = () => {
 
   const [lots, setLots] = useState([]);
   const [eventTitle, setEventTitle] = useState(eventFromState?.title || 'Event Lots');
-  const [eventStatus, setEventStatus] = useState(eventFromState?.status ?? null);
+  const [eventStatus, setEventStatus] = useState(eventFromState?.status ?? 'LIVE');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -158,50 +128,100 @@ const AdminEventLots = () => {
   }, [dispatch]);
 
   const fetchLots = useCallback(async (pageNum = 1) => {
-    if (!id) return;
+    if (!eventId) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await auctionService.getLots({
-        event: id,
-        page: pageNum,
-        page_size: PAGE_SIZE,
-      });
-      setLots(res.results || []);
-      setTotalCount(res.count ?? res.results?.length ?? 0);
-      if (res.results?.[0]?.event_title && !eventFromState?.title) {
-        setEventTitle(res.results[0].event_title);
+      let items = [];
+      let total = 0;
+      let lotsSucceeded = false;
+
+      try {
+        const res = await auctionService.getLots({
+          event: eventId,
+          page: pageNum,
+          page_size: PAGE_SIZE,
+        });
+        lotsSucceeded = true;
+        items = res.results || [];
+        total = res.count ?? items.length;
+      } catch (lotsErr) {
+        console.warn('Lots endpoint failed, trying listings fallback:', lotsErr);
+      }
+
+      if (!lotsSucceeded) {
+        try {
+          const listingsRes = await auctionService.getAuctions({
+            event: eventId,
+            event_id: eventId,
+            page: pageNum,
+            page_size: PAGE_SIZE,
+          });
+          const rawItems = listingsRes.results || [];
+          items = rawItems.map((l) => ({
+            ...l,
+            seller_name: l.seller_name ?? l.seller_details?.name ?? '—',
+            category_name: l.category_name ?? l.category?.name ?? '—',
+          }));
+          total = listingsRes.count ?? rawItems.length;
+        } catch (listingsErr) {
+          throw listingsErr || new Error('Failed to load lots');
+        }
+      }
+
+      setLots(items);
+      setTotalCount(total);
+      if (items[0]?.event_title && !eventFromState?.title) {
+        setEventTitle(items[0].event_title);
       }
     } catch (err) {
-      console.error('Error fetching lots:', err);
-      setError(err.message || 'Failed to load lots');
-      toast.error('Failed to load lots');
+      if (err) {
+        console.error('Error fetching lots:', err);
+        setError(err?.message || err?.response?.data?.detail || 'Failed to load lots');
+        toast.error('Failed to load lots');
+      }
       setLots([]);
     } finally {
       setLoading(false);
     }
-  }, [id, eventFromState?.title]);
+  }, [eventId, eventFromState?.title]);
 
   useEffect(() => {
     fetchLots(page);
   }, [fetchLots, page]);
 
   useEffect(() => {
-    if (!id || eventFromState) return;
+    if (!eventId || eventFromState) return;
     let cancelled = false;
     (async () => {
       try {
-        const ev = await auctionService.getEvent(id);
+        const ev = await auctionService.getEvent(eventId);
         if (!cancelled) {
           setEventTitle(ev.title || eventTitle);
-          setEventStatus(ev.status ?? null);
+          setEventStatus(ev.status ?? 'LIVE');
         }
       } catch {
-        if (!cancelled) setEventStatus(null);
+        if (!cancelled) {
+          setEventTitle('Event Lots');
+          setEventStatus('LIVE');
+        }
       }
     })();
     return () => { cancelled = true; };
-  }, [id, eventFromState]);
+  }, [eventId, eventFromState]);
+
+  const handleLotClick = useCallback((lot) => {
+    toast.info('Please sign in to view lot details');
+    navigate('/signin', {
+      state: {
+        from: 'guest-event-lots',
+        returnTo: `/buyer/auction/${lot.id}`,
+        listing: lot,
+        eventId,
+        event: eventFromState || { id: eventId, title: eventTitle },
+      },
+    });
+  }, [navigate, eventId, eventFromState, eventTitle]);
 
   const filteredLots = useMemo(() => {
     const filters = selectedFilters;
@@ -246,70 +266,74 @@ const AdminEventLots = () => {
   }, [lots, selectedFilters]);
 
   return (
-    <div className="admin-event-lots">
-      <header className="admin-event-lots__header">
+    <div className="guest-event-lots">
+      <header className="guest-event-lots__header">
         <button
-          className="admin-event-lots__back"
-          onClick={() => navigate('/admin/dashboard')}
-          aria-label="Back to dashboard"
+          className="guest-event-lots__back"
+          onClick={() => navigate('/')}
+          aria-label="Back to home"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 19l-5-7 5-7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Back
         </button>
-        <div className="admin-event-lots__header-content">
-          <div className="admin-event-lots__header-title-row">
-            <h1 className="admin-event-lots__title">{eventTitle}</h1>
+        <div className="guest-event-lots__header-content">
+          <div className="guest-event-lots__header-title-row">
+            <h1 className="guest-event-lots__title">{eventTitle}</h1>
             {eventStatus && (
-              <span className={`admin-event-lots__header-status admin-event-lots__header-status${getStatusModifier(eventStatus)}`}>
+              <span className={`guest-event-lots__header-status guest-event-lots__header-status${getStatusModifier(eventStatus)}`}>
                 {eventStatus}
               </span>
             )}
           </div>
-          <p className="admin-event-lots__subtitle">
+          <p className="guest-event-lots__subtitle">
             {totalCount} lot{totalCount !== 1 ? 's' : ''} in this event
           </p>
         </div>
       </header>
 
-      <main className="admin-event-lots__main">
+      <main className="guest-event-lots__main">
         {loading && lots.length === 0 ? (
-          <div className="admin-event-lots__loading">
-            <div className="admin-event-lots__spinner" />
+          <div className="guest-event-lots__loading">
+            <div className="guest-event-lots__spinner" />
             <p>Loading lots...</p>
           </div>
         ) : error ? (
-          <div className="admin-event-lots__error">
+          <div className="guest-event-lots__error">
             <p>{error}</p>
             <button onClick={() => fetchLots(page)}>Retry</button>
           </div>
         ) : lots.length === 0 ? (
-          <div className="admin-event-lots__empty">
+          <div className="guest-event-lots__empty">
             <p>No lots found for this event.</p>
           </div>
         ) : (
-          <div className="admin-event-lots__body">
-            <div className="admin-event-lots__content">
+          <div className="guest-event-lots__body">
+            <div className="guest-event-lots__content">
               {filteredLots.length === 0 ? (
-                <div className="admin-event-lots__empty">
+                <div className="guest-event-lots__empty">
                   <p>No lots match your filters.</p>
                   <button
                     onClick={() => setSelectedFilters({})}
-                    className="admin-event-lots__clear-filters"
+                    className="guest-event-lots__clear-filters"
                   >
                     Clear filters
                   </button>
                 </div>
               ) : (
                 <>
-                  <div className="admin-event-lots__grid">
+                  <div className="guest-event-lots__grid">
                     {filteredLots.map((lot) => (
-                      <LotCard key={lot.id} lot={lot} />
+                      <GuestLotCard
+                        key={lot.id}
+                        lot={lot}
+                        onOpenDetail={handleLotClick}
+                      />
                     ))}
                   </div>
                   {totalPages > 1 && (
-                    <div className="admin-event-lots__pagination">
+                    <div className="guest-event-lots__pagination">
                       <button
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page <= 1}
@@ -317,7 +341,7 @@ const AdminEventLots = () => {
                       >
                         Previous
                       </button>
-                      <span className="admin-event-lots__page-info">
+                      <span className="guest-event-lots__page-info">
                         Page {page} of {totalPages}
                       </span>
                       <button
@@ -333,7 +357,7 @@ const AdminEventLots = () => {
               )}
             </div>
             <BuyerEventLotsFilterBar
-              eventId={id}
+              eventId={eventId}
               lots={lots}
               onFiltersChange={setSelectedFilters}
             />
@@ -344,4 +368,4 @@ const AdminEventLots = () => {
   );
 };
 
-export default AdminEventLots;
+export default GuestEventLots;

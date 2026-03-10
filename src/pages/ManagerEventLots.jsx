@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { auctionService } from '../services/interceptors/auction.service';
 import { toast } from 'react-toastify';
 import { getMediaUrl } from '../config/api.config';
+import { fetchCategories } from '../store/actions/AuctionsActions';
+import BuyerEventLotsFilterBar from '../components/BuyerEventLotsFilterBar';
 import './ManagerEventLots.css';
 
 const PAGE_SIZE = 12;
@@ -157,6 +160,7 @@ const ManagerEventLots = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const eventFromState = location.state?.event;
 
   const [lots, setLots] = useState([]);
@@ -166,8 +170,13 @@ const ManagerEventLots = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedFilters, setSelectedFilters] = useState({});
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const fetchLots = useCallback(async (pageNum = 1) => {
     if (!id) return;
@@ -287,6 +296,48 @@ const ManagerEventLots = () => {
   const showCreateLot = eventStatus === 'SCHEDULED';
   const showDeleteEvent = eventStatus === 'SCHEDULED';
 
+  const filteredLots = useMemo(() => {
+    const filters = selectedFilters;
+    const hasAnyFilter = Object.keys(filters).some(
+      (k) => filters[k] && filters[k].size > 0
+    );
+    if (!hasAnyFilter) return lots;
+
+    return lots.filter((lot) => {
+      let sd = lot.specific_data;
+      if (typeof sd === 'string') {
+        try {
+          sd = JSON.parse(sd) || {};
+        } catch {
+          sd = {};
+        }
+      }
+      sd = sd || {};
+      const catName = lot.category_name ?? lot.category?.name ?? '';
+
+      for (const [sectionKey, selected] of Object.entries(filters)) {
+        if (!selected || selected.size === 0) continue;
+
+        if (sectionKey === 'category') {
+          if (!selected.has(catName)) return false;
+          continue;
+        }
+
+        if (sectionKey === 'make') {
+          const lotMake = sd.make ?? sd.Make ?? '';
+          const makeStr = String(lotMake).trim();
+          if (!selected.has(makeStr)) return false;
+          continue;
+        }
+
+        const lotVal = sd[sectionKey] ?? sd[sectionKey.replace(/_/g, ' ')];
+        const lotValStr = lotVal != null ? String(lotVal) : '';
+        if (!selected.has(lotValStr)) return false;
+      }
+      return true;
+    });
+  }, [lots, selectedFilters]);
+
   const [activatingLotId, setActivatingLotId] = useState(null);
   const handleSetLotActive = useCallback(async (lot) => {
     if (!lot?.id) return;
@@ -381,45 +432,66 @@ const ManagerEventLots = () => {
             <p>No lots found for this event.</p>
           </div>
         ) : (
-          <>
-            <div className="manager-event-lots__grid">
-              {lots.map((lot) => (
-                <LotCard
-                  key={lot.id}
-                  lot={lot}
-                  onOpenDetail={() => {
-                    const eventData = eventFromState || { id, title: eventTitle, status: eventStatus };
-                    navigate(`/manager/event/${id}/lot/${lot.id}`, {
-                      state: { lot, event: eventData },
-                    });
-                  }}
-                  onSetActive={handleSetLotActive}
-                  isSettingActive={activatingLotId === lot.id}
-                />
-              ))}
+          <div className="manager-event-lots__body">
+            <div className="manager-event-lots__content">
+              {filteredLots.length === 0 ? (
+                <div className="manager-event-lots__empty">
+                  <p>No lots match your filters.</p>
+                  <button
+                    onClick={() => setSelectedFilters({})}
+                    className="manager-event-lots__clear-filters"
+                  >
+                    Clear filters
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="manager-event-lots__grid">
+                    {filteredLots.map((lot) => (
+                      <LotCard
+                        key={lot.id}
+                        lot={lot}
+                        onOpenDetail={() => {
+                          const eventData = eventFromState || { id, title: eventTitle, status: eventStatus };
+                          navigate(`/manager/event/${id}/lot/${lot.id}`, {
+                            state: { lot, event: eventData },
+                          });
+                        }}
+                        onSetActive={handleSetLotActive}
+                        isSettingActive={activatingLotId === lot.id}
+                      />
+                    ))}
+                  </div>
+                  {totalPages > 1 && (
+                    <div className="manager-event-lots__pagination">
+                      <button
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page <= 1}
+                        aria-label="Previous page"
+                      >
+                        Previous
+                      </button>
+                      <span className="manager-event-lots__page-info">
+                        Page {page} of {totalPages}
+                      </span>
+                      <button
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={page >= totalPages}
+                        aria-label="Next page"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-            {totalPages > 1 && (
-              <div className="manager-event-lots__pagination">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  aria-label="Previous page"
-                >
-                  Previous
-                </button>
-                <span className="manager-event-lots__page-info">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                  aria-label="Next page"
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </>
+            <BuyerEventLotsFilterBar
+              eventId={id}
+              lots={lots}
+              onFiltersChange={setSelectedFilters}
+            />
+          </div>
         )}
       </main>
     </div>
