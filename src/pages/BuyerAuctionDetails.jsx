@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { placeBid, fetchAuctionBids, addToFavorite, deleteFavorite } from '../store/actions/buyerActions';
+import { fetchCategories } from '../store/actions/AuctionsActions';
 import { auctionService } from '../services/interceptors/auction.service';
 import { getMediaUrl } from '../config/api.config';
 import './BuyerAuctionDetails.css';
@@ -241,7 +242,7 @@ const BuyerAuctionDetails = () => {
   const location = useLocation();
   const auctionObj = location.state?.listing;
   const fromBuyAndSell = location.state?.from === 'buyer-buy';
-  const { auctionBids, isPlacingBid, error } = useSelector(state => state.buyer);
+  const { auctionBids, isPlacingBid, error, categories } = useSelector(state => state.buyer);
 
   useEffect(() => {
     if (id) dispatch(fetchAuctionBids(id));
@@ -287,31 +288,27 @@ const BuyerAuctionDetails = () => {
     timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
     isLoading: !auctionObj,
     error: null,
-    categoryDetail: null,
     isFavorite: auctionObj?.is_favourite ?? false,
   });
 
-  // Fetch category detail for increment rules when we have the lot
+  // Use same categories API as Buy & Sell (GET /auctions/categories/) - not the detail endpoint which returns 403
   useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  // Get category from Redux (same source as Buy & Sell - GET /auctions/categories/)
+  const categoryDetail = useMemo(() => {
     const categoryId = state.selectedAuction?.category ?? state.selectedAuction?.category_id;
-    if (!categoryId) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const cat = await auctionService.getCategoryDetail(categoryId);
-        if (!cancelled) {
-          setState((prev) => ({ ...prev, categoryDetail: cat }));
-        }
-      } catch {
-        if (!cancelled) setState((prev) => ({ ...prev, categoryDetail: null }));
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [state.selectedAuction?.category, state.selectedAuction?.category_id]);
+    if (!categoryId) return null;
+    const list = Array.isArray(categories) ? categories : categories?.results ?? [];
+    if (!list.length) return null;
+    const id = Number(categoryId);
+    return list.find((c) => c.id === id || Number(c.id) === id) ?? null;
+  }, [state.selectedAuction?.category, state.selectedAuction?.category_id, categories]);
 
   // Compute next valid bid from increment rules: user can only bid (current + increment), capped by up_to
   const { nextBidAmount, incrementRules } = useMemo(() => {
-    const ranges = state.categoryDetail?.increment_rules?.ranges;
+    const ranges = categoryDetail?.increment_rules?.ranges;
     const initialPrice = parseFloat(state.selectedAuction?.initial_price || 0);
     const highestBid = parseFloat(auctionBids?.[0]?.amount ?? 0);
     const currentHighest = Math.max(initialPrice, highestBid);
@@ -339,11 +336,12 @@ const BuyerAuctionDetails = () => {
       nextBidAmount: nextBid > currentHighest ? nextBid : null,
       incrementRules: { increment, upTo },
     };
-  }, [state.selectedAuction?.initial_price, auctionBids, state.categoryDetail?.increment_rules?.ranges]);
+  }, [state.selectedAuction?.initial_price, auctionBids, categoryDetail?.increment_rules?.ranges]);
 
 
   // Memoized computed values
   const auction = state.selectedAuction;
+
 
   useEffect(() => {
     if (auction?.is_favourite != null) {

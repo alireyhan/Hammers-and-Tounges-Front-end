@@ -18,9 +18,6 @@ const BuyerProfile = () => {
     error
   } = useSelector((state) => state.profile);
 
-  console.log(profileData, 'profile data');
-  
-
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -52,32 +49,6 @@ const BuyerProfile = () => {
   const handleRetry = useCallback(() => {
     dispatch(fetchProfile());
   }, [dispatch]);
-
-  // Loading state
-  if (loading && !profileData) {
-    return (
-      <div className="buyer-profile-container">
-        <div className="buyer-profile-loading">
-          <div className="buyer-profile-spinner" />
-          <p>Loading your profile...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Error state - show retry when fetch failed and no cached data
-  if (error && !profileData) {
-    return (
-      <div className="buyer-profile-container">
-        <div className="buyer-profile-error">
-          <p>{error?.message || error?.detail || 'Failed to load profile. Please check your connection.'}</p>
-          <button className="b-action-btn b-primary" onClick={handleRetry}>
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Update formData when profileData changes from API
   useEffect(() => {
@@ -218,23 +189,21 @@ const BuyerProfile = () => {
     });
   };
 
-  // Loading state
+  // Loading/error states - must be after all hooks to avoid "fewer hooks" error
   if (loading && !profileData) {
     return (
       <div className="buyer-profile-container">
-        <div className="profile-loading">
-          <div className="profile-loading-spinner" />
+        <div className="buyer-profile-loading">
+          <div className="buyer-profile-spinner" />
           <p>Loading your profile...</p>
         </div>
       </div>
     );
   }
-
-  // Error state
   if (error && !profileData) {
     return (
       <div className="buyer-profile-container">
-        <div className="profile-error">
+        <div className="buyer-profile-error">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <path d="M12 8v4M12 16h.01" strokeLinecap="round" strokeLinejoin="round" />

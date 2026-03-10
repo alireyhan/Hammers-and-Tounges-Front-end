@@ -54,14 +54,18 @@ function appendFormData(formData, data, parentKey = null) {
 
 export const profileService = {
   getProfile: async () => {
+    // Try /users/me/ first (common for current user, no ID in path); fallback to /users/profile/
     try {
-      const { data } = await apiClient.get(API_ROUTES.PROFILE);
+      const { data } = await apiClient.get(API_ROUTES.PROFILE_ME || API_ROUTES.PROFILE);
       return normalizeProfileResponse(data) || data;
     } catch (err) {
-      // Fallback: some backends use /users/me/ instead of /users/profile/
-      if (err?.response?.status === 404 && API_ROUTES.PROFILE_ME) {
-        const { data } = await apiClient.get(API_ROUTES.PROFILE_ME);
-        return normalizeProfileResponse(data) || data;
+      if (API_ROUTES.PROFILE && API_ROUTES.PROFILE !== API_ROUTES.PROFILE_ME) {
+        try {
+          const { data } = await apiClient.get(API_ROUTES.PROFILE);
+          return normalizeProfileResponse(data) || data;
+        } catch {
+          throw err;
+        }
       }
       throw err;
     }

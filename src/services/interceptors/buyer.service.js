@@ -76,7 +76,7 @@ export const buyerService = {
       throw error;
     }
   },
-  // Add/remove from watchlist - try listings first (API doc), fallback to lots
+  // Add/remove from watchlist - same POST endpoint toggles (add if not in list, remove if in list)
   addToFavorite: async (id) => {
     let err;
     try {
@@ -94,20 +94,8 @@ export const buyerService = {
     }
   },
   deleteFromFavorite: async (id) => {
-    let listingsErr;
-    try {
-      const { data } = await apiClient.delete(`${API_ROUTES.AUCTION_LISTINGS}${id}/watchlist/`);
-      return data;
-    } catch (e) {
-      listingsErr = e;
-    }
-    if (listingsErr?.isNetworkError) throw new Error('Unable to connect to server. Please try again later.');
-    try {
-      const { data } = await apiClient.delete(`${API_ROUTES.AUCTIONS_LOTS}${id}/watchlist/`);
-      return data;
-    } catch {
-      throw listingsErr;
-    }
+    // Use same POST API as add - backend toggles on/off
+    return buyerService.addToFavorite(id);
   },
 
 };

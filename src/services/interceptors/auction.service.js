@@ -162,11 +162,13 @@ export const auctionService = {
   // Get category detail
   getCategoryDetail: async (categoryId) => {
     try {
-      const { data } = await apiClient.get(
+      const response = await apiClient.get(
         `${API_ROUTES.AUCTION_CATEGORY_DETAIL}${categoryId}/`
       );
-      return data;
+      console.log('Category GET API response (direct):', response?.data);
+      return response.data;
     } catch (error) {
+      console.log('Category GET API error:', error?.response?.status, error?.response?.data);
       if (error.isNetworkError) {
         throw new Error('Unable to connect to server. Please try again later.');
       }

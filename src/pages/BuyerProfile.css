@@ -906,3 +906,38 @@ input:checked + .slider:before {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Loading & error states */
+.buyer-profile-loading,
+.buyer-profile-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 1rem;
+  text-align: center;
+}
+
+.buyer-profile-loading p,
+.buyer-profile-error p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.buyer-profile-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #8cc63f;
+  border-radius: 50%;
+  animation: buyer-profile-spin 0.8s linear infinite;
+}
+
+@keyframes buyer-profile-spin {
+  to { transform: rotate(360deg); }
+}
+
+.buyer-profile-error h3 {
+  margin: 0;
+  font-size: 1.125rem;
+}
