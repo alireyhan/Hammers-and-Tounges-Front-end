@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { createCategory, updateCategory, fetchCategories } from '../../store/actions/adminActions';
+import { fetchCategories as fetchCategoriesForBuyer } from '../../store/actions/AuctionsActions';
 import { toast } from 'react-toastify';
 import './ManagerProductFields.css';
 
@@ -114,11 +115,10 @@ const ManagerProductFields = () => {
     if (localStorage.getItem('editingCategoryId')) {
       return [];
     }
-    // Default fields for new categories
+    // Default fields for new categories: Make (compulsory) and Year
     return [
-      { id: 1, name: 'Title', type: 'text', required: true, placeholder: 'e.g., Product Title', sortOrder: 1 },
-      { id: 2, name: 'Description', type: 'textarea', required: true, placeholder: 'e.g., Product Description', sortOrder: 2 },
-      { id: 3, name: 'Year', type: 'number', required: true, placeholder: 'e.g., 2020', sortOrder: 3 },
+      { id: 1, name: 'Make', type: 'text', required: true, placeholder: 'e.g., Toyota, Honda', sortOrder: 1 },
+      { id: 2, name: 'Year', type: 'number', required: false, placeholder: 'e.g., 2020', sortOrder: 2 },
     ];
   });
 
@@ -254,6 +254,12 @@ const ManagerProductFields = () => {
       return;
     }
 
+    // Make field must remain required - cannot be made optional
+    if (editingField?.name.toLowerCase() === 'make' && !newField.required) {
+      toast.error('The Make field must remain compulsory.');
+      return;
+    }
+
     setFields(prev => prev.map(field =>
       field.id === editingField.id
         ? {
@@ -281,9 +287,13 @@ const ManagerProductFields = () => {
     setErrors({});
   };
 
-  const handleDeleteField = (id) => {
+  const handleDeleteField = (field) => {
+    if (field.name.toLowerCase() === 'make') {
+      toast.error('Cannot delete the Make field. It is required for every category.');
+      return;
+    }
     if (window.confirm('Are you sure you want to delete this field? This will affect all products in this category.')) {
-      setFields(prev => prev.filter(field => field.id !== id));
+      setFields(prev => prev.filter(f => f.id !== field.id));
     }
   };
 
@@ -324,6 +334,15 @@ const ManagerProductFields = () => {
   const handleSaveFields = async () => {
     if (!categoryName) {
       alert('Category name is missing. Please go back and enter a category name.');
+      return;
+    }
+
+    // Make field is compulsory - cannot create/update category without it
+    const hasMakeField = fields.some(f => f.name.toLowerCase() === 'make');
+    const makeFieldRequired = fields.find(f => f.name.toLowerCase() === 'make')?.required;
+
+    if (!hasMakeField || !makeFieldRequired) {
+      toast.error('The Make field is required and must be marked as compulsory. Cannot save without it.');
       return;
     }
 
@@ -376,8 +395,9 @@ const ManagerProductFields = () => {
         localStorage.removeItem('editingCategoryId');
       }
       
-      // Refresh categories list
+      // Refresh categories in both admin and buyer stores (Buy tab uses state.buyer.categories)
       dispatch(fetchCategories());
+      dispatch(fetchCategoriesForBuyer());
       
       // Navigate back to category list
       navigate('/admin/category');
@@ -498,8 +518,9 @@ const ManagerProductFields = () => {
                       </button>
                       <button
                         className="field-action-btn field-delete-btn"
-                        onClick={() => handleDeleteField(field.id)}
-                        title="Delete field"
+                        onClick={() => handleDeleteField(field)}
+                        title={field.name.toLowerCase() === 'make' ? 'Make field cannot be deleted' : 'Delete field'}
+                        disabled={field.name.toLowerCase() === 'make'}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                           <polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

@@ -77,15 +77,23 @@ const NotFoundState = memo(() => (
 
 NotFoundState.displayName = 'NotFoundState';
 
-const Breadcrumbs = memo(({ auction }) => (
+const Breadcrumbs = memo(({ auction, fromEvent, eventId }) => (
   <nav className="buyer-details-breadcrumbs">
     <Link to="/buyer/dashboard">Home</Link>
     <span>/</span>
-    <Link to="/buyer/auctions">Auctions</Link>
-    <span>/</span>
-    <span>{auction?.category_name || 'Category'}</span>
-    {/* <span>/</span>
-    <span>Lot #{auction?.id || 'N/A'}</span> */}
+    {fromEvent && eventId ? (
+      <>
+        <Link to={`/buyer/event/${eventId}`}>Event Details</Link>
+        <span>/</span>
+        <span>{auction?.category_name || 'Category'}</span>
+      </>
+    ) : (
+      <>
+        <Link to="/buyer/buy">Auctions</Link>
+        <span>/</span>
+        <span>{auction?.category_name || 'Category'}</span>
+      </>
+    )}
   </nav>
 ));
 
@@ -449,7 +457,11 @@ const BuyerAuctionDetails = () => {
   return (
     <div className={`buyer-details-page ${isLive ? 'buyer-details-live-page' : ''}`}>
       <div className="buyer-details-container">
-        <Breadcrumbs auction={auction} />
+        <Breadcrumbs
+          auction={auction}
+          fromEvent={location.state?.from === 'buyer-event-lots'}
+          eventId={location.state?.eventId}
+        />
 
         <div className="buyer-details-header-section">
           <h1 className="buyer-details-title">{auction?.title || 'Auction'}</h1>

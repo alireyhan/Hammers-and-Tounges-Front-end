@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { auctionService } from '../services/interceptors/auction.service';
-import { fetchCategories } from '../store/actions/AuctionsActions';
 import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
 import './GuestBuy.css';
@@ -96,13 +94,17 @@ const LotCard = ({ lot, onLotClick }) => {
 
 const GuestBuy = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { categories } = useSelector((state) => state.buyer);
+  const [searchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get('category');
+  const selectedCategory = categoryFromUrl ? Number(categoryFromUrl) : null;
+
+  if (!categoryFromUrl) {
+    return <Navigate to="/" replace />;
+  }
 
   const [lots, setLots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -138,10 +140,6 @@ const GuestBuy = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
-
-  useEffect(() => {
     if (selectedCategory) {
       fetchLots(selectedCategory, page);
     } else {
@@ -164,45 +162,20 @@ const GuestBuy = () => {
     navigate('/signin', { state: { from: '/buy' } });
   }, [navigate]);
 
-  const activeCategories = (categories || []).filter((c) => c.is_active !== false);
-
   return (
     <div className="guest-buy">
       <header className="guest-buy__header">
-        <h1 className="guest-buy__title">Buy & Sell</h1>
+        <h1 className="guest-buy__title">Buy</h1>
         <p className="guest-buy__subtitle">
-          Select a category to browse available lots
+          Select a category from the menu to browse available lots
         </p>
-
-        <div className="guest-buy__category-select">
-          <label htmlFor="category-dropdown" className="guest-buy__category-label">
-            Category
-          </label>
-          <select
-            id="category-dropdown"
-            className="guest-buy__category-dropdown"
-            value={selectedCategory ?? ''}
-            onChange={(e) => {
-              const val = e.target.value;
-              setSelectedCategory(val ? Number(val) : null);
-              setPage(1);
-            }}
-          >
-            <option value="">Select a category</option>
-            {activeCategories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name || cat.slug || `Category #${cat.id}`}
-              </option>
-            ))}
-          </select>
-        </div>
       </header>
 
       <main className="guest-buy__main">
         {!selectedCategory ? (
           <div className="guest-buy__empty-prompt">
             <div className="guest-buy__empty-icon">🛒</div>
-            <p>Choose a category from the dropdown above to view lots</p>
+            <p>Click a category in the menu to view lots</p>
           </div>
         ) : loading && lots.length === 0 ? (
           <div className="guest-buy__loading">
@@ -216,7 +189,7 @@ const GuestBuy = () => {
           </div>
         ) : lots.length === 0 ? (
           <div className="guest-buy__empty">
-            <p>No lots found in this category.</p>
+            <p>No data found in this category.</p>
           </div>
         ) : (
           <>

@@ -4,6 +4,7 @@ import GuestLayout from "./layouts/GuestLayout";
 import Home from "./pages/Home";
 import Auctions from "./pages/Auctions";
 import GuestBuy from "./pages/GuestBuy";
+import GuestSell from "./pages/GuestSell";
 import AuctionDetails from "./pages/AuctionDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -23,6 +24,7 @@ import BuyerWonItems from "./pages/BuyerWonItems";
 import BuyerInvoices from "./pages/BuyerInvoices";
 import BuyerWallet from "./pages/BuyerWallet";
 import BuyerProfile from "./pages/BuyerProfile";
+import BuyerSell from "./pages/BuyerSell";
 import FavoriteAuctions from "./pages/FavoriteAuctions";
 
 import SellerDashboard from "./pages/SellerDashboard";
@@ -38,6 +40,7 @@ import SellerKYCDocumentUpload from "./pages/sellerProfile/SellerKYCDocumentUplo
 // Manager
 import ManagerDashboard from "./pages/ManagerDashboard";
 import ManagerBuy from "./pages/ManagerBuy";
+import ManagerSell from "./pages/ManagerSell";
 import ManagerCreateEvent from "./pages/ManagerCreateEvent";
 import ManagerEventLots from "./pages/ManagerEventLots";
 import ManagerInspection from "./pages/ManagerInspection";
@@ -57,6 +60,7 @@ import AdminBuy from "./pages/AdminBuy";
 import AdminEventLots from "./pages/adminDashboard/AdminEventLots";
 import AdminAuctionDetails from "./pages/adminDashboard/AdminAuctionDetails";
 import AdminProfile from "./pages/adminProfile/AdminProfile";
+import AdminSell from "./pages/AdminSell";
 import AdminFinance from './pages/AdminFinance'
 import ManualPaymentEntry from './components/ManualPayment'
 import ManualPaymentAuthorization from './pages/ManualPaymentAuthorization'
@@ -100,6 +104,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/auctions" element={<Auctions />} />
               <Route path="/buy" element={<GuestBuy />} />
+              <Route path="/sell" element={<GuestSell />} />
               <Route path="/auction/:id" element={<AuctionDetails />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
@@ -117,6 +122,7 @@ function App() {
               <Route element={<BuyerLayout />}>
                 <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
                 <Route path="/buyer/buy" element={<BuyerBuy />} />
+                <Route path="/buyer/sell" element={<BuyerSell />} />
                 <Route path="/buyer/event/:eventId" element={<BuyerEventLots />} />
                 <Route path="/buyer/auctions" element={<BuyerAuctions />} />
                 <Route path="/buyer/auction/:id" element={<BuyerAuctionDetails />} />
@@ -152,6 +158,7 @@ function App() {
               <Route element={<ManagerLayout />}>
                 <Route path="/manager/dashboard" element={<ManagerDashboard />} />
                 <Route path="/manager/buy" element={<ManagerBuy />} />
+                <Route path="/manager/sell" element={<ManagerSell />} />
                 <Route path="/manager/buy/lot/:lotId" element={<LotDetailReadOnly backPath="/manager/buy" />} />
                 <Route path="/manager/event/create" element={<ManagerCreateEvent />} />
                 <Route path="/manager/event/:eventId/lot/:lotId" element={<ManagerLotDetail />} />
@@ -216,6 +223,7 @@ function App() {
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/buy" element={<AdminBuy />} />
+                <Route path="/admin/sell" element={<AdminSell />} />
                 <Route path="/admin/buy/lot/:lotId" element={<LotDetailReadOnly backPath="/admin/buy" />} />
                 <Route path="/admin/event/:id" element={<AdminEventLots />} />
                 <Route path="/admin/auction/:id" element={<AdminAuctionDetails />} />

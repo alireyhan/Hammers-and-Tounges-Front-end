@@ -24,36 +24,6 @@
   margin: 0 0 1rem;
 }
 
-.guest-buy__category-select {
-  max-width: 320px;
-}
-
-.guest-buy__category-label {
-  display: block;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin-bottom: 0.5rem;
-}
-
-.guest-buy__category-dropdown {
-  width: 100%;
-  padding: 0.625rem 1rem;
-  font-size: 0.9375rem;
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.guest-buy__category-dropdown:hover,
-.guest-buy__category-dropdown:focus {
-  border-color: rgba(140, 198, 63, 0.5);
-  outline: none;
-}
-
 .guest-buy__main {
   min-height: 200px;
 }

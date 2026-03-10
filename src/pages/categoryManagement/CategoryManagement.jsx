@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories, deleteCategory } from '../../store/actions/adminActions';
+import { fetchCategories as fetchCategoriesForBuyer } from '../../store/actions/AuctionsActions';
 import { adminService } from '../../services/interceptors/admin.service';
 import { toast } from 'react-toastify';
 import './CategoryManagement.css';
@@ -52,8 +53,9 @@ export default function CategoryManagement() {
       });
       
       toast.success(`Category ${newStatus ? 'activated' : 'deactivated'} successfully!`);
-      // Refresh categories list after successful toggle
+      // Refresh categories in both admin and buyer stores (Buy tab uses state.buyer.categories)
       dispatch(fetchCategories());
+      dispatch(fetchCategoriesForBuyer());
     } catch (error) {
       const message = error.response?.data?.message || 
                      error.response?.data?.error ||
@@ -80,8 +82,9 @@ export default function CategoryManagement() {
 )) {
       try {
         await dispatch(deleteCategory(id)).unwrap();
-        // Refresh categories list after successful deletion
+        // Refresh categories in both admin and buyer stores (Buy tab uses state.buyer.categories)
         dispatch(fetchCategories());
+        dispatch(fetchCategoriesForBuyer());
       } catch (error) {
         // Error is already handled by the action (toast notification)
         console.error('Failed to delete category:', error);
