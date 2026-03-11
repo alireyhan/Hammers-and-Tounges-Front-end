@@ -46,6 +46,18 @@
     --color-input-placeholder: rgba(0, 0, 0, 0.65);
     --color-shadow: rgba(0, 0, 0, 0.08);
   }
+
+  /* Force input text visible when system is light (no theme toggle override) */
+  input, textarea, select {
+    color: #1a1a1a !important;
+    -webkit-text-fill-color: #1a1a1a !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(0, 0, 0, 0.65) !important;
+    -webkit-text-fill-color: rgba(0, 0, 0, 0.65) !important;
+  }
 }
 
 /* Manual theme override - user can force light/dark regardless of system */
@@ -72,10 +84,18 @@ html[data-theme="light"] {
   --color-shadow: rgba(0, 0, 0, 0.08);
 }
 
-/* Force darker placeholders in light mode for better readability */
+/* Force input text and placeholders to be visible in light mode - fixes white-on-white */
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {
+  color: #1a1a1a !important;
+  -webkit-text-fill-color: #1a1a1a !important;
+}
+
 html[data-theme="light"] input::placeholder,
 html[data-theme="light"] textarea::placeholder {
   color: rgba(0, 0, 0, 0.65) !important;
+  -webkit-text-fill-color: rgba(0, 0, 0, 0.65) !important;
 }
 
 /* Force light headers when light theme - fixes buyer dashboard/drawer */
