@@ -286,6 +286,20 @@
   font-weight: 500;
 }
 
+.bid-highest-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-top: 0.25rem;
+}
+
+.bid-highest-badge-icon {
+  color: var(--color-accent);
+}
+
 .mybidding-info {
   display: flex;
   flex-direction: column;

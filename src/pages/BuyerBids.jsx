@@ -301,6 +301,12 @@ const BuyerBids = () => {
                             {bid.status === 'AWAITING_PAYMENT' ? 'Awaiting Payment' : bid.status}
                           </span>
                         </div>
+                        {bid.is_highest_bidder && (
+                          <div className="bid-highest-badge">
+                            <span className="bid-highest-badge-icon">✓</span>
+                            Highest bidder
+                          </div>
+                        )}
                       </div>
 
                       {/* <div className="status-message"> */}

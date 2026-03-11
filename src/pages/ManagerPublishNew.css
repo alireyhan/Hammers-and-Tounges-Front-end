@@ -328,6 +328,7 @@
   right: 0;
   bottom: 0;
   background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
   transition: .4s;
 }
 
@@ -339,7 +340,17 @@
   left: 4px;
   bottom: 4px;
   background-color: white;
+  border-radius: 50%;
   transition: .4s;
+}
+
+/* Light mode: toggle invisible when off (white on white) - use visible gray track/thumb */
+html[data-theme="light"] .mpn-slider {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+html[data-theme="light"] .mpn-slider:before {
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 input:checked + .mpn-slider {

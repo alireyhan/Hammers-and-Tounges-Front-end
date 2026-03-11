@@ -266,6 +266,23 @@
   font-weight: 600;
 }
 
+.buyer-details-highest-bidder-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(140, 198, 63, 0.15);
+  border: 1px solid rgba(140, 198, 63, 0.4);
+  border-radius: 8px;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.buyer-details-highest-bidder-banner svg {
+  flex-shrink: 0;
+}
+
 .buyer-details-price-value {
   font-size: 1.5rem;
   font-weight: 700;
@@ -445,6 +462,58 @@
   margin: 0;
   font-size: 0.9rem;
   color: var(--color-text-secondary);
+}
+
+.buyer-details-custom-bid-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.buyer-details-custom-bid-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.buyer-details-quick-bid-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.buyer-details-quick-bid-btn {
+  padding: 0.5rem 1rem;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 6px;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.buyer-details-quick-bid-btn:hover {
+  background: rgba(140, 198, 63, 0.15);
+  border-color: rgba(140, 198, 63, 0.4);
+  color: var(--color-accent);
+}
+
+.buyer-details-quick-bid-max {
+  background: rgba(140, 198, 63, 0.15);
+  border-color: rgba(140, 198, 63, 0.4);
+  color: var(--color-accent);
+}
+
+.buyer-details-quick-bid-max:hover {
+  background: rgba(140, 198, 63, 0.25);
+}
+
+.buyer-details-bid-error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #f87171;
 }
 
 .buyer-details-bid-input {

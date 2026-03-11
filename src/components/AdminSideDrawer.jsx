@@ -45,6 +45,13 @@ const AdminSideDrawer = ({ isOpen, onClose }) => {
 
   const isActive = (path) => {
     if (path === '/admin/dashboard') return location.pathname === '/admin/dashboard'
+    if (path === '/admin/sell') return location.pathname === '/admin/sell'
+    if (path === '/admin/users') {
+      return location.pathname.startsWith('/admin/users') ||
+        location.pathname.startsWith('/admin/seller') ||
+        location.pathname.startsWith('/admin/manager') ||
+        location.pathname.startsWith('/admin/kycverification')
+    }
     return location.pathname.startsWith(path)
   }
 

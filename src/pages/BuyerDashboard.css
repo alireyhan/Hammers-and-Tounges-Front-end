@@ -77,6 +77,35 @@
   border-color: rgba(140, 198, 63, 0.4);
 }
 
+.buyer-dashboard-stat-card--link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.buyer-dashboard-highest-bidder-banner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(140, 198, 63, 0.15);
+  border: 1px solid rgba(140, 198, 63, 0.4);
+  border-radius: 8px;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.buyer-dashboard-highest-bidder-banner a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.buyer-dashboard-highest-bidder-banner a:hover {
+  text-decoration: none;
+}
+
 .buyer-dashboard-stat-icon {
   width: 2.25rem;
   height: 2.25rem;
