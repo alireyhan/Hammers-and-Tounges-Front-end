@@ -20,6 +20,7 @@ const BuyerBids = () => {
     dispatch(fetchMyBids())
   }, [dispatch])
 
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -209,7 +210,7 @@ const BuyerBids = () => {
       <div className="my-bids-content">
         <div className="my-bids-container">
           <nav className="breadcrumbs">
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to="/buyer/dashboard">Dashboard</Link>
             <span>/</span>
             <span>Bids</span>
           </nav>
@@ -254,6 +255,7 @@ const BuyerBids = () => {
                 const imageUrl = getFirstImage(media)
                 const lotIdForNav = cachedLot?.id ?? itemId
                 const lotDisplayNumber = cachedLot?.lot_number ?? lotNumber ?? itemId
+                const isEventLive = (bid.event_status || '').toUpperCase() === 'LIVE'
 
                 return (
                   <div
@@ -301,12 +303,6 @@ const BuyerBids = () => {
                             {bid.status === 'AWAITING_PAYMENT' ? 'Awaiting Payment' : bid.status}
                           </span>
                         </div>
-                        {bid.is_highest_bidder && (
-                          <div className="bid-highest-badge">
-                            <span className="bid-highest-badge-icon">✓</span>
-                            Highest bidder
-                          </div>
-                        )}
                       </div>
 
                       {/* <div className="status-message"> */}
@@ -338,7 +334,12 @@ const BuyerBids = () => {
                     </div>
 
                     <div className="mybid-actions">
-                      {lotIdForNav ? (
+                      {!isEventLive ? (
+                        <div className="event-closed-message">
+                          <p className="event-closed-title">Event is closed</p>
+                          <p className="event-closed-email">Please wait for email from Hammer & Tongues</p>
+                        </div>
+                      ) : lotIdForNav ? (
                         <Link
                           to={`/buyer/auction/${lotIdForNav}`}
                           state={{ listing: cachedLot ?? bid }}
@@ -352,22 +353,6 @@ const BuyerBids = () => {
                           View Lot
                         </span>
                       )}
-                      {/* {bid.status === 'AWAITING_PAYMENT' && (
-                        <button
-                          className="bids-action-btn primary"
-                          // onClick={() => navigate(`/checkout/${bid.id}`)}
-                        >
-                          Pay Now
-                        </button>
-                      )}
-                      {bid.status === 'ACTIVE' && (
-                        <button
-                          className="bids-action-btn primary"
-                          onClick={() => navigate(`/buyer/auction/${bid.auction_id}`, {state: {listing: bid}})}
-                        >
-                          Increase Bid
-                        </button>
-                      )} */}
                     </div>
                   </div>
                 )

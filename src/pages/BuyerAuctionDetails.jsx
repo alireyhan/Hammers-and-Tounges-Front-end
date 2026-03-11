@@ -303,7 +303,6 @@ const BuyerAuctionDetails = () => {
   const { auctionBids, isPlacingBid, error, categories } = useSelector(
     (state) => state.buyer
   );
-  const { user } = useSelector((state) => state.auth) || {};
 
   useEffect(() => {
     if (id) dispatch(fetchAuctionBids(id));
@@ -468,21 +467,6 @@ const BuyerAuctionDetails = () => {
     ? parseFloat(state.customBidAmount.replace(/[^0-9.-]/g, ""))
     : nextBidAmount;
 
-  const isCurrentUserHighestBidder = useMemo(() => {
-    const highestBid = auctionBids?.[0];
-    if (!highestBid) return false;
-    if (highestBid.is_current_user || highestBid.is_leading) return true;
-    if (!user) return false;
-    const uid = user.id ?? user.pk;
-    const uEmail = (user.email || "").toLowerCase();
-    return (
-      highestBid.user_id === uid ||
-      highestBid.bidder_id === uid ||
-      highestBid.user === uid ||
-      (uEmail && (highestBid.bidder_email || "").toLowerCase() === uEmail)
-    );
-  }, [auctionBids, user]);
-
   // Memoized computed values
   const auction = state.selectedAuction;
 
@@ -500,6 +484,12 @@ const BuyerAuctionDetails = () => {
     [auction?.media]
   );
   const isLive = useMemo(() => auction?.status === "ACTIVE", [auction?.status]);
+  // Bidding only allowed when event is LIVE (event_status from API)
+  const isEventLive = useMemo(() => {
+    const evStatus = (auction?.event_status || "").toUpperCase();
+    if (evStatus) return evStatus === "LIVE";
+    return isLive; // Fallback when event_status not provided
+  }, [auction?.event_status, isLive]);
 
   const eventId =
     auction?.event ??
@@ -519,6 +509,11 @@ const BuyerAuctionDetails = () => {
     () => auction?.status === "AWAITING_PAYMENT",
     [auction?.status]
   );
+  // Event has event_status from API but is not LIVE (e.g. CLOSING)
+  const isEventClosed = useMemo(() => {
+    const evStatus = (auction?.event_status || "").toUpperCase();
+    return evStatus && evStatus !== "LIVE";
+  }, [auction?.event_status]);
 
   const formatCurrency = useCallback(
     (amount) => {
@@ -754,15 +749,6 @@ const BuyerAuctionDetails = () => {
                       </span>
                     </div>
                   </div>
-                  {isCurrentUserHighestBidder && auctionBids?.length > 0 && (
-                    <div className="buyer-details-highest-bidder-banner">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M22 4L12 14.01l-3-3" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span>You&apos;re the highest bidder currently</span>
-                    </div>
-                  )}
                   {auction?.is_buy_now_enabled && auction?.buy_now_price && (
                     <div className="buyer-details-price-item">
                       <span className="buyer-details-price-label">Buy Now</span>
@@ -794,7 +780,7 @@ const BuyerAuctionDetails = () => {
               </div>
             </div>
 
-            {isLive &&
+            {isEventLive &&
               !fromBuyAndSell &&
               state.timeRemaining.hours +
                 state.timeRemaining.minutes +
@@ -819,7 +805,7 @@ const BuyerAuctionDetails = () => {
               </div>
             )}
 
-            {isClosed && (
+            {(isClosed || isEventClosed) && (
               <div className="buyer-details-closed-notice">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path
@@ -831,8 +817,8 @@ const BuyerAuctionDetails = () => {
                   />
                 </svg>
                 <div>
-                  <strong>This auction has ended</strong>
-                  <p>No more bids can be placed.</p>
+                  <strong>{isEventClosed ? "Event is closed" : "This auction has ended"}</strong>
+                  <p>{isEventClosed ? "Bidding is only available when the event is live." : "No more bids can be placed."}</p>
                 </div>
               </div>
             )}
@@ -879,7 +865,7 @@ const BuyerAuctionDetails = () => {
               </div>
             )}
 
-            {isLive && !fromBuyAndSell && (
+            {isEventLive && !fromBuyAndSell && (
               <div className="buyer-details-bidding-form">
                 <p className="buyer-details-increment-hint">
                   Bid increment:{" "}

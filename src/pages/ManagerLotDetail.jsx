@@ -193,6 +193,13 @@ const ManagerLotDetail = () => {
   }, [lotId]);
 
   useEffect(() => {
+    if (lot) {
+      console.log('Manager lot details (all data):', lot);
+      console.log('Manager lot bids:', bids);
+    }
+  }, [lot, bids]);
+
+  useEffect(() => {
     if (imageUrls.length <= 1) return;
     intervalRef.current = setInterval(() => {
       setSelectedImage((prev) => (prev + 1) % imageUrls.length);

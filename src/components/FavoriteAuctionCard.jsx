@@ -102,6 +102,10 @@ const FavoriteAuctionCard = ({ auction, onClick, onFavoriteUpdate }) => {
         }
     }
 
+    // Check if event is closed (event_status from API or status/date logic)
+    const eventStatus = (auction.event_status || '').toUpperCase();
+    const isEventClosed = (eventStatus && eventStatus !== 'LIVE') || currentStatus === 'ended' || currentStatus === 'draft';
+
     // Use countdown timer only if we have a target date
     const timer = targetDate ? useCountdownTimer(targetDate) : { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
@@ -190,7 +194,7 @@ const FavoriteAuctionCard = ({ auction, onClick, onFavoriteUpdate }) => {
 
     return (
         <article
-            className='auction-card'
+            className={`auction-card ${isEventClosed ? 'auction-card--closed' : ''}`}
         >
             {/* Image & Status Badge */}
             <div className="auction-card-image-wrapper">
@@ -201,7 +205,11 @@ const FavoriteAuctionCard = ({ auction, onClick, onFavoriteUpdate }) => {
                     loading="lazy"
                     onError={() => setImageError(true)}
                 />
-                {displayStatus && (
+                {isEventClosed ? (
+                    <span className="auction-status-badge status-ended">
+                        Event is closed
+                    </span>
+                ) : displayStatus && (
                     <span className={`auction-status-badge ${displayStatus.className}`}>
                         {displayStatus.label}
                     </span>
@@ -247,25 +255,33 @@ const FavoriteAuctionCard = ({ auction, onClick, onFavoriteUpdate }) => {
                     {auction.title || 'Untitled Auction'}
                 </h3>
 
-                <div className="auction-price-display">
-                    <span className="auction-price-label">Starting Price</span>
-                    <span className="auction-price-value">{displayPrice}</span>
-                </div>
+                {isEventClosed ? (
+                    <div className="favorite-event-closed-message">
+                        Event is closed
+                    </div>
+                ) : (
+                    <>
+                        <div className="auction-price-display">
+                            <span className="auction-price-label">Starting Price</span>
+                            <span className="auction-price-value">{displayPrice}</span>
+                        </div>
 
-                <div className="auction-bid-info">
-                    <span className="auction-bid-label">Total Bids</span>
-                    <span className="auctions-bid-value">{bidsCount}</span>
-                </div>
+                        <div className="auction-bid-info">
+                            <span className="auction-bid-label">Total Bids</span>
+                            <span className="auctions-bid-value">{bidsCount}</span>
+                        </div>
 
-                {/* Action Button */}
-                <button
-                onClick={handleCardClick}
-                    className={`auctions-view-btn`}
-                >
-                    {currentStatus === 'approved'
-                        ? 'View Details'
-                        : 'View Auction'}
-                </button>
+                        {/* Action Button */}
+                        <button
+                            onClick={handleCardClick}
+                            className="auctions-view-btn"
+                        >
+                            {currentStatus === 'approved'
+                                ? 'View Details'
+                                : 'View Auction'}
+                        </button>
+                    </>
+                )}
             </div>
         </article>
     );

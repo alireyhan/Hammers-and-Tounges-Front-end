@@ -61,13 +61,20 @@ const FavoriteAuctions = () => {
     fetchAllPages();
   }, [fetchAllPages]);
 
-  // Apply filters to show only ACTIVE and APPROVED auctions
+  // Apply filters to show ACTIVE, APPROVED, and COMPLETED auctions (closed ones show with basic details)
   const filteredAuctions = useMemo(() => {
     return allAuctions.filter(auction => {
-      // Show both ACTIVE and APPROVED status
-      return auction.status === 'ACTIVE' || auction.status === 'APPROVED';
+      const status = (auction.status || '').toUpperCase();
+      return status === 'ACTIVE' || status === 'APPROVED' || status === 'COMPLETED';
     });
   }, [allAuctions]);
+
+  useEffect(() => {
+    if (allAuctions.length > 0) {
+      console.log('Favorite tab data:', allAuctions);
+      console.log('Filtered auctions:', filteredAuctions);
+    }
+  }, [allAuctions, filteredAuctions]);
 
   // Paginate filtered results (10 per page)
   const itemsPerPage = 10;

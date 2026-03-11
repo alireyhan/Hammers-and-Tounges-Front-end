@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEvents } from '../store/actions/AuctionsActions';
-import { fetchMyBids } from '../store/actions/buyerActions';
 import { clearBuyerError } from '../store/slices/buyerSlice';
 import './BuyerDashboard.css';
 import { toast } from 'react-toastify';
@@ -23,28 +22,17 @@ const formatEventDate = (isoStr) => {
   }
 };
 
-const StatCard = React.memo(({ icon: Icon, value, label, colorClass, link }) => {
-  const content = (
-    <>
-      <div className={`buyer-dashboard-stat-icon ${colorClass}`}>
-        <Icon />
-      </div>
-      <div className="buyer-dashboard-stat-content">
-        <div className="buyer-dashboard-stat-value" aria-live="polite">{value}</div>
-        <div className="buyer-dashboard-stat-label">{label}</div>
-      </div>
-    </>
-  );
-  return link ? (
-    <Link to={link} className="buyer-dashboard-stat-card buyer-dashboard-stat-card--link" role="article" aria-label={`${label}: ${value}`}>
-      {content}
-    </Link>
-  ) : (
-    <div className="buyer-dashboard-stat-card" role="article" aria-label={`${label}: ${value}`}>
-      {content}
+const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
+  <div className="buyer-dashboard-stat-card" role="article" aria-label={`${label}: ${value}`}>
+    <div className={`buyer-dashboard-stat-icon ${colorClass}`}>
+      <Icon />
     </div>
-  );
-});
+    <div className="buyer-dashboard-stat-content">
+      <div className="buyer-dashboard-stat-value" aria-live="polite">{value}</div>
+      <div className="buyer-dashboard-stat-label">{label}</div>
+    </div>
+  </div>
+));
 
 const EventRow = React.memo(({ event, onClick, formatEventDate }) => (
   <tr
@@ -82,7 +70,7 @@ const BuyerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
 
-  const { events, eventsLoading, eventsError, myBids } = useSelector(state => state.buyer);
+  const { events, eventsLoading, eventsError } = useSelector(state => state.buyer);
 
   // Filter events: show only LIVE (currently running)
   const liveEvents = useMemo(() => {
@@ -117,20 +105,10 @@ const BuyerDashboard = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchMyBids());
-  }, [dispatch]);
-
-  useEffect(() => {
     return () => {
       dispatch(clearBuyerError());
     };
   }, [dispatch]);
-
-  const bidsList = Array.isArray(myBids) ? myBids : (myBids?.results ?? []);
-  const highestBidderCount = useMemo(
-    () => bidsList.filter((b) => b.is_highest_bidder).length,
-    [bidsList]
-  );
 
   const statCards = useMemo(
     () => [
@@ -144,19 +122,8 @@ const BuyerDashboard = () => {
         label: 'Live Events',
         colorClass: 'buyer-dashboard-icon-auctions',
       },
-      {
-        icon: () => (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        ),
-        value: bidsList.length.toLocaleString(),
-        label: 'Active Bids',
-        colorClass: 'buyer-dashboard-icon-auctions',
-        link: '/buyer/bids',
-      },
     ],
-    [filteredEvents.length, bidsList.length],
+    [filteredEvents.length],
   );
 
   return (
@@ -174,15 +141,6 @@ const BuyerDashboard = () => {
         {statCards.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
-        {highestBidderCount > 0 && (
-          <div className="buyer-dashboard-highest-bidder-banner">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M22 4L12 14.01l-3-3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span>You&apos;re the highest bidder on {highestBidderCount} lot{highestBidderCount !== 1 ? 's' : ''} — <Link to="/buyer/bids">View My Bids</Link></span>
-          </div>
-        )}
       </section>
 
       <div className="buyer-dashboard-main">

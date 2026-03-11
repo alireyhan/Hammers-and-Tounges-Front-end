@@ -21,6 +21,22 @@
         0 0 0 1px rgba(140, 198, 63, 0.2);
 }
 
+.auction-card--closed {
+    cursor: default;
+}
+
+.auction-card--closed:hover {
+    transform: none;
+}
+
+.favorite-event-closed-message {
+    margin-top: auto;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
 /* Image Wrapper */
 .auction-card-image-wrapper {
     position: relative;
