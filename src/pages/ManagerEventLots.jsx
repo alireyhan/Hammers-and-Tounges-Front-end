@@ -295,6 +295,7 @@ const ManagerEventLots = () => {
 
   const showCreateLot = eventStatus === 'SCHEDULED';
   const showDeleteEvent = eventStatus === 'SCHEDULED';
+  const isEventCompleted = (eventStatus || '').toUpperCase() === 'CLOSING' || (eventStatus || '').toUpperCase() === 'CLOSED';
 
   const filteredLots = useMemo(() => {
     const filters = selectedFilters;
@@ -457,7 +458,7 @@ const ManagerEventLots = () => {
                             state: { lot, event: eventData },
                           });
                         }}
-                        onSetActive={handleSetLotActive}
+                        onSetActive={isEventCompleted ? undefined : handleSetLotActive}
                         isSettingActive={activatingLotId === lot.id}
                       />
                     ))}

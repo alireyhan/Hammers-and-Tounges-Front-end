@@ -33,8 +33,17 @@ const ManagerLotDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const intervalRef = useRef(null);
 
-  const eventStatus = event?.status ?? eventFromState?.status ?? null;
+  const eventStatus = event?.status ?? eventFromState?.status ?? lot?.event_status ?? null;
   const lotStatus = (lot?.status ?? lot?.listing_status ?? '').toUpperCase();
+  const isEventCompleted = (eventStatus || '').toUpperCase() === 'CLOSING' || (eventStatus || '').toUpperCase() === 'CLOSED';
+  const stcEligible = lot?.stc_eligible === true || lot?.stc_eligible === 'true';
+  const reservePrice = parseFloat(lot?.reserve_price || 0);
+  const hasBids = bids.length > 0;
+  const highestBid = hasBids
+    ? Math.max(...bids.map((b) => parseFloat(b.amount || 0)))
+    : 0;
+  const highestBidBelowReserve = hasBids && reservePrice > 0 && highestBid < reservePrice;
+  const showStcNotice = isEventCompleted && stcEligible && highestBidBelowReserve && !bidsLoading;
   const isLotActive = lotStatus === 'ACTIVE';
   const canEditDelete = eventStatus === 'SCHEDULED' && !isLotActive;
 
@@ -320,6 +329,15 @@ const ManagerLotDetail = () => {
               {lot.currency || 'USD'} {formatPrice(lot.initial_price)}
             </span>
           </div>
+
+          {showStcNotice && (
+            <div className="manager-lot-detail__stc-notice">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <p>This lot is submitted for subject confirmation. Kindly confirm.</p>
+            </div>
+          )}
 
           {Object.keys(specificData).length > 0 && (
             <div className="manager-lot-detail__specific">
