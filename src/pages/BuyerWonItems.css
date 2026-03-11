@@ -1,7 +1,7 @@
 .won-items-page {
   min-height: 100vh;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
 }
@@ -21,21 +21,21 @@
   gap: 0.5rem;
   margin-bottom: 1.5rem;
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 .breadcrumbs a {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-secondary);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .breadcrumbs a:hover {
-  color: #8CC63F;
+  color: var(--color-accent);
 }
 
 .breadcrumbs span {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-muted);
 }
 
 .page-header {
@@ -53,7 +53,7 @@
 .page-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text);
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -72,29 +72,29 @@
 .search-icon {
   position: absolute;
   left: 0.875rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   pointer-events: none;
 }
 
 .search-input {
   width: 100%;
   padding: 0.625rem 1rem 0.625rem 2.5rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 6px;
-  color: #ffffff;
+  color: var(--color-text);
   font-size: 0.875rem;
   transition: all 0.2s;
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-input-placeholder);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #8CC63F;
-  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-accent);
+  background-color: var(--color-surface-elevated);
 }
 
 /* Tabs */
@@ -102,14 +102,14 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid var(--color-border);
 }
 
 .won-items-tab {
   padding: 0.875rem 1.5rem;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
@@ -120,13 +120,13 @@
 }
 
 .won-items-tab:hover {
-  color: rgba(255, 255, 255, 0.9);
-  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--color-text);
+  background-color: var(--color-surface-elevated);
 }
 
 .won-items-tab-active {
-  color: #8CC63F !important;
-  border-bottom-color: #8CC63F !important;
+  color: var(--color-accent) !important;
+  border-bottom-color: var(--color-accent) !important;
 }
 
 /* Empty State */
@@ -146,14 +146,14 @@
 }
 
 .won-items-empty-state h2 {
-  color: #ffffff;
+  color: var(--color-text);
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .won-items-empty-state p {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   margin: 0;
 }
@@ -165,8 +165,8 @@
 }
 
 .won-item-card {
-  background-color: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s;
@@ -176,7 +176,7 @@
 
 .won-item-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(140, 198, 63);
+  border-color: var(--color-accent);
   box-shadow: 0 4px 16px rgba(140, 198, 63, 0.1);
 }
 
@@ -185,7 +185,7 @@
   width: 100%;
   height: 120px;
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: var(--color-surface-elevated);
 }
 
 .won-item-image img {
@@ -207,7 +207,7 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background-color: #8CC63F;
+  background-color: var(--color-accent);
   color: #000000;
 }
 
@@ -226,7 +226,7 @@
 
 .item-category {
   font-size: 0.625rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -235,32 +235,32 @@
 .item-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-text);
   margin: 0;
   line-height: 1.3;
 }
 
 .item-lot-id {
   font-size: 0.6875rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
 .winning-price {
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text);
   margin-top: 0.25rem;
 }
 
 .congratulations-msg {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-secondary);
   margin-top: 0.25rem;
 }
 
 .payment-status {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: var(--color-surface-elevated);
   border-radius: 4px;
   margin-top: 0.5rem;
 }
@@ -284,14 +284,14 @@
 }
 
 .payment-status.paid .status-label {
-  color: #8CC63F;
+  color: var(--color-accent);
 }
 
 .status-timer,
 .status-date {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-text);
   font-family: 'Courier New', monospace;
 }
 
@@ -304,7 +304,7 @@
 
 .invoice-label {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 .invoice-badge {
@@ -323,7 +323,7 @@
 
 .paid-badge {
   background-color: rgba(140, 198, 63, 0.2);
-  color: #8CC63F;
+  color: var(--color-accent);
   border: 1px solid rgba(140, 198, 63, 0.3);
 }
 
@@ -350,7 +350,7 @@
 }
 
 .wonItems-action-btn.primary {
-  background-color: #8CC63F;
+  background-color: var(--color-accent);
   color: #000000;
 }
 
@@ -360,13 +360,13 @@
 }
 
 .wonItems-action-btn.secondary {
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-strong);
 }
 
 .wonItems-action-btn.secondary:hover {
-  border-color: #8CC63F;
-  color: #8CC63F;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .wonItems-pagination {
@@ -375,8 +375,8 @@
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface-elevated);
   flex-direction: row;
 }
 
@@ -385,10 +385,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -397,9 +397,9 @@
 }
 
 .wonItems-pagination-btn:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background-color: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
   transform: translateY(-1px);
 }
 
@@ -426,9 +426,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -436,15 +436,15 @@
 }
 
 .wonItems-page-number:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background-color: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
 }
 
 .wonItems-page-number.active {
   background-color: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8CC63F;
+  color: var(--color-accent);
   font-weight: 700;
 }
 

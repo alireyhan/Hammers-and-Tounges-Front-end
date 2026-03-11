@@ -175,6 +175,21 @@
   gap: 1rem;
 }
 
+.admin-event-lots__card--clickable {
+  cursor: pointer;
+}
+
+.admin-event-lots__card--clickable:hover {
+  border-color: rgba(140, 198, 63, 0.4);
+}
+
+.admin-event-lots__card-bidder {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  display: block;
+  margin-top: 0.25rem;
+}
+
 .admin-event-lots__card {
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);

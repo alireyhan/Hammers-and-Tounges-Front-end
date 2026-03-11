@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { placeBid, fetchAuctionBids, addToFavorite, deleteFavorite } from '../store/actions/buyerActions';
 import { fetchCategories } from '../store/actions/AuctionsActions';
 import { auctionService } from '../services/interceptors/auction.service';
+import { useAuctionWebSocket } from '../hooks/useAuctionWebSocket';
 import { getMediaUrl } from '../config/api.config';
 import './BuyerAuctionDetails.css';
 import { toast } from 'react-toastify';
@@ -256,9 +257,11 @@ const BuyerAuctionDetails = () => {
     if (id) dispatch(fetchAuctionBids(id));
   }, [id, dispatch]);
 
-  // Fetch lot by id when no listing in state (e.g. direct URL or refresh)
+  // Fetch lot by id when no listing in state, or when listing is a bid object (from My Bids)
   useEffect(() => {
-    if (auctionObj || !id) return;
+    if (!id) return;
+    const isBidLike = auctionObj?.amount != null && (auctionObj?.lot_id ?? auctionObj?.auction_id);
+    if (auctionObj && !isBidLike) return;
     let cancelled = false;
     (async () => {
       try {
@@ -289,12 +292,13 @@ const BuyerAuctionDetails = () => {
   //   error: null,
   // });
 
+  const isBidFromMyBids = auctionObj?.amount != null && (auctionObj?.lot_id ?? auctionObj?.auction_id);
   const [state, setState] = useState({
-    selectedAuction: auctionObj || null,
+    selectedAuction: isBidFromMyBids ? null : (auctionObj || null),
     activeTab: 'description',
     selectedImage: 0,
     timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
-    isLoading: !auctionObj,
+    isLoading: !auctionObj || isBidFromMyBids,
     error: null,
     isFavorite: auctionObj?.is_favourite ?? false,
   });
@@ -362,6 +366,9 @@ const BuyerAuctionDetails = () => {
     [auction?.media]
   );
   const isLive = useMemo(() => auction?.status === 'ACTIVE', [auction?.status]);
+
+  const eventId = auction?.event ?? auction?.event_id ?? auction?.auction_event ?? location.state?.eventId;
+  useAuctionWebSocket(eventId, id, null);
   const isUpcoming = useMemo(() => auction?.status === 'APPROVED', [auction?.status]);
   const isClosed = useMemo(() => auction?.status === 'CLOSED', [auction?.status]);
   const isAwaitingPayment = useMemo(() => auction?.status === 'AWAITING_PAYMENT', [auction?.status]);
@@ -502,7 +509,9 @@ const BuyerAuctionDetails = () => {
               {!fromBuyAndSell && (
                 <div className="buyer-details-meta-item">
                   <span className="buyer-details-meta-label">Total Bids</span>
-                  <span className="buyer-details-meta-value">{auction?.total_bids || 0}</span>
+                  <span className="buyer-details-meta-value">
+                    {Math.max(auction?.total_bids ?? 0, auctionBids?.length ?? 0)}
+                  </span>
                 </div>
               )}
             </div>

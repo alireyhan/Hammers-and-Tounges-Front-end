@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import './BuyerBids.css'
 import { useSelector, useDispatch } from 'react-redux'
 import { fetchMyBids } from '../store/actions/buyerActions'
 import { getMediaUrl } from '../config/api.config'
+import { auctionService } from '../services/interceptors/auction.service'
 
 const BuyerBids = () => {
   const navigate = useNavigate()
@@ -11,9 +12,9 @@ const BuyerBids = () => {
   const { myBids, isLoading, error, nextPage, prevPage } = useSelector(state => state.buyer)
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPageUrl, setCurrentPageUrl] = useState(null)
-
-  console.log(myBids, "My Bids");
-
+  const [lotCache, setLotCache] = useState({})
+  const [lotsFetching, setLotsFetching] = useState(false)
+  const [lotsFetchComplete, setLotsFetchComplete] = useState(false)
 
   useEffect(() => {
     dispatch(fetchMyBids())
@@ -37,25 +38,123 @@ const BuyerBids = () => {
     return statusMap[status] || 'active'
   }
 
-  const getFirstImage = (auctionMedia) => {
-    console.log("auctionMedia: ", auctionMedia);
-
-    if (!auctionMedia || auctionMedia.length === 0) {
+  const getFirstImage = (media) => {
+    if (!media || !Array.isArray(media) || media.length === 0) {
       return 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&q=80'
     }
-    const imageMedia = auctionMedia.find(media => media.media_type === 'image')
+    const imageMedia = media.find(m => m.media_type === 'image')
     return imageMedia ? getMediaUrl(imageMedia.file) : 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&q=80'
   }
 
-  const filteredBids = (myBids?.results?.filter(bid => {
-    const matchesSearch = searchQuery === '' ||
-      bid.auction_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bid.id.toString().includes(searchQuery)
-    return matchesSearch
-  }))
+  const getBidItemId = (bid) => {
+    const lot = bid.lot ?? bid.lot_details ?? bid.item
+    if (lot && typeof lot === 'object' && lot.id != null) return lot.id
+    if (lot && typeof lot === 'number') return lot
+    return bid.lot_id ?? bid.auction_id ?? bid.lot
+  }
+  const getBidLotNumber = (bid) => {
+    const lot = bid.lot ?? bid.lot_details ?? bid.item
+    if (lot && typeof lot === 'object' && lot.lot_number != null) return String(lot.lot_number)
+    return bid.lot_number != null ? String(bid.lot_number) : null
+  }
+  const getBidItemTitle = (bid) => {
+    const lot = bid.lot ?? bid.lot_details ?? bid.item
+    if (lot && typeof lot === 'object') {
+      const t = lot.title ?? lot.name ?? lot.lot_name
+      if (t) return t
+    }
+    return bid.lot_title ?? bid.lot_name ?? bid.title ?? bid.auction_title ?? 'Lot'
+  }
+  const getBidMedia = useCallback((bid, cachedLot) => {
+    const lot = bid.lot ?? bid.lot_details ?? bid.item ?? cachedLot
+    if (lot && typeof lot === 'object' && Array.isArray(lot.media)) return lot.media
+    const m = bid.lot_media ?? bid.media ?? bid.auction_media
+    return Array.isArray(m) ? m : []
+  }, [])
 
-  console.log("filteredBids: ", filteredBids);
+  useEffect(() => {
+    const bidsList = Array.isArray(myBids) ? myBids : (myBids?.results ?? [])
+    const seen = new Set()
+    const toFetch = bidsList
+      .map((b) => {
+        const numericId = getBidItemId(b)
+        const lotNumber = getBidLotNumber(b)
+        const cacheKey = numericId ?? lotNumber
+        return { numericId, lotNumber, cacheKey }
+      })
+      .filter(({ cacheKey }) => cacheKey != null && !lotCache[cacheKey])
+      .filter(({ cacheKey }) => {
+        if (seen.has(cacheKey)) return false
+        seen.add(cacheKey)
+        return true
+      })
 
+    if (toFetch.length === 0) {
+      setLotsFetching(false)
+      setLotsFetchComplete(true)
+      return
+    }
+    setLotsFetching(true)
+    setLotsFetchComplete(false)
+    let cancelled = false
+
+    const fetchLot = async ({ numericId, lotNumber, cacheKey }) => {
+      try {
+        if (lotNumber != null) {
+          const lot = await auctionService.getLotByLotId(lotNumber)
+          return { cacheKey, lot, lotId: lot?.id }
+        }
+        if (numericId != null) {
+          try {
+            const lot = await auctionService.getLot(numericId)
+            return { cacheKey, lot, lotId: lot?.id }
+          } catch {
+            const lot = await auctionService.getLotByLotId(String(numericId))
+            return { cacheKey, lot, lotId: lot?.id }
+          }
+        }
+      } catch {
+        return { cacheKey, lot: null }
+      }
+      return { cacheKey, lot: null }
+    }
+
+    Promise.all(toFetch.map(fetchLot)).then((results) => {
+      if (cancelled) return
+      setLotCache((prev) => {
+        const next = { ...prev }
+        results.forEach(({ cacheKey, lot }) => {
+          if (lot && cacheKey != null) {
+            next[cacheKey] = lot
+            if (lot.id != null) next[lot.id] = lot
+            if (lot.lot_number != null) next[String(lot.lot_number)] = lot
+          }
+        })
+        return next
+      })
+      setLotsFetching(false)
+      setLotsFetchComplete(true)
+    }).catch(() => {
+      if (!cancelled) {
+        setLotsFetching(false)
+        setLotsFetchComplete(true)
+      }
+    })
+    return () => { cancelled = true }
+  }, [myBids])
+
+  const bidsList = Array.isArray(myBids) ? myBids : (myBids?.results ?? [])
+  const filteredBids = bidsList?.filter(bid => {
+    const title = getBidItemTitle(bid)
+    const lotNum = getBidLotNumber(bid)
+    const itemId = getBidItemId(bid)
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return true
+    return (typeof title === 'string' && title.toLowerCase().includes(q)) ||
+      bid.id.toString().includes(searchQuery) ||
+      (itemId != null && String(itemId).includes(searchQuery)) ||
+      (lotNum != null && lotNum.toLowerCase().includes(q))
+  })
 
   const handlePageChange = (url) => {
     if (url) {
@@ -64,14 +163,23 @@ const BuyerBids = () => {
     }
   }
 
-  if (isLoading && myBids?.results?.length === 0) {
+  const hasBids = Array.isArray(myBids) ? myBids.length > 0 : (myBids?.results?.length ?? 0) > 0
+  const bidsListForLots = Array.isArray(myBids) ? myBids : (myBids?.results ?? [])
+  const bidsNeedingLots = bidsListForLots.filter((b) => getBidItemId(b) != null || getBidLotNumber(b) != null)
+  const needsLotData = bidsNeedingLots.length > 0
+  const allLotsCached = !needsLotData || bidsNeedingLots.every((b) => {
+    const key = getBidItemId(b) ?? getBidLotNumber(b)
+    return key != null && lotCache[key] != null
+  })
+  const showLotsLoading = hasBids && needsLotData && !allLotsCached && !lotsFetchComplete
+  if ((isLoading && !hasBids) || showLotsLoading) {
     return (
       <div className="my-bids-page">
         <div className="my-bids-content">
           <div className="my-bids-container">
             <div className="loading-state">
               <div className="spinner"></div>
-              <p>Loading your bids...</p>
+              <p>{showLotsLoading ? 'Loading lot details...' : 'Loading your bids...'}</p>
             </div>
           </div>
         </div>
@@ -138,8 +246,14 @@ const BuyerBids = () => {
             {filteredBids?.length > 0 ? (
               filteredBids?.map(bid => {
                 const statusDisplay = getStatusDisplay(bid.status)
-                const imageUrl = getFirstImage(bid.auction_media)
-                const isLive = bid.status === 'ACTIVE'
+                const itemTitle = getBidItemTitle(bid)
+                const itemId = getBidItemId(bid)
+                const lotNumber = getBidLotNumber(bid)
+                const cachedLot = (itemId ? lotCache[itemId] : null) ?? (lotNumber ? lotCache[lotNumber] : null)
+                const media = getBidMedia(bid, cachedLot)
+                const imageUrl = getFirstImage(media)
+                const lotIdForNav = cachedLot?.id ?? itemId
+                const lotDisplayNumber = cachedLot?.lot_number ?? lotNumber ?? itemId
 
                 return (
                   <div
@@ -147,7 +261,7 @@ const BuyerBids = () => {
                     className={`bid-card ${statusDisplay}`}
                   >
                     <div className="bid-image">
-                      <img src={imageUrl} alt={bid.auction_title} onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&q=80'} />
+                      <img src={imageUrl} alt={itemTitle} onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&q=80'} />
                       {/* {isLive && (
                         <div className="live-badge">
                           <span className="live-dot">•</span>
@@ -160,15 +274,27 @@ const BuyerBids = () => {
                     </div>
 
                     <div className="mybid-details">
-                      <div className="bid-lot-id">Bid #{bid.id}</div>
-                      <h3 className="bid-title">{bid.auction_title}</h3>
+                      <div className="bid-lot-id">Lot #{lotDisplayNumber}</div>
+                      <h3 className="bid-title">{itemTitle}</h3>
+                      {cachedLot?.description && (
+                        <p className="bid-description">{cachedLot.description}</p>
+                      )}
                       <div className="bid-date">{new Date(bid.created_at).toLocaleDateString()}</div>
+                      {cachedLot?.category_name && (
+                        <div className="bid-category">{cachedLot.category_name}</div>
+                      )}
 
                       <div className="mybidding-info">
                         <div className="bid-row">
                           <span className="bid-label">Your Bid</span>
-                          <span className="bid-value">{formatCurrency(bid.amount)}</span>
+                          <span className="bid-value">{formatCurrency(bid.amount ?? 0)}</span>
                         </div>
+                        {cachedLot?.initial_price != null && (
+                          <div className="bid-row">
+                            <span className="bid-label">Start Price</span>
+                            <span className="bid-value bid-value--muted">{formatCurrency(cachedLot.initial_price)}</span>
+                          </div>
+                        )}
                         <div className="bid-row">
                           <span className="bid-label">Status</span>
                           <span className={`bid-status ${statusDisplay}`}>
@@ -206,12 +332,20 @@ const BuyerBids = () => {
                     </div>
 
                     <div className="mybid-actions">
-                      <button
-                        className="bids-action-btn secondary"
-                        onClick={() => navigate(`/buyer/bid/${bid.auction_id}`, { state: { listing: bid } })}
-                      >
-                        View Auction
-                      </button>
+                      {lotIdForNav ? (
+                        <Link
+                          to={`/buyer/auction/${lotIdForNav}`}
+                          state={{ listing: cachedLot ?? bid }}
+                          className="bids-action-btn secondary"
+                          style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}
+                        >
+                          View Lot
+                        </Link>
+                      ) : (
+                        <span className="bids-action-btn secondary" style={{ opacity: 0.6, cursor: 'not-allowed' }}>
+                          View Lot
+                        </span>
+                      )}
                       {/* {bid.status === 'AWAITING_PAYMENT' && (
                         <button
                           className="bids-action-btn primary"

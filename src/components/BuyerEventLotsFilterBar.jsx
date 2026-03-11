@@ -53,11 +53,14 @@ const BuyerEventLotsFilterBar = ({ eventId, lots, facets, onFiltersChange }) => 
       setFacetsData(facets);
       return;
     }
+    if (!eventId) {
+      setFacetsData({});
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
-        const params = eventId ? { event: eventId } : {};
-        const data = await auctionService.getLotsFacets(params);
+        const data = await auctionService.getLotsFacets(eventId);
         if (!cancelled) setFacetsData(data || {});
       } catch {
         if (!cancelled) setFacetsData({});

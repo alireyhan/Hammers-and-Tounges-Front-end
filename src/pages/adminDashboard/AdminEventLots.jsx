@@ -66,7 +66,7 @@ const getStatusModifier = (status) => {
   }
 };
 
-const LotCard = ({ lot }) => {
+const LotCard = ({ lot, onOpenDetail }) => {
   const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -87,7 +87,13 @@ const LotCard = ({ lot }) => {
   const hasMultipleImages = imageUrls.length > 1;
 
   return (
-    <article className="admin-event-lots__card">
+    <article
+      className="admin-event-lots__card admin-event-lots__card--clickable"
+      onClick={() => onOpenDetail?.(lot)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onOpenDetail?.(lot)}
+    >
       <div className="admin-event-lots__card-media">
         {lotStatus && (
           <span className={`admin-event-lots__card-status admin-event-lots__card-status${getStatusModifier(lotStatus)}`}>
@@ -305,7 +311,11 @@ const AdminEventLots = () => {
                 <>
                   <div className="admin-event-lots__grid">
                     {filteredLots.map((lot) => (
-                      <LotCard key={lot.id} lot={lot} />
+                      <LotCard
+                        key={lot.id}
+                        lot={lot}
+                        onOpenDetail={(l) => navigate(`/admin/event/${id}/lot/${l.id}`, { state: { lot: l, event: eventFromState || { id, title: eventTitle, status: eventStatus } } })}
+                      />
                     ))}
                   </div>
                   {totalPages > 1 && (

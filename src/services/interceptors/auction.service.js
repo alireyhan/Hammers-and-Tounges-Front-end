@@ -91,11 +91,28 @@ export const auctionService = {
       throw error;
     }
   },
-  // Get single lot by ID
+  // Get single lot by ID (direct endpoint)
   getLot: async (lotId) => {
     try {
       const { data } = await apiClient.get(`${API_ROUTES.AUCTIONS_LOTS}${lotId}/`);
       return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
+  // Get lot(s) via lots search API (GET /lots/?lot_id=...&event=...&category=...)
+  // Use when you have lot_number from bid - returns first matching lot from results
+  getLotByLotId: async (lotId, params = {}) => {
+    try {
+      const { data } = await apiClient.get(API_ROUTES.AUCTIONS_LOTS, {
+        params: { lot_id: lotId, page_size: 1, ...params },
+      });
+      const results = data?.results ?? data;
+      return Array.isArray(results) && results.length > 0 ? results[0] : null;
     } catch (error) {
       if (error.isNetworkError) {
         throw new Error('Unable to connect to server. Please try again later.');
@@ -159,11 +176,12 @@ export const auctionService = {
     }
   },
 
-  // Get lot facets for filtering (optionally scoped by event)
-  getLotsFacets: async (params = {}) => {
+  // Get lot facets for filtering (scoped by event)
+  // eventId is required - API returns event-specific facet data
+  getLotsFacets: async (eventId) => {
     try {
       const { data } = await apiClient.get(API_ROUTES.AUCTIONS_LOTS_FACETS, {
-        params,
+        params: { event: eventId },
       });
       return data;
     } catch (error) {

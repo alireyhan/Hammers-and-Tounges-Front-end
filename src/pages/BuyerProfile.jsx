@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import "./BuyerProfile.css";
-import { logout } from "../store/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProfile, updateProfile } from "../store/actions/profileActions";
 import { toast } from "react-toastify";
-import { getMediaUrl } from "../config/api.config";
+import { profileService } from "../services/interceptors/profile.service";
 
 const BuyerProfile = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   // Get profile data from Redux store
@@ -23,18 +20,13 @@ const BuyerProfile = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    displayName: "",
     email: "",
-    phone: "",
-    bio: "",
-    image: null // Will hold File object if uploading new image
+    phone: ""
   });
+
+  const [wallet, setWallet] = useState(null);
 
   // State for image preview
-  const [imagePreviews, setImagePreviews] = useState({
-    image: null
-  });
-
   const [securityData, setSecurityData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -46,6 +38,16 @@ const BuyerProfile = () => {
     dispatch(fetchProfile());
   }, [dispatch]);
 
+  useEffect(() => {
+    let cancelled = false;
+    profileService.getWallet().then((data) => {
+      if (!cancelled) setWallet(data);
+    }).catch(() => {
+      if (!cancelled) setWallet(null);
+    });
+    return () => { cancelled = true };
+  }, []);
+
   const handleRetry = useCallback(() => {
     dispatch(fetchProfile());
   }, [dispatch]);
@@ -56,29 +58,15 @@ const BuyerProfile = () => {
       setFormData({
         firstName: profileData.first_name || "",
         lastName: profileData.last_name || "",
-        displayName: profileData.display_name || "",
         email: profileData.email || "",
-        phone: profileData.phone || "",
-        bio: profileData.bio || "",
-        image: null // Don't set the URL here, it's for new uploads only
+        phone: profileData.phone || ""
       });
     }
   }, [profileData]);
 
-  // Get display name
   const getDisplayName = useCallback(() => {
-    if (formData.displayName) return formData.displayName;
     return `${formData.firstName} ${formData.lastName}`.trim() || "Buyer";
-  }, [formData.firstName, formData.lastName, formData.displayName]);
-
-  // Get image source (preview or existing URL)
-  const getImageSource = useCallback(() => {
-    // Priority: preview > API URL > null (no default image)
-    if (imagePreviews.image) {
-      return imagePreviews.image;
-    }
-    return profileData?.image ? getMediaUrl(profileData.image) : null;
-  }, [imagePreviews, profileData]);
+  }, [formData.firstName, formData.lastName]);
 
   const handleChange = (e) => {
     setFormData({
@@ -101,45 +89,6 @@ const BuyerProfile = () => {
     }));
   }, []);
 
-  // Handle file selection for profile image
-  const handleImageSelect = useCallback((e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
-      return;
-    }
-
-    // Update formData with the File object
-    setFormData((prev) => ({
-      ...prev,
-      image: file
-    }));
-
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreviews((prev) => ({
-        ...prev,
-        image: reader.result
-      }));
-    };
-    reader.readAsDataURL(file);
-
-    // Clear the input
-    if (e.target) {
-      e.target.value = "";
-    }
-  }, []);
-
   // Handle save - saves everything in one call
   const handleSave = useCallback(async () => {
     try {
@@ -147,24 +96,12 @@ const BuyerProfile = () => {
       const updateData = {
         first_name: formData.firstName,
         last_name: formData.lastName,
-        display_name: formData.displayName,
         phone: formData.phone,
-        email: formData.email,
-        bio: formData.bio
+        email: formData.email
       };
-
-      // Add image if user uploaded a new one
-      if (formData.image instanceof File) {
-        updateData.image = formData.image;
-      }
 
       await dispatch(updateProfile(updateData));
       setIsEditing(false);
-
-      // Clear image previews and file objects after successful save
-      setImagePreviews({
-        image: null
-      });
 
       // Refresh profile data
       dispatch(fetchProfile());
@@ -228,22 +165,27 @@ const BuyerProfile = () => {
           </p>
         </div>
         <div className="header-actions">
+          {isEditing && (
+            <button
+              className="b-action-btn b-secondary"
+              onClick={() => setIsEditing(false)}
+              type="button"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Go back to profile
+            </button>
+          )}
           <button
-            className={`b-action-btn ${isEditing ? "b-secondary" : "b-primary"
-              }`}
+            className={`b-action-btn ${isEditing ? "b-primary" : "b-primary"}`}
             onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
             disabled={loading}
           >
             {isEditing ? (
               <>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M20 6L9 17L4 12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
+                  <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Save Changes
               </>
@@ -272,91 +214,6 @@ const BuyerProfile = () => {
         <div className="profile-left">
           <div className="profile-card">
             <div className="profile-avatar-section">
-              <div className="avatar-wrapper">
-                <div className="avatar">
-                  {getImageSource() ? (
-                    <img
-                      src={getImageSource()}
-                      alt={getDisplayName()}
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        const placeholder = e.target.nextElementSibling;
-                        if (placeholder) {
-                          placeholder.style.display = "flex";
-                        }
-                      }}
-                    />
-                  ) : (
-                    <div
-                      className="avatar-placeholder"
-                      style={{ display: "flex" }}
-                    >
-                      <svg
-                        width="40"
-                        height="40"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <circle
-                          cx="12"
-                          cy="7"
-                          r="4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <span>No Image</span>
-                    </div>
-                  )}
-                  <div className="status-indicator"></div>
-                </div>
-                {isEditing && (
-                  <button
-                    className="b-avatar-upload"
-                    onClick={() =>
-                      document.getElementById("profile-image-input")?.click()
-                    }
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                      <polyline
-                        points="17 8 12 3 7 8"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <line
-                        x1="12"
-                        y1="3"
-                        x2="12"
-                        y2="15"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </button>
-                )}
-                <input
-                  id="profile-image-input"
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handleImageSelect}
-                />
-              </div>
               <div className="profile-info">
                 <h2 className="profile-name">{getDisplayName()}</h2>
                 <p className="profile-email">{formData.email}</p>
@@ -535,23 +392,6 @@ const BuyerProfile = () => {
                       )}
                     </div>
                     <div className="info-item">
-                      <label>Display Name</label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          className="edit-input"
-                          value={formData.displayName}
-                          onChange={(e) =>
-                            handleInputChange("displayName", e.target.value)
-                          }
-                        />
-                      ) : (
-                        <div className="info-value">
-                          {formData.displayName || "-"}
-                        </div>
-                      )}
-                    </div>
-                    <div className="info-item">
                       <label>Email Address</label>
                       {isEditing ? (
                         <input
@@ -585,46 +425,39 @@ const BuyerProfile = () => {
                         </div>
                       )}
                     </div>
-                    <div className="info-item">
-                      <label>Bid Points</label>
-                      {/* {isEditing ? (
-                        <input
-                          type="tel"
-                          className="edit-input"
-                          value={formData.phone}
-                          // onChange={(e) =>
-                          //   handleInputChange("phone", e.target.value)
-                          // }
-                        /> */}
-                      {/* ) : ( */}
-                        <div className="info-value">
-                          {profileData?.buyer_profile?.points ?? profileData?.points ?? '-'}
-                        </div>
-                      {/* )} */}
-                    </div>
-                    <div className="info-item" style={{ gridColumn: "1 / -1" }}>
-                      <label>Bio</label>
-                      {isEditing ? (
-                        <textarea
-                          className="edit-input"
-                          value={formData.bio}
-                          onChange={(e) =>
-                            handleInputChange("bio", e.target.value)
-                          }
-                          rows={4}
-                          style={{ resize: "vertical", minHeight: "80px" }}
-                        />
-                      ) : (
-                        <div
-                          className="info-value"
-                          style={{ whiteSpace: "pre-wrap" }}
-                        >
-                          {formData.bio || "-"}
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
+
+                {wallet && (
+                  <div className="info-section" style={{ marginTop: '1.5rem' }}>
+                    <h3 className="section-title">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      Wallet
+                    </h3>
+                    <div className="info-grid wallet-grid">
+                      <div className="info-item">
+                        <label>Available Balance</label>
+                        <div className="info-value wallet-value">
+                          ${parseFloat(wallet.available_balance ?? 0).toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="info-item">
+                        <label>Locked Balance</label>
+                        <div className="info-value wallet-value">
+                          ${parseFloat(wallet.locked_balance ?? 0).toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="info-item">
+                        <label>Bidding Power</label>
+                        <div className="info-value wallet-value">
+                          ${parseFloat(wallet.bidding_power ?? 0).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* <div className="info-section">
                   <h3 className="section-title">
@@ -835,35 +668,6 @@ const BuyerProfile = () => {
                     </div>
                   </div>
                 </div> */}
-
-                <div className="danger-zone">
-                  <h3 className="section-title">Logout Here</h3>
-                  <div className="danger-actions">
-                    <button
-                      className="b-danger-btn red"
-                      onClick={() => {
-                        dispatch(logout());
-                        navigate("/signin", { replace: true });
-                      }}
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      Logout
-                    </button>
-                  </div>
-                </div>
 
                 <div className="danger-zone">
                   <h3 className="section-title">Danger Zone</h3>

@@ -385,6 +385,13 @@
   color: var(--color-text-muted);
 }
 
+.manager-event-lots__card-bidder {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  display: block;
+  margin-top: 0.25rem;
+}
+
 .manager-event-lots__card-bids {
   color: #8cc63f;
   font-weight: 500;

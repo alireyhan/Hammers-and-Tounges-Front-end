@@ -15,8 +15,16 @@ const getBaseUrl = () => {
   return base.endsWith('/api') ? base : `${base.replace(/\/$/, '')}/api`;
 };
 
+const getWebSocketBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL || 'http://207.180.233.44:8001';
+  const base = (typeof envUrl === 'string' ? envUrl : '').trim() || 'http://207.180.233.44:8001';
+  const clean = base.replace(/\/$/, '').replace(/^http/, 'ws');
+  return clean;
+};
+
 export const API_CONFIG = {
   BASE_URL: getBaseUrl(),
+  WEB_SOCKET_URL: getWebSocketBaseUrl(),
   TIMEOUT: 30000,
 
   IS_PRODUCTION: import.meta.env.PROD,
@@ -113,6 +121,7 @@ export const API_ROUTES = {
   PROFILE_ME: '/users/me/',
   PROFILE_DELETE: '/users/profile/delete/',
   PROFILE_UPDATE: '/users/profile/',
+  WALLET: '/users/wallet/',
 
   // Admin Routes
   ADMIN_DASHBOARD: '/inspections/admin/dashboard/',

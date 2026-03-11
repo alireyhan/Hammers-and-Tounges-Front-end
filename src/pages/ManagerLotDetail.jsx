@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { auctionService } from '../services/interceptors/auction.service';
+import { buyerService } from '../services/interceptors/buyer.service';
 import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
 import './ManagerLotDetail.css';
@@ -25,7 +26,9 @@ const ManagerLotDetail = () => {
 
   const [lot, setLot] = useState(lotFromState);
   const [event, setEvent] = useState(eventFromState);
+  const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(!lotFromState);
+  const [bidsLoading, setBidsLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const intervalRef = useRef(null);
@@ -172,20 +175,22 @@ const ManagerLotDetail = () => {
     return () => { cancelled = true; };
   }, [eventId, eventFromState]);
 
-  // Fetch event when not in state (for edit/delete permission when visiting via direct URL)
   useEffect(() => {
-    if (eventFromState || !eventId) return;
+    if (!lotId) return;
     let cancelled = false;
     (async () => {
+      setBidsLoading(true);
       try {
-        const ev = await auctionService.getEvent(eventId);
-        if (!cancelled) setEvent(ev);
+        const data = await buyerService.getLotBids(lotId);
+        if (!cancelled) setBids(Array.isArray(data) ? data : []);
       } catch {
-        if (!cancelled) setEvent(null);
+        if (!cancelled) setBids([]);
+      } finally {
+        if (!cancelled) setBidsLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, [eventId, eventFromState]);
+  }, [lotId]);
 
   useEffect(() => {
     if (imageUrls.length <= 1) return;
@@ -325,8 +330,34 @@ const ManagerLotDetail = () => {
             </div>
           )}
 
-          <div className="manager-lot-detail__bids">
-            {lot.total_bids != null ? `${lot.total_bids} bid(s)` : '0 bid(s)'}
+          <div className="manager-lot-detail__bids-section">
+            <h3 className="manager-lot-detail__section-title">
+              Bids ({(bids.length || lot.total_bids) ?? 0})
+            </h3>
+            {bidsLoading ? (
+              <p className="manager-lot-detail__bids-loading">Loading bids...</p>
+            ) : bids.length > 0 ? (
+              <div className="manager-lot-detail__bids-list">
+                {bids.map((bid, index) => (
+                  <div key={bid.id ?? index} className="manager-lot-detail__bid-item">
+                    <div className="manager-lot-detail__bid-rank">#{index + 1}</div>
+                    <div className="manager-lot-detail__bid-info">
+                      <span className="manager-lot-detail__bid-bidder">
+                        {bid.bidder_name ?? bid.user_name ?? bid.bidder ?? 'Bidder'}
+                      </span>
+                      <span className="manager-lot-detail__bid-time">
+                        {bid.created_at ? new Date(bid.created_at).toLocaleString() : '—'}
+                      </span>
+                    </div>
+                    <div className="manager-lot-detail__bid-amount">
+                      {lot.currency || 'USD'} {formatPrice(bid.amount)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="manager-lot-detail__no-bids">No bids yet.</p>
+            )}
           </div>
         </div>
       </main>

@@ -59,6 +59,7 @@ import ManagerProductFields from './pages/managerProductFields/ManagerProductFie
 import AdminDashboard from "./pages/adminDashboard/AdminDashboard";
 import AdminBuy from "./pages/AdminBuy";
 import AdminEventLots from "./pages/adminDashboard/AdminEventLots";
+import AdminLotDetail from "./pages/adminDashboard/AdminLotDetail";
 import AdminAuctionDetails from "./pages/adminDashboard/AdminAuctionDetails";
 import AdminProfile from "./pages/adminProfile/AdminProfile";
 import AdminSell from "./pages/AdminSell";
@@ -228,6 +229,7 @@ function App() {
                 <Route path="/admin/sell" element={<AdminSell />} />
                 <Route path="/admin/buy/lot/:lotId" element={<LotDetailReadOnly backPath="/admin/buy" />} />
                 <Route path="/admin/event/:id" element={<AdminEventLots />} />
+                <Route path="/admin/event/:eventId/lot/:lotId" element={<AdminLotDetail />} />
                 <Route path="/admin/auction/:id" element={<AdminAuctionDetails />} />
                 <Route path="/admin/profile" element={<AdminProfile />} />
                 <Route path="/admin/finance" element={<AdminFinance />} />

@@ -95,4 +95,9 @@ export const profileService = {
     const { data } = await apiClient.delete(API_ROUTES.PROFILE_DELETE);
     return data;
   },
+
+  getWallet: async () => {
+    const { data } = await apiClient.get(API_ROUTES.WALLET);
+    return data;
+  },
 };

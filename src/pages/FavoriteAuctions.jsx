@@ -135,7 +135,7 @@ const FavoriteAuctions = () => {
             <div className="welcome-content">
               <h1 className="welcome-title">Favorite Auctions</h1>
               {!isLoadingAllPages && allAuctions.length > 0 && (
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginTop: '8px' }}>
+                <p className="welcome-subtitle">
                   {allAuctions.length} {allAuctions.length === 1 ? 'auction' : 'auctions'} in your favorites
                 </p>
               )}

@@ -49,11 +49,18 @@ export const buyerService = {
     }
   },
 
-  // Get my bids
-  getMyBids: async () => {
+  // Get my bids (GET /bids/my/ with optional page, page_size)
+  getMyBids: async (paramsOrUrl) => {
     try {
-      // Assuming there's an endpoint for this, adjust if needed
-      const { data } = await apiClient.get(API_ROUTES.BIDS_LIST);
+      let data;
+      if (typeof paramsOrUrl === 'string' && paramsOrUrl.startsWith('http')) {
+        const { data: res } = await apiClient.get(paramsOrUrl);
+        data = res;
+      } else {
+        const params = typeof paramsOrUrl === 'object' ? paramsOrUrl : { page: 1, page_size: 10 };
+        const { data: res } = await apiClient.get(API_ROUTES.BIDS_LIST, { params });
+        data = res;
+      }
       return data;
     } catch (error) {
       if (error.isNetworkError) {

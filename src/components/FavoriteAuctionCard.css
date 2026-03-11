@@ -1,6 +1,6 @@
 .auction-card {
-    background: linear-gradient(145deg, #111 0%, #1a1a1a 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
     border-radius: 5px;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -26,7 +26,7 @@
     position: relative;
     height: 220px;
     overflow: hidden;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    background: var(--color-surface-elevated);
 }
 
 .auction-card-image {
@@ -47,7 +47,7 @@
     left: 16px;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(20px);
-    color: #fff;
+    color: var(--color-text);
     padding: 0.3rem 0.7rem;
     border-radius: 5px;
     font-size: 0.75rem;
@@ -136,7 +136,7 @@
 }
 
 .auctions-category {
-    color: #8CC63F;
+    color: var(--color-accent);
     font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -149,7 +149,7 @@
     font-size: 1.25rem;
     font-weight: 700;
     line-height: 1.3;
-    color: #fff;
+    color: var(--color-text);
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -171,7 +171,7 @@
 
 .auction-price-label {
     font-size: 0.75rem;
-    color: rgba(140, 198, 63, 0.8);
+    color: var(--color-accent);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -180,7 +180,7 @@
 .auction-price-value {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--color-text);
     line-height: 1.2;
 }
 
@@ -194,14 +194,14 @@
 
 .auction-bid-label {
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--color-text-muted);
     font-weight: 500;
 }
 
 .auctions-bid-value {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-text);
 }
 
 .auction-timer {
@@ -214,7 +214,7 @@
 
 /* CTA Button */
 .auctions-view-btn {
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--color-border-strong);
     background-color: transparent;
     padding: 0.7rem 2rem;
     border-radius: 5px;
@@ -225,7 +225,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-top: auto;
-    color: white;
+    color: var(--color-text);
 }
 .auctions-view-btn:hover {
     background: #8CC63F;

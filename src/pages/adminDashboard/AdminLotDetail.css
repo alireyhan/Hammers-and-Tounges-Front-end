@@ -1,12 +1,11 @@
-/* Theme-aware - works in light and dark mode */
-.manager-lot-detail {
+.admin-lot-detail {
   min-height: 100vh;
   padding: 1rem 1.5rem 2rem;
   color: var(--color-text);
   background: var(--color-bg);
 }
 
-.manager-lot-detail__header {
+.admin-lot-detail__header {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
@@ -15,7 +14,7 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.manager-lot-detail__back {
+.admin-lot-detail__back {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -31,72 +30,31 @@
   flex-shrink: 0;
 }
 
-.manager-lot-detail__back:hover {
+.admin-lot-detail__back:hover {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
   color: #8cc63f;
 }
 
-.manager-lot-detail__header-content {
+.admin-lot-detail__header-content {
   flex: 1;
   min-width: 0;
 }
 
-.manager-lot-detail__title {
+.admin-lot-detail__title {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-text);
   margin: 0 0 0.25rem;
 }
 
-.manager-lot-detail__subtitle {
+.admin-lot-detail__subtitle {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
   margin: 0;
 }
 
-.manager-lot-detail__actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.manager-lot-detail__btn {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-}
-
-.manager-lot-detail__btn--edit {
-  background: #8cc63f;
-  color: #000;
-}
-
-.manager-lot-detail__btn--edit:hover {
-  background: #7bb337;
-  box-shadow: 0 4px 12px rgba(140, 198, 63, 0.3);
-}
-
-.manager-lot-detail__btn--delete {
-  background: rgba(239, 68, 68, 0.9);
-  color: #fff;
-}
-
-.manager-lot-detail__btn--delete:hover:not(:disabled) {
-  background: rgba(220, 38, 38, 0.95);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.manager-lot-detail__btn--delete:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.manager-lot-detail__loading {
+.admin-lot-detail__loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -105,21 +63,21 @@
   color: var(--color-text-muted);
 }
 
-.manager-lot-detail__spinner {
+.admin-lot-detail__spinner {
   width: 32px;
   height: 32px;
   border: 2px solid var(--color-border);
   border-top-color: #8cc63f;
   border-radius: 50%;
-  animation: manager-lot-detail-spin 0.8s linear infinite;
+  animation: admin-lot-detail-spin 0.8s linear infinite;
   margin-bottom: 1rem;
 }
 
-@keyframes manager-lot-detail-spin {
+@keyframes admin-lot-detail-spin {
   to { transform: rotate(360deg); }
 }
 
-.manager-lot-detail__main {
+.admin-lot-detail__main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
@@ -127,16 +85,16 @@
 }
 
 @media (max-width: 768px) {
-  .manager-lot-detail__main {
+  .admin-lot-detail__main {
     grid-template-columns: 1fr;
   }
 }
 
-.manager-lot-detail__media {
+.admin-lot-detail__media {
   position: relative;
 }
 
-.manager-lot-detail__image-wrap {
+.admin-lot-detail__image-wrap {
   position: relative;
   aspect-ratio: 16 / 10;
   background: var(--color-input-bg);
@@ -144,13 +102,13 @@
   overflow: hidden;
 }
 
-.manager-lot-detail__image-wrap img {
+.admin-lot-detail__image-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.manager-lot-detail__slider-dots {
+.admin-lot-detail__slider-dots {
   position: absolute;
   bottom: 0.75rem;
   left: 50%;
@@ -159,7 +117,7 @@
   gap: 0.5rem;
 }
 
-.manager-lot-detail__dot {
+.admin-lot-detail__dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -168,12 +126,12 @@
   transition: background 0.2s;
 }
 
-.manager-lot-detail__dot:hover,
-.manager-lot-detail__dot.active {
+.admin-lot-detail__dot:hover,
+.admin-lot-detail__dot.active {
   background: #8cc63f;
 }
 
-.manager-lot-detail__placeholder {
+.admin-lot-detail__placeholder {
   aspect-ratio: 16 / 10;
   background: var(--color-input-bg);
   border-radius: 10px;
@@ -184,39 +142,11 @@
   color: var(--color-text-muted);
 }
 
-.manager-lot-detail__status {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.manager-lot-detail__status--draft {
-  background: rgba(245, 158, 11, 0.9);
-  color: #000;
-}
-
-.manager-lot-detail__status--scheduled,
-.manager-lot-detail__status--active {
-  background: rgba(34, 197, 94, 0.9);
-  color: #fff;
-}
-
-.manager-lot-detail__status--closed,
-.manager-lot-detail__status--completed {
-  background: rgba(59, 130, 246, 0.9);
-  color: #fff;
-}
-
-.manager-lot-detail__body {
+.admin-lot-detail__body {
   padding: 0;
 }
 
-.manager-lot-detail__lot-no {
+.admin-lot-detail__lot-no {
   font-size: 0.7rem;
   font-weight: 600;
   color: #8cc63f;
@@ -225,56 +155,56 @@
   margin-bottom: 0.25rem;
 }
 
-.manager-lot-detail__lot-title {
+.admin-lot-detail__lot-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-text);
   margin: 0 0 0.5rem;
 }
 
-.manager-lot-detail__desc {
+.admin-lot-detail__desc {
   font-size: 0.9375rem;
   color: var(--color-text-secondary);
   line-height: 1.5;
   margin: 0 0 1rem;
 }
 
-.manager-lot-detail__meta {
+.admin-lot-detail__meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.manager-lot-detail__category {
+.admin-lot-detail__category {
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }
 
-.manager-lot-detail__price {
+.admin-lot-detail__price {
   font-size: 1rem;
   font-weight: 600;
   color: #8cc63f;
 }
 
-.manager-lot-detail__section-title {
+.admin-lot-detail__section-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-secondary);
   margin: 0 0 0.75rem;
 }
 
-.manager-lot-detail__specific {
+.admin-lot-detail__specific {
   margin-bottom: 1rem;
 }
 
-.manager-lot-detail__specific-grid {
+.admin-lot-detail__specific-grid {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.manager-lot-detail__specific-item {
+.admin-lot-detail__specific-item {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -283,37 +213,37 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.manager-lot-detail__specific-key {
+.admin-lot-detail__specific-key {
   color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
-.manager-lot-detail__specific-value {
+.admin-lot-detail__specific-value {
   color: var(--color-text-secondary);
   text-align: right;
   word-break: break-word;
 }
 
-.manager-lot-detail__bids-section {
+.admin-lot-detail__bids-section {
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-border);
 }
 
-.manager-lot-detail__bids-loading,
-.manager-lot-detail__no-bids {
+.admin-lot-detail__bids-loading,
+.admin-lot-detail__no-bids {
   font-size: 0.875rem;
   color: var(--color-text-muted);
   margin: 0;
 }
 
-.manager-lot-detail__bids-list {
+.admin-lot-detail__bids-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.manager-lot-detail__bid-item {
+.admin-lot-detail__bid-item {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -323,14 +253,14 @@
   border: 1px solid var(--color-border);
 }
 
-.manager-lot-detail__bid-rank {
+.admin-lot-detail__bid-rank {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text-muted);
   min-width: 2rem;
 }
 
-.manager-lot-detail__bid-info {
+.admin-lot-detail__bid-info {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -338,18 +268,18 @@
   min-width: 0;
 }
 
-.manager-lot-detail__bid-bidder {
+.admin-lot-detail__bid-bidder {
   font-size: 0.9375rem;
   font-weight: 500;
   color: var(--color-text);
 }
 
-.manager-lot-detail__bid-time {
+.admin-lot-detail__bid-time {
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
 
-.manager-lot-detail__bid-amount {
+.admin-lot-detail__bid-amount {
   font-size: 1rem;
   font-weight: 600;
   color: #8cc63f;

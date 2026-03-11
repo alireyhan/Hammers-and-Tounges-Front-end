@@ -40,6 +40,9 @@ const buyerSlice = createSlice({
       state.error = null;
       state.bidSuccess = false;
     },
+    setAuctionBidsFromWebSocket: (state, action) => {
+      state.auctionBids = Array.isArray(action.payload) ? action.payload : [];
+    },
   },
   extraReducers: (builder) => {
     // Browse Auctions
@@ -164,6 +167,6 @@ const buyerSlice = createSlice({
   },
 });
 
-export const { clearBuyerError, clearBidSuccess, resetBuyerState } =
+export const { clearBuyerError, clearBidSuccess, resetBuyerState, setAuctionBidsFromWebSocket } =
   buyerSlice.actions;
 export default buyerSlice.reducer;
