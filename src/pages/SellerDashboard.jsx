@@ -6,11 +6,8 @@ import { auctionService } from '../services/interceptors/auction.service'
 import { getMediaUrl } from '../config/api.config'
 import { toast } from 'react-toastify'
 
-const CLOSED_EVENT_STATUSES = ['CLOSING', 'CLOSED', 'COMPLETED'];
-const ALLOWED_EVENT_STATUSES = ['SCHEDULED', ...CLOSED_EVENT_STATUSES];
-
 const SellerDashboard = () => {
-    const { token } = useSelector((state) => state.auth)
+    const { token, user } = useSelector((state) => state.auth)
     const [lots, setLots] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -25,19 +22,17 @@ const SellerDashboard = () => {
         setError(null)
         try {
             const res = await auctionService.getLots({
-                seller: 'me',
                 page: 1,
                 page_size: 50,
             })
+            console.log('SellerDashboard API response:', res)
             const raw = res?.results || res || []
-            const filtered = raw.filter((lot) => {
-                const status = (lot.status || lot.listing_status || '').toUpperCase()
-                const eventStatus = (lot.event_status || lot.event?.status || '').toUpperCase()
-                const isActive = status === 'ACTIVE'
-                const isAllowedEvent = ALLOWED_EVENT_STATUSES.includes(eventStatus)
-                return isActive || isAllowedEvent
-            })
-            setLots(filtered)
+            const all = Array.isArray(raw) ? raw : []
+            const lots = user?.id != null
+                ? all.filter((lot) => Number(lot.seller) === Number(user.id))
+                : all
+            console.log('Extracted lots:', lots, 'count:', lots.length)
+            setLots(lots)
         } catch (err) {
             setError(err?.message || 'Failed to fetch lots')
             toast.error(err?.message || 'Failed to fetch lots')
@@ -45,7 +40,7 @@ const SellerDashboard = () => {
         } finally {
             setLoading(false)
         }
-    }, [token])
+    }, [token, user?.id])
 
     useEffect(() => {
         fetchLots()
@@ -135,7 +130,7 @@ const SellerDashboard = () => {
                                             </svg>
                                         </div>
                                         <h3 className="empty-state-title">No activity yet</h3>
-                                        <p className="empty-state-description">Your lots will appear here once they are active or from closed events.</p>
+                                        <p className="empty-state-description">Your lots will appear here once you add them.</p>
                                         <span className="empty-state-action" style={{ cursor: 'default' }}>
                                             View lots below
                                         </span>
