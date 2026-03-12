@@ -76,10 +76,24 @@ const AdminCreateManager = () => {
       toast.success("Manager created successfully!");
       navigate("/admin/users", { state: { role: "manager" } });
     } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Failed to create manager";
+      const data = error.response?.data;
+      let message = "Failed to create manager";
+
+      if (data) {
+        // Django-style field errors: { email: ["A user with that email already exists."] }
+        if (data.email) {
+          message = Array.isArray(data.email) ? data.email[0] : data.email;
+        } else if (data.phone) {
+          message = Array.isArray(data.phone) ? data.phone[0] : data.phone;
+        } else if (data.detail) {
+          message = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+        } else if (data.message) {
+          message = data.message;
+        } else if (data.error) {
+          message = data.error;
+        }
+      }
+
       toast.error(message);
     } finally {
       setIsCreating(false);
