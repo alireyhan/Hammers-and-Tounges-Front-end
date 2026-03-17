@@ -41,7 +41,7 @@ const formatDateBlock = (isoStr) => {
   }
 };
 
-const EventListingRow = ({ event, onClick }) => {
+const EventListingRow = ({ event, onClick, renderActions }) => {
   const [imageError, setImageError] = useState(false);
   const category = useMemo(() => getCategoryFromEvent(event), [event]);
 
@@ -117,6 +117,11 @@ const EventListingRow = ({ event, onClick }) => {
           {event.lots_count ?? 0} lots
         </span>
       </div>
+      {renderActions && (
+        <div className="event-listing-row__actions" onClick={(e) => e.stopPropagation()}>
+          {renderActions(event)}
+        </div>
+      )}
     </article>
   );
 };

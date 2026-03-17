@@ -7,6 +7,7 @@ import { getMediaUrl } from '../config/api.config';
 import { useCountdownTimer } from '../hooks/useCountdownTimer';
 import { placeBid } from '../store/actions/buyerActions';
 import { fetchCategories } from '../store/actions/AuctionsActions';
+import { toast } from 'react-toastify';
 import './GuestLotDrawer.css';
 
 const formatPrice = (price) => {
@@ -17,7 +18,7 @@ const formatPrice = (price) => {
 const formatSpecificKey = (key) =>
   String(key).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
-const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, eventStatus, onClose, isBuyer = false }) => {
+const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, eventStatus, onClose, isBuyer = false, isAdmin = false, isManager = false, event, onLotUpdated }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.buyer?.categories ?? state.seller?.categories ?? []);
@@ -240,6 +241,67 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
   if (!lot && !initialLot) return null;
 
   const effectiveLot = lot || initialLot;
+  const isStaff = isAdmin || isManager;
+  const eventData = event || { id: eventId, title: eventTitle, status: eventStatus };
+  const lotStatus = (effectiveLot?.status ?? effectiveLot?.listing_status ?? '').toUpperCase();
+  const isLotActive = lotStatus === 'ACTIVE';
+  const isLotDraft = lotStatus === 'DRAFT';
+  const isEventCompleted = ((eventStatus ?? event?.status) || '').toUpperCase() === 'CLOSING' || ((eventStatus ?? event?.status) || '').toUpperCase() === 'CLOSED';
+  const canEditDelete = (eventData?.status || '').toUpperCase() === 'SCHEDULED' && !isLotActive;
+
+  const [deleting, setDeleting] = useState(false);
+  const [activating, setActivating] = useState(false);
+
+  const handleEdit = useCallback(() => {
+    onClose?.();
+    const path = isAdmin ? '/admin/publishnew' : '/manager/publishnew';
+    navigate(path, {
+      state: { eventId: eventId || event?.id, event: eventData, lotId: effectiveLot?.id, lot: effectiveLot, isEdit: true, fromAdmin: isAdmin },
+    });
+  }, [navigate, eventId, event, eventData, effectiveLot, isAdmin, onClose]);
+
+  const handleDelete = useCallback(async () => {
+    if (!window.confirm('Are you sure you want to delete this lot?')) return;
+    setDeleting(true);
+    try {
+      await auctionService.deleteLot(effectiveLot?.id);
+      toast.success('Lot deleted successfully.');
+      onClose?.();
+      onLotUpdated?.();
+    } catch (err) {
+      toast.error(err?.message || 'Failed to delete lot');
+    } finally {
+      setDeleting(false);
+    }
+  }, [effectiveLot?.id, onClose, onLotUpdated]);
+
+  const handleSetActive = useCallback(async () => {
+    if (!effectiveLot?.id) return;
+    setActivating(true);
+    try {
+      const fullLot = await auctionService.getLot(effectiveLot.id);
+      const payload = {
+        seller: Number(fullLot.seller ?? fullLot.seller_id ?? fullLot.seller_details?.id ?? 0),
+        title: fullLot.title ?? '',
+        description: fullLot.description ?? '',
+        category: Number(fullLot.category ?? fullLot.category_id ?? 0),
+        auction_event: Number(fullLot.auction_event ?? fullLot.event_id ?? eventId ?? event?.id),
+        initial_price: String(fullLot.initial_price ?? '0'),
+        reserve_price: String(fullLot.reserve_price ?? '0'),
+        stc_eligible: Boolean(fullLot.stc_eligible),
+        status: 'ACTIVE',
+        specific_data: fullLot.specific_data && typeof fullLot.specific_data === 'object' ? fullLot.specific_data : {},
+      };
+      await auctionService.updateLot(effectiveLot.id, payload);
+      toast.success(`Lot #${effectiveLot.lot_number || effectiveLot.id} set to Active`);
+      onClose?.();
+      onLotUpdated?.();
+    } catch (err) {
+      toast.error(err?.message || err?.response?.data?.detail || 'Failed to set lot active');
+    } finally {
+      setActivating(false);
+    }
+  }, [effectiveLot, eventId, event?.id, onClose, onLotUpdated]);
 
   return (
     <>
@@ -260,6 +322,42 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
             <h2 className="guest-lot-drawer__lot-no">
               Lot #{effectiveLot.lot_number || effectiveLot.id}
             </h2>
+            {isStaff && (
+              <div className="guest-lot-drawer__staff-actions">
+                {canEditDelete && (
+                  <>
+                    <button
+                      type="button"
+                      className="guest-lot-drawer__staff-btn guest-lot-drawer__staff-btn--edit"
+                      onClick={handleEdit}
+                      aria-label="Edit lot"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="guest-lot-drawer__staff-btn guest-lot-drawer__staff-btn--delete"
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      aria-label="Delete lot"
+                    >
+                      {deleting ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </>
+                )}
+                {isLotDraft && !isEventCompleted && (
+                  <button
+                    type="button"
+                    className="guest-lot-drawer__staff-btn guest-lot-drawer__staff-btn--active"
+                    onClick={handleSetActive}
+                    disabled={activating}
+                    aria-label="Set lot as active"
+                  >
+                    {activating ? 'Activating...' : 'Set Active'}
+                  </button>
+                )}
+              </div>
+            )}
           </header>
 
           {loading ? (
@@ -361,7 +459,11 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
                         </span>
                       </div>
                     </div>
-                    {isBuyer ? (
+                    {isStaff ? (
+                      <div className="guest-lot-drawer__bid-not-available">
+                        {canEditDelete ? 'View-only mode. Use Edit to modify this lot.' : 'View-only mode.'}
+                      </div>
+                    ) : isBuyer ? (
                       isEventLive && !isEnded ? (
                         <div className="guest-lot-drawer__bid-form">
                           <p className="guest-lot-drawer__increment-hint">

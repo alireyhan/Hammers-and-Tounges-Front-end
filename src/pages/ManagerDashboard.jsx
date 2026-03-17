@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auctionService } from '../services/interceptors/auction.service';
 import { toast } from 'react-toastify';
+import EventListingRow from '../components/EventListingRow';
 import './ManagerDashboard.css';
 
 const formatEventDate = (isoStr) => {
@@ -31,86 +32,6 @@ const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
     </div>
   </div>
 ));
-
-const EventRow = React.memo(({ event, onViewDetails, onDeleteEvent }) => {
-  const getStatusColor = useCallback((status) => {
-    const s = (status || '').toUpperCase();
-    switch (s) {
-      case 'SCHEDULED':
-        return 'manager-dashboard-status-success';
-      case 'LIVE':
-        return 'manager-dashboard-status-success';
-      case 'CLOSING':
-        return 'manager-dashboard-status-info'; // Display as COMPLETED
-      case 'CLOSED':
-        return 'manager-dashboard-status-info';
-      case 'ACTIVE':
-      case 'PENDING':
-        return 'manager-dashboard-status-warning';
-      case 'REJECTED':
-        return 'manager-dashboard-status-error';
-      default:
-        return 'manager-dashboard-status-default';
-    }
-  }, []);
-
-  return (
-    <tr className="manager-dashboard-event-row">
-      <td className="manager-dashboard-table-cell manager-dashboard-cell-event" data-label="Event">
-        <div className="manager-dashboard-event-info">
-          <div className="manager-dashboard-event-title">{event.title || 'Untitled Event'}</div>
-          <div className="manager-dashboard-event-lots">{event.lots_count ?? 0} lots</div>
-        </div>
-      </td>
-      <td className="manager-dashboard-table-cell manager-dashboard-cell-status" data-label="Status">
-        <span className={`manager-dashboard-status-badge ${getStatusColor(event.status)}`}>
-          {(event.status || '').toUpperCase() === 'CLOSING' ? 'COMPLETED' : (event.status || '—')}
-        </span>
-      </td>
-      <td className="manager-dashboard-table-cell manager-dashboard-cell-start" data-label="Start">
-        {formatEventDate(event.start_time)}
-      </td>
-      <td className="manager-dashboard-table-cell manager-dashboard-cell-end" data-label="End">
-        {formatEventDate(event.end_time)}
-      </td>
-      <td className="manager-dashboard-table-cell manager-dashboard-cell-actions" data-label="Actions">
-        <div className="manager-dashboard-actions-wrap">
-        <button
-          className="manager-dashboard-icon-btn manager-dashboard-icon-btn--view"
-          onClick={(e) => {
-            e.stopPropagation();
-            onViewDetails(event.id, event);
-          }}
-          title="View Details"
-          aria-label={`View details for ${event.title}`}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" />
-            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-          </svg>
-        </button>
-        {(event.status || '').toUpperCase() === 'SCHEDULED' && onDeleteEvent && (
-          <button
-            className="manager-dashboard-icon-btn manager-dashboard-icon-btn--delete"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteEvent(event.id, event);
-            }}
-            title="Delete Event"
-            aria-label={`Delete event ${event.title}`}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-        )}
-        </div>
-      </td>
-    </tr>
-  );
-});
 
 function ManagerDashboard() {
   const navigate = useNavigate();
@@ -244,7 +165,7 @@ function ManagerDashboard() {
             </div>
           </div>
 
-          <div className="manager-dashboard-events-table-wrapper">
+          <div className="manager-dashboard-events-list-wrapper">
             {isLoadingEvents ? (
               <div className="manager-dashboard-loading">
                 Loading events...
@@ -254,32 +175,48 @@ function ManagerDashboard() {
                 No events found
               </div>
             ) : (
-              <table className="manager-dashboard-events-table">
-                <thead>
-                  <tr>
-                    <th scope="col" className="manager-dashboard-table-header-cell manager-dashboard-th-event">
-                      Event
-                    </th>
-                    <th scope="col" className="manager-dashboard-table-header-cell manager-dashboard-th-status">
-                      Status
-                    </th>
-                    <th scope="col" className="manager-dashboard-table-header-cell manager-dashboard-th-start">
-                      Start
-                    </th>
-                    <th scope="col" className="manager-dashboard-table-header-cell manager-dashboard-th-end">
-                      End
-                    </th>
-                    <th scope="col" className="manager-dashboard-table-header-cell manager-dashboard-th-actions">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredEvents.map((event) => (
-                    <EventRow key={event.id} event={event} onViewDetails={handleViewDetails} onDeleteEvent={handleDeleteEvent} />
-                  ))}
-                </tbody>
-              </table>
+              <div className="manager-dashboard-events-list">
+                {filteredEvents.map((event) => (
+                  <EventListingRow
+                    key={event.id}
+                    event={event}
+                    onClick={(e) => handleViewDetails(e.id, e)}
+                    renderActions={(ev) => (
+                      <>
+                        <button
+                          type="button"
+                          className="manager-dashboard-event-action-btn"
+                          onClick={() => handleViewDetails(ev.id, ev)}
+                          title="View Details"
+                          aria-label={`View details for ${ev.title}`}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" />
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+                          </svg>
+                          View
+                        </button>
+                        {(ev.status || '').toUpperCase() === 'SCHEDULED' && (
+                          <button
+                            type="button"
+                            className="manager-dashboard-event-action-btn manager-dashboard-event-action-btn--delete"
+                            onClick={() => handleDeleteEvent(ev.id, ev)}
+                            title="Delete Event"
+                            aria-label={`Delete event ${ev.title}`}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                              <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                            Delete
+                          </button>
+                        )}
+                      </>
+                    )}
+                  />
+                ))}
+              </div>
             )}
           </div>
         </section>

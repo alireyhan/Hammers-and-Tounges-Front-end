@@ -1,58 +1,16 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { auctionService } from '../../services/interceptors/auction.service';
-import { getMediaUrl } from '../../config/api.config';
 import { toast } from 'react-toastify';
 import { fetchCategories } from '../../store/actions/AuctionsActions';
 import BuyerEventLotsFilterBar from '../../components/BuyerEventLotsFilterBar';
+import LotRow from '../../components/LotRow';
+import GuestLotDrawer from '../../components/GuestLotDrawer';
 import './AdminEventLots.css';
+import '../../pages/GuestEventLots.css';
 
 const PAGE_SIZE = 12;
-
-const formatDate = (str) => {
-  if (!str) return '—';
-  try {
-    return new Date(str).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return '—';
-  }
-};
-
-const formatPrice = (price) => {
-  if (!price) return '—';
-  return parseFloat(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
-
-const formatSpecificKey = (key) => {
-  return String(key)
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
-const SpecificDataList = ({ data }) => {
-  if (!data || typeof data !== 'object') return null;
-  const entries = Object.entries(data).filter(([, v]) => v != null && v !== '');
-  if (entries.length === 0) return null;
-  return (
-    <div className="admin-event-lots__specific-data">
-      {entries.map(([key, value]) => (
-        <div key={key} className="admin-event-lots__specific-item">
-          <span className="admin-event-lots__specific-key">{formatSpecificKey(key)}</span>
-          <span className="admin-event-lots__specific-value">
-            {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
 
 const getStatusModifier = (status) => {
   const s = (status || '').toUpperCase();
@@ -64,96 +22,6 @@ const getStatusModifier = (status) => {
     case 'REJECTED': return '--rejected';
     default: return '--active';
   }
-};
-
-const LotCard = ({ lot, onOpenDetail, onSetActive, isSettingActive }) => {
-  const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
-  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const intervalRef = useRef(null);
-  const lotStatus = lot.status || lot.listing_status;
-
-  useEffect(() => {
-    if (imageUrls.length <= 1) return;
-    intervalRef.current = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
-    }, 3000);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [imageUrls.length]);
-
-  const displayUrl = imageUrls[currentImageIndex] || imageUrls[0];
-  const hasMultipleImages = imageUrls.length > 1;
-
-  return (
-    <article
-      className="admin-event-lots__card admin-event-lots__card--clickable"
-      onClick={() => onOpenDetail?.(lot)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && onOpenDetail?.(lot)}
-    >
-      <div className="admin-event-lots__card-media">
-        {lotStatus && (
-          <span className={`admin-event-lots__card-status admin-event-lots__card-status${getStatusModifier(lotStatus)}`}>
-            {lotStatus}
-          </span>
-        )}
-        {displayUrl ? (
-          <img src={displayUrl} alt={lot.title} loading="lazy" />
-        ) : (
-          <div className="admin-event-lots__card-placeholder">📷</div>
-        )}
-        {hasMultipleImages && (
-          <div className="admin-event-lots__card-slider-dots">
-            {imageUrls.map((_, i) => (
-              <span
-                key={i}
-                className={`admin-event-lots__card-dot ${i === currentImageIndex ? 'active' : ''}`}
-                aria-hidden
-              />
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="admin-event-lots__card-body">
-        <div className="admin-event-lots__card-lot-no">Lot #{lot.lot_number || lot.id}</div>
-        <h3 className="admin-event-lots__card-title">{lot.title || 'Untitled'}</h3>
-        {lot.description && (
-          <p className="admin-event-lots__card-desc">{lot.description}</p>
-        )}
-        <div className="admin-event-lots__card-meta">
-          <span className="admin-event-lots__card-category">{lot.category_name || '—'}</span>
-          <span className="admin-event-lots__card-price">
-            {lot.currency || 'USD'} {formatPrice(lot.initial_price)}
-          </span>
-        </div>
-        <SpecificDataList data={lot.specific_data} />
-        <div className="admin-event-lots__card-footer">
-          <span className="admin-event-lots__card-seller">{lot.seller_name || '—'}</span>
-          {lot.total_bids != null && (
-            <span className="admin-event-lots__card-bids">{lot.total_bids} bid(s)</span>
-          )}
-        </div>
-        {(lotStatus || '').toUpperCase() === 'DRAFT' && onSetActive && (
-          <button
-            type="button"
-            className="admin-event-lots__active-lot-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onSetActive(lot);
-            }}
-            disabled={isSettingActive}
-            aria-label={`Set lot ${lot.lot_number || lot.id} as active`}
-          >
-            {isSettingActive ? 'Activating...' : 'Active lot'}
-          </button>
-        )}
-      </div>
-    </article>
-  );
 };
 
 const AdminEventLots = () => {
@@ -171,6 +39,7 @@ const AdminEventLots = () => {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [selectedFilters, setSelectedFilters] = useState({});
+  const [selectedLot, setSelectedLot] = useState(null);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
 
@@ -239,35 +108,10 @@ const AdminEventLots = () => {
   const showCreateLot = eventStatus === 'SCHEDULED';
   const showDeleteEvent = eventStatus === 'SCHEDULED';
   const showEditEvent = eventStatus === 'SCHEDULED';
-  const isEventCompleted = (eventStatus || '').toUpperCase() === 'CLOSING' || (eventStatus || '').toUpperCase() === 'CLOSED';
 
-  const [activatingLotId, setActivatingLotId] = useState(null);
-  const handleSetLotActive = useCallback(async (lot) => {
-    if (!lot?.id) return;
-    setActivatingLotId(lot.id);
-    try {
-      const fullLot = await auctionService.getLot(lot.id);
-      const payload = {
-        seller: Number(fullLot.seller ?? fullLot.seller_id ?? fullLot.seller_details?.id ?? 0),
-        title: fullLot.title ?? '',
-        description: fullLot.description ?? '',
-        category: Number(fullLot.category ?? fullLot.category_id ?? 0),
-        auction_event: Number(fullLot.auction_event ?? fullLot.event_id ?? id),
-        initial_price: String(fullLot.initial_price ?? '0'),
-        reserve_price: String(fullLot.reserve_price ?? '0'),
-        stc_eligible: Boolean(fullLot.stc_eligible),
-        status: 'ACTIVE',
-        specific_data: fullLot.specific_data && typeof fullLot.specific_data === 'object' ? fullLot.specific_data : {},
-      };
-      await auctionService.updateLot(lot.id, payload);
-      toast.success(`Lot #${lot.lot_number || lot.id} set to Active`);
-      fetchLots(page);
-    } catch (err) {
-      toast.error(err?.message || err?.response?.data?.detail || 'Failed to set lot active');
-    } finally {
-      setActivatingLotId(null);
-    }
-  }, [page, fetchLots, id]);
+  const handleLotUpdated = useCallback(() => {
+    fetchLots(page);
+  }, [page, fetchLots]);
 
   useEffect(() => {
     if (!id || eventFromState) return;
@@ -328,8 +172,10 @@ const AdminEventLots = () => {
     });
   }, [lots, selectedFilters]);
 
+  const eventData = eventFromState || { id, title: eventTitle, status: eventStatus };
+
   return (
-    <div className="admin-event-lots">
+    <div className={`admin-event-lots ${selectedLot ? 'admin-event-lots--drawer-open' : ''}`}>
       <header className="admin-event-lots__header">
         <button
           className="admin-event-lots__back"
@@ -416,14 +262,15 @@ const AdminEventLots = () => {
                 </div>
               ) : (
                 <>
-                  <div className="admin-event-lots__grid">
+                  <div className="guest-event-lots__list">
                     {filteredLots.map((lot) => (
-                      <LotCard
+                      <LotRow
                         key={lot.id}
                         lot={lot}
-                        onOpenDetail={(l) => navigate(`/admin/event/${id}/lot/${l.id}`, { state: { lot: l, event: eventFromState || { id, title: eventTitle, status: eventStatus } } })}
-                        onSetActive={isEventCompleted ? undefined : handleSetLotActive}
-                        isSettingActive={activatingLotId === lot.id}
+                        eventEndTime={lot.end_date ?? lot.end_time ?? eventFromState?.end_time}
+                        eventTitle={eventTitle}
+                        eventStatus={lot.event_status ?? eventStatus}
+                        onOpenDetail={setSelectedLot}
                       />
                     ))}
                   </div>
@@ -459,6 +306,20 @@ const AdminEventLots = () => {
           </div>
         )}
       </main>
+
+      {selectedLot && (
+        <GuestLotDrawer
+          lot={selectedLot}
+          eventEndTime={selectedLot.end_date ?? selectedLot.end_time ?? eventFromState?.end_time}
+          eventTitle={eventTitle}
+          eventId={id}
+          eventStatus={selectedLot.event_status ?? eventStatus}
+          event={eventData}
+          onClose={() => setSelectedLot(null)}
+          isAdmin
+          onLotUpdated={handleLotUpdated}
+        />
+      )}
     </div>
   );
 };

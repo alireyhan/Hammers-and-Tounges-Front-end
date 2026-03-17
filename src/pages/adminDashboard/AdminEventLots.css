@@ -5,6 +5,11 @@
   color: var(--color-text);
 }
 
+.admin-event-lots--drawer-open .admin-event-lots__body {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 .admin-event-lots__header {
   display: flex;
   align-items: flex-start;

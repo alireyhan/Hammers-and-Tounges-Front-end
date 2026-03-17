@@ -78,6 +78,58 @@
   margin: 0;
 }
 
+.guest-lot-drawer__staff-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.guest-lot-drawer__staff-btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  border: 1px solid;
+}
+
+.guest-lot-drawer__staff-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.guest-lot-drawer__staff-btn--edit {
+  color: var(--color-accent);
+  background: rgba(140, 198, 63, 0.15);
+  border-color: rgba(140, 198, 63, 0.4);
+}
+
+.guest-lot-drawer__staff-btn--edit:hover:not(:disabled) {
+  background: rgba(140, 198, 63, 0.25);
+}
+
+.guest-lot-drawer__staff-btn--delete {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.guest-lot-drawer__staff-btn--delete:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.25);
+}
+
+.guest-lot-drawer__staff-btn--active {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+.guest-lot-drawer__staff-btn--active:hover:not(:disabled) {
+  background: rgba(96, 165, 250, 0.25);
+}
+
 .guest-lot-drawer__loading {
   display: flex;
   flex-direction: column;

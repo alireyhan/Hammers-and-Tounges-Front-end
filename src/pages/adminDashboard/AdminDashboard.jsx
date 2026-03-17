@@ -12,6 +12,7 @@ import { adminService } from "../../services/interceptors/admin.service";
 import { auctionService } from "../../services/interceptors/auction.service";
 import { toast } from "react-toastify";
 import { API_CONFIG } from "../../config/api.config";
+import EventListingRow from "../../components/EventListingRow";
 
 // Lazy load images for better performance
 // const Car1 = lazy(() => import('../../assets/admin-assests/1.png'));
@@ -133,83 +134,6 @@ const formatEventDate = (isoStr) => {
     return "-----";
   }
 };
-
-const EventRow = React.memo(({ event, onViewDetails, onEditEvent }) => {
-  const getStatusColor = useCallback((status) => {
-    const s = (status || "").toUpperCase();
-    switch (s) {
-      case "SCHEDULED":
-        return "admin-dashboard-status-success";
-      case "LIVE":
-        return "admin-dashboard-status-success";
-      case "CLOSING":
-        return "admin-dashboard-status-info"; // Display as COMPLETED
-      case "CLOSED":
-        return "admin-dashboard-status-info";
-      case "ACTIVE":
-      case "PENDING":
-        return "admin-dashboard-status-warning";
-      case "REJECTED":
-        return "admin-dashboard-status-error";
-      default:
-        return "admin-dashboard-status-default";
-    }
-  }, []);
-
-  return (
-    <tr className="admin-dashboard-event-row">
-      <td className="admin-dashboard-table-cell admin-dashboard-cell-event" data-label="Event">
-        <div className="admin-dashboard-event-info">
-          <div className="admin-dashboard-event-title">{event.title || "Untitled Event"}</div>
-          <div className="admin-dashboard-event-lots">{event.lots_count ?? 0} lots</div>
-        </div>
-      </td>
-      <td className="admin-dashboard-table-cell admin-dashboard-cell-status" data-label="Status">
-        <span className={`admin-dashboard-status-badge ${getStatusColor(event.status)}`}>
-          {(event.status || "").toUpperCase() === "CLOSING" ? "COMPLETED" : (event.status || "—")}
-        </span>
-      </td>
-      <td className="admin-dashboard-table-cell admin-dashboard-cell-start" data-label="Start">
-        {formatEventDate(event.start_time)}
-      </td>
-      <td className="admin-dashboard-table-cell admin-dashboard-cell-end" data-label="End">
-        {formatEventDate(event.end_time)}
-      </td>
-      <td className="admin-dashboard-table-cell admin-dashboard-cell-actions" data-label="Actions">
-        <button
-          className="admin-dashboard-icon-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onViewDetails(event.id, event);
-          }}
-          title="View Details"
-          aria-label={`View details for ${event.title}`}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" />
-            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-          </svg>
-        </button>
-        {(event.status || '').toUpperCase() === 'SCHEDULED' && onEditEvent && (
-          <button
-            className="admin-dashboard-icon-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditEvent(event.id, event);
-            }}
-            title="Edit Event"
-            aria-label={`Edit ${event.title}`}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" />
-            </svg>
-          </button>
-        )}
-      </td>
-    </tr>
-  );
-});
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -556,74 +480,57 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <div className="admin-dashboard-events-table-wrapper">
+            <div className="admin-dashboard-events-list-wrapper">
               {isLoadingEvents ? (
-                <div
-                  style={{
-                    padding: "2rem",
-                    textAlign: "center",
-                    color: "#fff"
-                  }}
-                >
+                <div className="admin-dashboard-events-loading">
                   Loading events...
                 </div>
               ) : filteredEvents.length === 0 ? (
-                <div
-                  style={{
-                    padding: "2rem",
-                    textAlign: "center",
-                    color: "#fff"
-                  }}
-                >
+                <div className="admin-dashboard-events-empty">
                   No events found
                 </div>
               ) : (
-                <table className="admin-dashboard-events-table">
-                  <thead>
-                    <tr>
-                      <th
-                        scope="col"
-                        className="admin-dashboard-table-header-cell admin-dashboard-th-event"
-                      >
-                        Event
-                      </th>
-                      <th
-                        scope="col"
-                        className="admin-dashboard-table-header-cell admin-dashboard-th-status"
-                      >
-                        Status
-                      </th>
-                      <th
-                        scope="col"
-                        className="admin-dashboard-table-header-cell admin-dashboard-th-start"
-                      >
-                        Start
-                      </th>
-                      <th
-                        scope="col"
-                        className="admin-dashboard-table-header-cell admin-dashboard-th-end"
-                      >
-                        End
-                      </th>
-                      <th
-                        scope="col"
-                        className="admin-dashboard-table-header-cell admin-dashboard-th-actions"
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredEvents.map((event) => (
-                      <EventRow
-                        key={event.id}
-                        event={event}
-                        onViewDetails={handleViewDetails}
-                        onEditEvent={handleEditEvent}
-                      />
-                    ))}
-                  </tbody>
-                </table>
+                <div className="admin-dashboard-events-list">
+                  {filteredEvents.map((event) => (
+                    <EventListingRow
+                      key={event.id}
+                      event={event}
+                      onClick={(e) => handleViewDetails(e.id, e)}
+                      renderActions={(ev) => (
+                        <>
+                          <button
+                            type="button"
+                            className="admin-dashboard-event-action-btn"
+                            onClick={() => handleViewDetails(ev.id, ev)}
+                            title="View Details"
+                            aria-label={`View details for ${ev.title}`}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" />
+                              <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+                            </svg>
+                            View
+                          </button>
+                          {(ev.status || "").toUpperCase() === "SCHEDULED" && (
+                            <button
+                              type="button"
+                              className="admin-dashboard-event-action-btn"
+                              onClick={() => handleEditEvent(ev.id)}
+                              title="Edit Event"
+                              aria-label={`Edit ${ev.title}`}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" />
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" />
+                              </svg>
+                              Edit
+                            </button>
+                          )}
+                        </>
+                      )}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           </section>
