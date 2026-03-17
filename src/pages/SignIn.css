@@ -90,6 +90,36 @@
   transition: border-color 0.2s, background 0.2s;
 }
 
+/* Force readable input text in both themes (incl. autofill) */
+html[data-theme="dark"] .signin-form__input {
+  color: #ffffff !important;
+  caret-color: #ffffff;
+}
+
+html[data-theme="light"] .signin-form__input {
+  color: #000000 !important;
+  caret-color: #000000;
+}
+
+/* Chrome/Edge/Safari autofill can override text color */
+html[data-theme="dark"] .signin-form__input:-webkit-autofill,
+html[data-theme="dark"] .signin-form__input:-webkit-autofill:hover,
+html[data-theme="dark"] .signin-form__input:-webkit-autofill:focus,
+html[data-theme="dark"] .signin-form__input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+html[data-theme="light"] .signin-form__input:-webkit-autofill,
+html[data-theme="light"] .signin-form__input:-webkit-autofill:hover,
+html[data-theme="light"] .signin-form__input:-webkit-autofill:focus,
+html[data-theme="light"] .signin-form__input:-webkit-autofill:active {
+  -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 .signin-form__input::placeholder {
   color: var(--color-input-placeholder);
 }
