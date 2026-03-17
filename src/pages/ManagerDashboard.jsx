@@ -5,6 +5,23 @@ import { toast } from 'react-toastify';
 import EventListingRow from '../components/EventListingRow';
 import './ManagerDashboard.css';
 
+const canDeleteEventByLots = async (eventId) => {
+  try {
+    const res = await auctionService.getLots({ event: eventId, page: 1, page_size: 200 });
+    const items = res?.results || [];
+    const total = res?.count ?? items.length;
+    if (total === 0) return true;
+    const hasNonDraft = items.some((l) => String(l?.status || l?.listing_status || '').toUpperCase() !== 'DRAFT');
+    if (hasNonDraft) return false;
+    // If there are more lots than we fetched, we can't prove they're all draft → disallow delete (safe)
+    if (total > items.length) return false;
+    return true;
+  } catch {
+    // On any error, disallow delete (safe)
+    return false;
+  }
+};
+
 const formatEventDate = (isoStr) => {
   if (!isoStr) return '-----';
   try {
@@ -39,6 +56,7 @@ function ManagerDashboard() {
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [eventCount, setEventCount] = useState(0);
+  const [deletableEventIds, setDeletableEventIds] = useState({});
 
   const fetchEventsData = useCallback(async () => {
     setIsLoadingEvents(true);
@@ -51,11 +69,21 @@ function ManagerDashboard() {
       });
       setEvents(nonCompletedEvents);
       setEventCount(nonCompletedEvents.length);
+
+      // Precompute delete eligibility for scheduled events
+      const scheduled = nonCompletedEvents.filter((e) => String(e?.status || '').toUpperCase() === 'SCHEDULED');
+      const checks = await Promise.all(
+        scheduled.map(async (e) => [String(e.id), await canDeleteEventByLots(e.id)])
+      );
+      const nextMap = {};
+      checks.forEach(([id, ok]) => { nextMap[id] = ok; });
+      setDeletableEventIds(nextMap);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast.error('Failed to load events. Please try again.');
       setEvents([]);
       setEventCount(0);
+      setDeletableEventIds({});
     } finally {
       setIsLoadingEvents(false);
     }
@@ -83,6 +111,12 @@ function ManagerDashboard() {
 
   const handleDeleteEvent = useCallback(
     async (eventId, event) => {
+      const ok = await canDeleteEventByLots(eventId);
+      if (!ok) {
+        toast.error('Event cannot be deleted because it has active (or non-draft) lots.');
+        fetchEventsData();
+        return;
+      }
       if (!window.confirm(`Are you sure you want to delete "${event?.title || 'this event'}"? This will remove the event and all its lots.`)) return;
       try {
         await auctionService.deleteEvent(eventId);
@@ -196,7 +230,7 @@ function ManagerDashboard() {
                           </svg>
                           View
                         </button>
-                        {(ev.status || '').toUpperCase() === 'SCHEDULED' && (
+                        {(ev.status || '').toUpperCase() === 'SCHEDULED' && deletableEventIds[String(ev.id)] === true && (
                           <button
                             type="button"
                             className="manager-dashboard-event-action-btn manager-dashboard-event-action-btn--delete"

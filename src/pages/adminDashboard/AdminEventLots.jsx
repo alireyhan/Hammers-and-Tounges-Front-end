@@ -40,6 +40,7 @@ const AdminEventLots = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedFilters, setSelectedFilters] = useState({});
   const [selectedLot, setSelectedLot] = useState(null);
+  const [canDeleteEvent, setCanDeleteEvent] = useState(false);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
 
@@ -92,6 +93,26 @@ const AdminEventLots = () => {
 
   const [deletingEvent, setDeletingEvent] = useState(false);
   const handleDeleteEvent = useCallback(async () => {
+    // Re-check right before delete
+    const ok = await (async () => {
+      try {
+        const res = await auctionService.getLots({ event: id, page: 1, page_size: 200 });
+        const items = res?.results || [];
+        const total = res?.count ?? items.length;
+        if (total === 0) return true;
+        const hasNonDraft = items.some((l) => String(l?.status || l?.listing_status || '').toUpperCase() !== 'DRAFT');
+        if (hasNonDraft) return false;
+        if (total > items.length) return false;
+        return true;
+      } catch {
+        return false;
+      }
+    })();
+    if (!ok) {
+      toast.error('Event cannot be deleted because it has active (or non-draft) lots.');
+      setCanDeleteEvent(false);
+      return;
+    }
     if (!window.confirm(`Are you sure you want to delete the event "${eventTitle}"? This will remove the event and all its lots.`)) return;
     setDeletingEvent(true);
     try {
@@ -106,7 +127,7 @@ const AdminEventLots = () => {
   }, [id, eventTitle, navigate]);
 
   const showCreateLot = eventStatus === 'SCHEDULED';
-  const showDeleteEvent = eventStatus === 'SCHEDULED';
+  const showDeleteEvent = eventStatus === 'SCHEDULED' && canDeleteEvent;
   const showEditEvent = eventStatus === 'SCHEDULED';
 
   const handleLotUpdated = useCallback(() => {
@@ -129,6 +150,35 @@ const AdminEventLots = () => {
     })();
     return () => { cancelled = true; };
   }, [id, eventFromState]);
+
+  // Determine if delete is allowed: no lots or only draft lots.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if ((eventStatus || '').toUpperCase() !== 'SCHEDULED') {
+        if (!cancelled) setCanDeleteEvent(false);
+        return;
+      }
+      try {
+        const res = await auctionService.getLots({ event: id, page: 1, page_size: 200 });
+        const items = res?.results || [];
+        const total = res?.count ?? items.length;
+        if (total === 0) {
+          if (!cancelled) setCanDeleteEvent(true);
+          return;
+        }
+        const hasNonDraft = items.some((l) => String(l?.status || l?.listing_status || '').toUpperCase() !== 'DRAFT');
+        if (hasNonDraft || total > items.length) {
+          if (!cancelled) setCanDeleteEvent(false);
+          return;
+        }
+        if (!cancelled) setCanDeleteEvent(true);
+      } catch {
+        if (!cancelled) setCanDeleteEvent(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id, eventStatus]);
 
   const filteredLots = useMemo(() => {
     const filters = selectedFilters;

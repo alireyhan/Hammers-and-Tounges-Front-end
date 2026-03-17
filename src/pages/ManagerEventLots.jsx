@@ -153,7 +153,44 @@ const ManagerEventLots = () => {
   };
 
   const [deletingEvent, setDeletingEvent] = useState(false);
+  const [canDeleteEvent, setCanDeleteEvent] = useState(false);
+
+  const checkCanDeleteEvent = useCallback(async () => {
+    if (!id) return false;
+    try {
+      const res = await auctionService.getLots({ event: id, page: 1, page_size: 200 });
+      const items = res?.results || [];
+      const total = res?.count ?? items.length;
+      if (total === 0) return true;
+      const hasNonDraft = items.some((l) => String(l?.status || l?.listing_status || '').toUpperCase() !== 'DRAFT');
+      if (hasNonDraft) return false;
+      if (total > items.length) return false;
+      return true;
+    } catch {
+      return false;
+    }
+  }, [id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if ((eventStatus || '').toUpperCase() !== 'SCHEDULED' || authUserRole === 'clerk') {
+        if (!cancelled) setCanDeleteEvent(false);
+        return;
+      }
+      const ok = await checkCanDeleteEvent();
+      if (!cancelled) setCanDeleteEvent(ok);
+    })();
+    return () => { cancelled = true; };
+  }, [eventStatus, authUserRole, checkCanDeleteEvent]);
+
   const handleDeleteEvent = async () => {
+    const ok = await checkCanDeleteEvent();
+    if (!ok) {
+      toast.error('Event cannot be deleted because it has active (or non-draft) lots.');
+      setCanDeleteEvent(false);
+      return;
+    }
     if (!window.confirm(`Are you sure you want to delete the event "${eventTitle}"? This will remove the event and all its lots.`)) return;
     setDeletingEvent(true);
     try {
@@ -168,7 +205,7 @@ const ManagerEventLots = () => {
   };
 
   const showCreateLot = eventStatus === 'SCHEDULED' && authUserRole !== 'clerk';
-  const showDeleteEvent = eventStatus === 'SCHEDULED' && authUserRole !== 'clerk';
+  const showDeleteEvent = eventStatus === 'SCHEDULED' && authUserRole !== 'clerk' && canDeleteEvent;
 
   const handleLotUpdated = useCallback(() => {
     fetchLots(page);
