@@ -2,25 +2,9 @@ import React, { useState, useMemo, useEffect } from "react";
 import "./ManagerLiveAuctions.css";
 import { useNavigate } from "react-router-dom";
 import { auctionService } from '../services/interceptors/auction.service';
-import { getMediaUrl } from '../config/api.config';
+import EventListingRow from "../components/EventListingRow";
 
 const ROWS_PER_PAGE = 5;
-
-const formatEventDate = (isoStr) => {
-  if (!isoStr) return '—';
-  try {
-    const d = new Date(isoStr);
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return '—';
-  }
-};
 
 export default function ManagerLiveAuctions() {
   const [search, setSearch] = useState("");
@@ -81,40 +65,6 @@ export default function ManagerLiveAuctions() {
     return filteredData.slice(startIndex, startIndex + ROWS_PER_PAGE);
   }, [filteredData, page]);
 
-  function generatePageNumbers() {
-    const pages = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (page <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (page >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(1);
-        pages.push('...');
-        pages.push(page - 1);
-        pages.push(page);
-        pages.push(page + 1);
-        pages.push('...');
-        pages.push(totalPages);
-      }
-    }
-    return pages;
-  }
-
   return (
     <div className="live-auction-wrapper">
       <div className="live-auction-container">
@@ -164,184 +114,58 @@ export default function ManagerLiveAuctions() {
           />
         </div>
 
-        {/* TABLE */}
-        <div className="live-auction-data-table-section">
-          <div className="live-auction-table-wrapper">
-            <table className="live-auction-data-table">
-              <thead>
-                <tr>
-                  <th>Event</th>
-                  <th>Status</th>
-                  <th>Start</th>
-                  <th>End</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="5">
-                      <div className="live-auction-empty-state">
-                        <div className="live-auction-empty-icon" style={{ animation: 'spin 1s linear infinite' }}>
-                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="32" strokeDashoffset="16" opacity="0.3" />
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="32" strokeDashoffset="16" className="spinner-circle" />
-                          </svg>
-                        </div>
-                        <h3>Loading completed auctions...</h3>
-                        <p>Please wait while we fetch your completed auctions</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : error ? (
-                  <tr>
-                    <td colSpan="5">
-                      <div className="live-auction-empty-state">
-                        <div className="live-auction-empty-icon">
-                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-                            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                            <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                          </svg>
-                        </div>
-                        <h3>Error loading completed auctions</h3>
-                        <p>{error}</p>
-                        <button
-                          onClick={() => fetchEvents()}
-                          className="live-auction-export-btn"
-                          style={{ marginTop: '1rem' }}
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ) : paginatedData.length > 0 ? (
-                  paginatedData.map((event) => (
-                    <tr
-                      key={event.id}
-                      className="live-auction-table-row"
-                      onClick={() => navigate(`/manager/event/${event.id}`, { state: { event } })}
-                    >
-                      <td>
-                        <div className="live-auction-event-cell">
-                          <div className="live-auction-event-thumb" aria-hidden="true">
-                            {(() => {
-                              const media = event.media ?? event.images ?? [];
-                              const arr = Array.isArray(media) ? media : [];
-                              const img = arr.find((m) => (m.media_type || m.mediatype) === 'image') || arr[0];
-                              const raw = img?.file || event.image_url || event.thumbnail || (typeof event.image === 'string' ? event.image : null);
-                              const src = raw ? getMediaUrl(raw) : '';
-                              return src ? <img src={src} alt="" /> : <div className="live-auction-event-thumb-placeholder" />;
-                            })()}
-                          </div>
-                          <div>
-                            <span className="live-auction-user-name">{event.title || 'Untitled Event'}</span>
-                            {(event.event_id || event.event_code || event.code) ? (
-                              <span className="live-auction-event-id">
-                                {event.event_id || event.event_code || event.code}
-                              </span>
-                            ) : null}
-                          <span className="live-auction-time" style={{ display: 'block', opacity: 0.8, fontSize: '0.85em' }}>
-                            {event.lots_count ?? 0} lots
-                          </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="live-auction-status-cell">
-                          <span className="live-auction-status-badge badge-winning">
-                            {(event.status || '').toUpperCase() === 'CLOSING' ? 'COMPLETED' : (event.status || '—')}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="live-auction-time">
-                          {formatEventDate(event.start_time)}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="live-auction-time">
-                          {formatEventDate(event.end_time)}
-                        </span>
-                      </td>
-                      <td>
-                        <button
-                          className="live-auction-icon-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/manager/event/${event.id}`, { state: { event } });
-                          }}
-                          title="View Details"
-                          aria-label={`View details for ${event.title}`}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" />
-                            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-                          </svg>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5">
-                      <div className="live-auction-empty-state">
-                        <div className="live-auction-empty-icon">
-                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </div>
-                        <h3>No completed auctions found</h3>
-                        <p>Try adjusting your search or filters</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* PAGINATION */}
-          {filteredData.length > ROWS_PER_PAGE && (
-            <div className="live-auction-pagination">
+        {/* LIST (same design as Home events list) */}
+        <div className="live-auction-list-section">
+          {loading ? (
+            <div className="home-loading">
+              <div className="home-spinner" />
+              <p>Loading completed auctions...</p>
+            </div>
+          ) : error ? (
+            <div className="home-error">
+              <p>{error}</p>
               <button
-                className="live-auction-pagination-btn live-auction-prev-btn"
-                onClick={() => setPage(p => Math.max(p - 1, 1))}
-                disabled={page === 1}
+                onClick={() => fetchEvents()}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                Retry
+              </button>
+            </div>
+          ) : paginatedData.length > 0 ? (
+            <div className="home-events-list">
+              {paginatedData.map((event) => (
+                <EventListingRow
+                  key={event.id}
+                  event={event}
+                  onClick={(e) => navigate(`/manager/event/${e.id}`, { state: { event: e } })}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="home-empty">
+              <p>No completed auctions found</p>
+              <p>Try adjusting your search or date filter</p>
+            </div>
+          )}
+
+          {/* PAGINATION (Home style) */}
+          {filteredData.length > ROWS_PER_PAGE && !loading && !error && (
+            <div className="home-pagination">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="home-pagination__btn"
+              >
                 Previous
               </button>
-
-              <div className="live-auction-page-numbers">
-                {generatePageNumbers().map((p, index) => (
-                  p === '...' ? (
-                    <span key={`dots-${index}`} className="live-auction-page-dots">...</span>
-                  ) : (
-                    <button
-                      key={p}
-                      className={`live-auction-page-number ${page === p ? 'active' : ''}`}
-                      onClick={() => setPage(p)}
-                    >
-                      {p}
-                    </button>
-                  )
-                ))}
-              </div>
-
+              <span className="home-pagination__info">
+                {page} of {totalPages}
+              </span>
               <button
-                className="live-auction-pagination-btn live-auction-next-btn"
-                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-                disabled={page === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="home-pagination__btn"
               >
                 Next
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
               </button>
             </div>
           )}

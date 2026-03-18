@@ -95,6 +95,8 @@ const BuyerEventLotsFilterBar = ({ eventId, lots, facets, onFiltersChange }) => 
     }
     allValidationSchemaKeys.forEach((schemaKey) => {
       if (schemaKey === 'make') return;
+      // Requirement: remove "Condition" filter from all event-lots flows
+      if (schemaKey === 'condition') return;
       const facetValues = facetsData[schemaKey];
       if (facetValues && typeof facetValues === 'object' && Object.keys(facetValues).length > 0) {
         sections.push({

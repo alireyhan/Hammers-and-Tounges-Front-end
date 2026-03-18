@@ -218,6 +218,19 @@ body {
   margin-top: 1.5rem;
 }
 
+.live-auction-list-section {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  margin-top: 1.5rem;
+  overflow: hidden;
+}
+
+.live-auction-list-section .home-events-list {
+  border-top: none;
+  padding: 0 1rem;
+}
+
 .live-auction-table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
