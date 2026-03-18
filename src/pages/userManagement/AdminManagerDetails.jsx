@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import "./AdminManagerDetails.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsersList, performUserAction } from "../../store/actions/adminActions";
 import { clearActionSuccess } from "../../store/slices/adminSlice";
@@ -11,8 +11,11 @@ import { getMediaUrl } from "../../config/api.config";
 const AdminManagerDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { users, isLoading, isPerformingAction, actionSuccess } = useSelector((state) => state.admin);
+
+  const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
 
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -167,7 +170,7 @@ const AdminManagerDetails = () => {
       await adminService.updateUser(selectedManager.id, updateData);
       toast.success('Manager details updated successfully!');
       await dispatch(fetchUsersList({ page: 1 })).unwrap();
-      navigate("/admin/users", { state: { role: "manager" } });
+      navigate(`${basePath}/users`, { state: { role: "manager" } });
     } catch (error) {
       const message = error.response?.data?.message ||
         error.response?.data?.error ||
@@ -207,7 +210,7 @@ const AdminManagerDetails = () => {
           target_id: selectedManager.id,
         })).unwrap();
         await dispatch(fetchUsersList({ page: 1 })).unwrap();
-        navigate("/admin/users", { state: { role: "manager" } });
+        navigate(`${basePath}/users`, { state: { role: "manager" } });
       } catch (err) {
         // Toast already shown by performUserAction
       }
@@ -222,7 +225,7 @@ const AdminManagerDetails = () => {
           target_id: selectedManager.id,
         })).unwrap();
         await dispatch(fetchUsersList({ page: 1 })).unwrap();
-        navigate("/admin/users", { state: { role: "manager" } });
+        navigate(`${basePath}/users`, { state: { role: "manager" } });
       } catch (err) {
         // Toast already shown by performUserAction
       }
@@ -254,7 +257,7 @@ const AdminManagerDetails = () => {
           </svg>
           <h3>Manager Not Found</h3>
           <p>The selected manager could not be found. Please return to the user list and try again.</p>
-          <button className="manager-details-btn-primary" onClick={() => navigate("/admin/users", { state: { role: "manager" } })}>
+          <button className="manager-details-btn-primary" onClick={() => navigate(`${basePath}/users`, { state: { role: "manager" } })}>
             Back to Users List
           </button>
         </div>
@@ -470,7 +473,7 @@ const AdminManagerDetails = () => {
             )}
             <button
               className="manager-details-btn-secondary"
-              onClick={() => navigate("/admin/users", { state: { role: "manager" } })}
+              onClick={() => navigate(`${basePath}/users`, { state: { role: "manager" } })}
               disabled={isPerformingAction || isEditing}
             >
               Go Back

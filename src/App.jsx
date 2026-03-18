@@ -229,6 +229,53 @@ function App() {
                   </>
                 } /> */}
 
+                {/* Manager equivalents for admin tabs */}
+                <Route path="/manager/users" element={
+                  <>
+                    <UserManagement />
+                  </>
+                } />
+                <Route path="/manager/category" element={
+                  <>
+                    <CategoryManagement />
+                  </>
+                } />
+                <Route path="/manager/edit-category" element={
+                  <>
+                    <ManagerCreateCategory />
+                  </>
+                } />
+                <Route path="/manager/role-management/:id" element={
+                  <>
+                    <AdminRoleManagement />
+                  </>
+                } />
+                <Route path="/manager/manager/:id" element={
+                  <>
+                    <AdminManagerDetails />
+                  </>
+                } />
+                <Route path="/manager/manager/create" element={
+                  <>
+                    <AdminCreateManager />
+                  </>
+                } />
+                <Route path="/manager/clerk/create" element={
+                  <>
+                    <AdminCreateClerk />
+                  </>
+                } />
+                <Route path="/manager/seller/create" element={
+                  <>
+                    <AdminCreateSeller />
+                  </>
+                } />
+                <Route path="/manager/seller/edit/:id" element={
+                  <>
+                    <AdminEditSeller />
+                  </>
+                } />
+
               </Route>
             </Route>
 

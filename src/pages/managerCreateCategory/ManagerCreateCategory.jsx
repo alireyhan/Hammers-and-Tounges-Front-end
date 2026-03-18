@@ -10,9 +10,11 @@ const ManagerCreateCategory = () => {
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
     const location = useLocation();
+
+    const basePath = location.pathname.startsWith('/manager') ? '/manager' : '/admin';
     
     // Check if we're in edit mode
-    const isEditMode = location.pathname === '/admin/edit-category';
+    const isEditMode = location.pathname === `${basePath}/edit-category`;
     const editingCategoryId = isEditMode ? localStorage.getItem('editingCategoryId') : null;
 
     // Load category name if in edit mode
@@ -50,7 +52,7 @@ const ManagerCreateCategory = () => {
 
         // Store category name in localStorage to pass to next step
         localStorage.setItem('pendingCategoryName', categoryData.name);
-        navigate('/admin/product-fields');
+        navigate(`${basePath}/product-fields`);
     };
 
     return (
@@ -76,7 +78,7 @@ const ManagerCreateCategory = () => {
                                     localStorage.removeItem('editingCategoryId');
                                     localStorage.removeItem('pendingCategoryName');
                                 }
-                                navigate('/admin/category');
+                                navigate(`${basePath}/category`);
                             }}>
                                 Cancel
                             </button>

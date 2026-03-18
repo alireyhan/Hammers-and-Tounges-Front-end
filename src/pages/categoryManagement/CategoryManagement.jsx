@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories, deleteCategory } from '../../store/actions/adminActions';
 import { fetchCategories as fetchCategoriesForBuyer } from '../../store/actions/AuctionsActions';
@@ -12,6 +12,8 @@ export default function CategoryManagement() {
   const { categories: categoriesFromStore, isLoading } = useSelector((state) => state.admin);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const basePath = location.pathname.startsWith('/manager') ? '/manager' : '/admin';
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -74,7 +76,7 @@ export default function CategoryManagement() {
     if (category) {
       localStorage.setItem('pendingCategoryName', category.name);
     }
-    navigate('/admin/edit-category');
+    navigate(`${basePath}/edit-category`);
   };
 
   const handleDelete = async (id) => {
@@ -156,7 +158,7 @@ export default function CategoryManagement() {
             </div>
             <div className="category-header-actions">
               <button className="category-primary-action-btn" onClick={
-                () => navigate('/admin/add-category')
+                () => navigate(`${basePath}/add-category`)
               }>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

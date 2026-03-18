@@ -14,6 +14,8 @@ const AdminEditSeller = () => {
   const dispatch = useDispatch();
   const { users } = useSelector((state) => state.admin);
 
+  const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     first_name: "",
@@ -110,7 +112,7 @@ const AdminEditSeller = () => {
 
       await adminService.updateSeller(id, patchData);
       toast.success("Seller updated successfully!");
-      navigate("/admin/users", { state: { role: "seller" } });
+      navigate(`${basePath}/users`, { state: { role: "seller" } });
     } catch (error) {
       const apiData = error.response?.data;
       let message = apiData?.message || apiData?.error;
@@ -131,7 +133,7 @@ const AdminEditSeller = () => {
   };
 
   const handleCancel = () => {
-    navigate("/admin/users", { state: { role: "seller" } });
+    navigate(`${basePath}/users`, { state: { role: "seller" } });
   };
 
   if (isLoading) {
@@ -150,7 +152,7 @@ const AdminEditSeller = () => {
       <div className="edit-seller-page">
         <div className="edit-seller-error">
           <p>Seller not found.</p>
-          <button className="edit-seller-btn-secondary" onClick={() => navigate("/admin/users", { state: { role: "seller" } })}>
+          <button className="edit-seller-btn-secondary" onClick={() => navigate(`${basePath}/users`, { state: { role: "seller" } })}>
             Back to Users
           </button>
         </div>

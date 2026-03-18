@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from "react";
 import "./AdminCreateManager.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { adminService } from "../../services/interceptors/admin.service";
 import { toast } from "react-toastify";
 
 const AdminCreateClerk = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -69,7 +70,8 @@ const AdminCreateClerk = () => {
       });
 
       toast.success("Clerk created successfully!");
-      navigate("/admin/users", { state: { role: "clerk" } });
+      const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+      navigate(`${basePath}/users`, { state: { role: "clerk" } });
     } catch (error) {
       const data = error?.response?.data;
       let message = "Failed to create clerk";
@@ -93,7 +95,8 @@ const AdminCreateClerk = () => {
   };
 
   const handleCancel = () => {
-    navigate("/admin/users", { state: { role: "clerk" } });
+    const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+    navigate(`${basePath}/users`, { state: { role: "clerk" } });
   };
 
   return (

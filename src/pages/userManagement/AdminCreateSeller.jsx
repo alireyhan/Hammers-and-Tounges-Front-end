@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import "./AdminCreateSeller.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { adminService } from "../../services/interceptors/admin.service";
 import { toast } from "react-toastify";
 
 const AdminCreateSeller = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -65,7 +66,8 @@ const AdminCreateSeller = () => {
       };
       await adminService.createSeller(sellerData);
       toast.success("Seller created successfully!");
-      navigate("/admin/users", { state: { role: "seller" } });
+      const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+      navigate(`${basePath}/users`, { state: { role: "seller" } });
     } catch (error) {
       const apiMsg = error.response?.data?.message ||
         error.response?.data?.error ||
@@ -83,7 +85,8 @@ const AdminCreateSeller = () => {
   };
 
   const handleCancel = () => {
-    navigate("/admin/users", { state: { role: "seller" } });
+    const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+    navigate(`${basePath}/users`, { state: { role: "seller" } });
   };
 
   return (

@@ -12,6 +12,8 @@ const UserManagement = () => {
     (state) => state.admin
   );
 
+  const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState(() => {
     const role = location.state?.role;
@@ -272,7 +274,7 @@ const filteredUsers = useMemo(() => {
   };
 
   const handleOpenRoleManagement = (user) => {
-    navigate(`/admin/role-management/${user.id}`, {
+    navigate(`${basePath}/role-management/${user.id}`, {
       state: { role: user.role, user },
     });
   };
@@ -291,10 +293,10 @@ const filteredUsers = useMemo(() => {
             onClick={() =>
               navigate(
                 roleFilter === 'manager'
-                  ? '/admin/manager/create'
+                  ? `${basePath}/manager/create`
                   : roleFilter === 'seller'
-                  ? '/admin/seller/create'
-                  : '/admin/clerk/create'
+                  ? `${basePath}/seller/create`
+                  : `${basePath}/clerk/create`
               )
             }
             disabled={isLoading}
@@ -387,9 +389,9 @@ const filteredUsers = useMemo(() => {
                   className="user-management-table-row" 
                   onClick={
                     roleFilter === 'seller' && user.role === 'seller' 
-                      ? () => navigate(`/admin/seller/edit/${user.id}`, { state: { user } })
+                      ? () => navigate(`${basePath}/seller/edit/${user.id}`, { state: { user } })
                       : roleFilter === 'manager' && user.role === 'manager'
-                      ? () => navigate(`/admin/manager/${user.id}`)
+                      ? () => navigate(`${basePath}/manager/${user.id}`)
                       : undefined
                   }
                   style={
@@ -445,7 +447,7 @@ const filteredUsers = useMemo(() => {
                         {roleFilter === 'seller' && user.role === 'seller' && (
                           <button
                             className="user-management-action-btn user-management-action-edit"
-                            onClick={() => navigate(`/admin/seller/edit/${user.id}`, { state: { user } })}
+                            onClick={() => navigate(`${basePath}/seller/edit/${user.id}`, { state: { user } })}
                             title="Edit Seller"
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">

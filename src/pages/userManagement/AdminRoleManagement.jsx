@@ -46,6 +46,7 @@ const AdminRoleManagement = () => {
 
   const roleType = location.state?.role || "manager"; // "manager" | "clerk"
   const user = location.state?.user;
+  const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -141,7 +142,7 @@ const AdminRoleManagement = () => {
 
       await adminService.updateUserPermissions(id, payload);
       toast.success("Permissions updated successfully!");
-      navigate("/admin/users", { state: { role: roleType } });
+      navigate(`${basePath}/users`, { state: { role: roleType } });
     } catch (err) {
       const message =
         err?.response?.data?.message ||
@@ -155,7 +156,7 @@ const AdminRoleManagement = () => {
   };
 
   const handleBack = () => {
-    navigate("/admin/users", { state: { role: roleType } });
+    navigate(`${basePath}/users`, { state: { role: roleType } });
   };
 
   if (isLoading) {

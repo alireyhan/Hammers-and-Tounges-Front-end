@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import "./AdminCreateManager.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { adminService } from "../../services/interceptors/admin.service";
 import { toast } from "react-toastify";
 
 const AdminCreateManager = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -74,7 +75,8 @@ const AdminCreateManager = () => {
       };
       await adminService.createManager(managerData);
       toast.success("Manager created successfully!");
-      navigate("/admin/users", { state: { role: "manager" } });
+      const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+      navigate(`${basePath}/users`, { state: { role: "manager" } });
     } catch (error) {
       const data = error.response?.data;
       let message = "Failed to create manager";
@@ -101,7 +103,8 @@ const AdminCreateManager = () => {
   };
 
   const handleCancel = () => {
-    navigate("/admin/users", { state: { role: "manager" } });
+    const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+    navigate(`${basePath}/users`, { state: { role: "manager" } });
   };
 
   return (
