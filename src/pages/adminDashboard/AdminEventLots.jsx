@@ -41,6 +41,7 @@ const AdminEventLots = () => {
   const [selectedFilters, setSelectedFilters] = useState({});
   const [selectedLot, setSelectedLot] = useState(null);
   const [canDeleteEvent, setCanDeleteEvent] = useState(false);
+  const [hasActiveLot, setHasActiveLot] = useState(false);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
 
@@ -126,9 +127,10 @@ const AdminEventLots = () => {
     }
   }, [id, eventTitle, navigate]);
 
-  const showCreateLot = eventStatus === 'SCHEDULED';
-  const showDeleteEvent = eventStatus === 'SCHEDULED' && canDeleteEvent;
-  const showEditEvent = eventStatus === 'SCHEDULED';
+  const eventStatusUpper = (eventStatus || '').toUpperCase();
+  const showCreateLot = eventStatusUpper === 'SCHEDULED';
+  const showDeleteEvent = eventStatusUpper === 'SCHEDULED' && canDeleteEvent;
+  const showEditEvent = eventStatusUpper === 'SCHEDULED' && !hasActiveLot;
 
   const handleLotUpdated = useCallback(() => {
     fetchLots(page);
@@ -151,11 +153,32 @@ const AdminEventLots = () => {
     return () => { cancelled = true; };
   }, [id, eventFromState]);
 
+  // Determine if editing is allowed: event must be scheduled and have no ACTIVE lots.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (eventStatusUpper !== 'SCHEDULED') {
+        if (!cancelled) setHasActiveLot(false);
+        return;
+      }
+      try {
+        const res = await auctionService.getLots({ event: id, page: 1, page_size: 200 });
+        const items = res?.results || [];
+        const anyActive = items.some((l) => String(l?.status || l?.listing_status || '').toUpperCase() === 'ACTIVE');
+        if (!cancelled) setHasActiveLot(anyActive);
+      } catch {
+        // On error, be conservative and hide the edit button.
+        if (!cancelled) setHasActiveLot(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id, eventStatusUpper]);
+
   // Determine if delete is allowed: no lots or only draft lots.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if ((eventStatus || '').toUpperCase() !== 'SCHEDULED') {
+      if (eventStatusUpper !== 'SCHEDULED') {
         if (!cancelled) setCanDeleteEvent(false);
         return;
       }
@@ -178,7 +201,7 @@ const AdminEventLots = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [id, eventStatus]);
+  }, [id, eventStatusUpper]);
 
   const filteredLots = useMemo(() => {
     const filters = selectedFilters;
