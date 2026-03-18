@@ -271,6 +271,12 @@ const filteredUsers = useMemo(() => {
     }
   };
 
+  const handleOpenRoleManagement = (user) => {
+    navigate(`/admin/role-management/${user.id}`, {
+      state: { role: user.role, user },
+    });
+  };
+
   return (
     <div className="user-management-container">
       {/* Page Header */}
@@ -370,7 +376,7 @@ const filteredUsers = useMemo(() => {
                 <th>Email</th>
                 <th>Role</th>
                 <th>Status</th>
-                {(roleFilter === 'seller' || roleFilter === 'clerk') && <th>Actions</th>}
+                {(roleFilter === 'seller' || roleFilter === 'clerk' || roleFilter === 'manager') && <th>Actions</th>}
               </tr>
             </thead>
 
@@ -412,10 +418,31 @@ const filteredUsers = useMemo(() => {
                       {getUserStatus(user)}
                     </span>
                   </td>
-                  {(roleFilter === 'seller' || roleFilter === 'clerk') && user.role === roleFilter && (
+                  {(
+                    (roleFilter === 'seller' && user.role === 'seller') ||
+                    (roleFilter === 'clerk' && user.role === 'clerk') ||
+                    (roleFilter === 'manager' && user.role === 'manager')
+                  ) && (
                     <td className="user-management-actions-cell" onClick={(e) => e.stopPropagation()}>
                       <div className="user-management-actions-dropdown">
-                        {user.role === 'seller' && (
+                        {(roleFilter === 'manager' || roleFilter === 'clerk') && (
+                          <button
+                            className="user-management-action-btn user-management-action-roles"
+                            onClick={() => handleOpenRoleManagement(user)}
+                            title="Role Management"
+                            disabled={isPerformingAction}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                              <path d="M12 6V2m0 4l-2 2m2-2l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M7 10h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M6 14l-2 2m2-2l2 2m-2-2h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M18 14l2 2m-2-2l-2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Role Management
+                          </button>
+                        )}
+
+                        {roleFilter === 'seller' && user.role === 'seller' && (
                           <button
                             className="user-management-action-btn user-management-action-edit"
                             onClick={() => navigate(`/admin/seller/edit/${user.id}`, { state: { user } })}
@@ -429,21 +456,23 @@ const filteredUsers = useMemo(() => {
                           </button>
                         )}
 
-                        <button
-                          className="user-management-action-btn user-management-action-delete"
-                          onClick={() => handleDeleteUser(user.id)}
-                          title={`Delete ${user.role}`}
-                          disabled={isPerformingAction}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M3 6h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                            <path d="M8 6V4h8v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M19 6l-1 14H6L5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M10 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                            <path d="M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                          </svg>
-                          Delete
-                        </button>
+                        {(roleFilter === 'seller' || roleFilter === 'clerk') && (
+                          <button
+                            className="user-management-action-btn user-management-action-delete"
+                            onClick={() => handleDeleteUser(user.id)}
+                            title={`Delete ${user.role}`}
+                            disabled={isPerformingAction}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                              <path d="M3 6h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                              <path d="M8 6V4h8v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M19 6l-1 14H6L5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M10 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                              <path d="M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                            Delete
+                          </button>
+                        )}
                           {/* <div className="user-management-actions-menu">
                           {user.role === 'seller' && !user.is_verified && (
                             <button

@@ -336,6 +336,37 @@ export const adminService = {
     }
   },
 
+  // Fetch feature permissions for a user (read/create/update/delete per feature)
+  getUserPermissions: async (userId) => {
+    try {
+      const { data } = await apiClient.get(
+        `${API_ROUTES.ADMIN_USER_PERMISSIONS}${userId}/`
+      );
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
+  // Update feature permissions for a user
+  updateUserPermissions: async (userId, permissionsPayload) => {
+    try {
+      const { data } = await apiClient.patch(
+        `${API_ROUTES.ADMIN_USER_PERMISSIONS}${userId}/`,
+        permissionsPayload
+      );
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
   // Toggle Category Active/Inactive Status
   toggleCategory: async (categoryId, categoryData) => {
     try {

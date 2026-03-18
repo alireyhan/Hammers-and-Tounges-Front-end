@@ -78,6 +78,7 @@ import AdminCreateManager from './pages/userManagement/AdminCreateManager'
 import AdminCreateSeller from './pages/userManagement/AdminCreateSeller'
 import AdminEditSeller from './pages/userManagement/AdminEditSeller'
 import AdminCreateClerk from './pages/userManagement/AdminCreateClerk'
+import AdminRoleManagement from './pages/userManagement/AdminRoleManagement'
 
 // Route Guards
 import BuyerGuard from "./guards/BuyerGuard";
@@ -286,6 +287,11 @@ function App() {
                 <Route path="/admin/manager/:id" element={
                   <>
                     <AdminManagerDetails />
+                  </>
+                } />
+                <Route path="/admin/role-management/:id" element={
+                  <>
+                    <AdminRoleManagement />
                   </>
                 } />
                 <Route path="/admin/manager/create" element={
