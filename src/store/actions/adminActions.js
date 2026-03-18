@@ -147,3 +147,21 @@ export const deleteCategory = createAsyncThunk(
     }
   }
 );
+
+export const deleteUser = createAsyncThunk(
+  'admin/deleteUser',
+  async (userId, { rejectWithValue }) => {
+    try {
+      await adminService.deleteUser(userId);
+      toast.success('User deleted successfully!');
+      return userId;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        'Failed to delete user';
+      toast.error(message);
+      return rejectWithValue(error.response?.data || { message });
+    }
+  }
+);

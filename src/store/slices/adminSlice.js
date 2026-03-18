@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { assignAuctionToManager, fetchAdminDashboard, fetchUsersList, performUserAction, fetchCategories, deleteCategory } from '../actions/adminActions';
+import { assignAuctionToManager, fetchAdminDashboard, fetchUsersList, performUserAction, fetchCategories, deleteCategory, deleteUser } from '../actions/adminActions';
 
 const initialState = {
   dashboard: null,
@@ -123,6 +123,23 @@ const adminSlice = createSlice({
       .addCase(deleteCategory.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      });
+
+    // Delete User (soft-delete: is_active=false)
+    builder
+      .addCase(deleteUser.pending, (state) => {
+        state.isPerformingAction = true;
+        state.error = null;
+        state.actionSuccess = false;
+      })
+      .addCase(deleteUser.fulfilled, (state) => {
+        state.isPerformingAction = false;
+        state.actionSuccess = true;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.isPerformingAction = false;
+        state.error = action.payload;
+        state.actionSuccess = false;
       });
   },
 });

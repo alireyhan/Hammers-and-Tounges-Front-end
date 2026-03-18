@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { fetchUsersList } from "../../store/actions/adminActions";
+import { deleteUser, fetchUsersList } from "../../store/actions/adminActions";
 import "./UserManagement.css";
 
 const UserManagement = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const { users, isLoading } = useSelector(
+  const { users, isLoading, isPerformingAction } = useSelector(
     (state) => state.admin
   );
 
@@ -119,6 +119,20 @@ const filteredUsers = useMemo(() => {
   if (!localUsers || localUsers.length === 0) return [];
 
   return localUsers.filter((user) => {
+    // Soft-deleted users are removed from the list (backend sets is_active=false).
+    // We only hide them for seller/clerk screens to avoid interfering with manager status logic.
+    const isSoftDeleted =
+      user?.is_active === false ||
+      user?.is_active === "false" ||
+      user?.is_active === 0;
+
+    if (
+      (roleFilter === "seller" || roleFilter === "clerk") &&
+      isSoftDeleted
+    ) {
+      return false;
+    }
+
     const searchableText = `
       ${user.full_name || ""}
       ${user.first_name || ""}
@@ -242,6 +256,21 @@ const filteredUsers = useMemo(() => {
     return combined || safeTrim(user?.email) || "N/A";
   };
 
+  const handleDeleteUser = async (userId) => {
+    const currentRole = roleFilter;
+    const confirmMsg = `Are you sure you want to delete this ${currentRole}? This will soft-delete the account.`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      await dispatch(deleteUser(userId)).unwrap();
+      // Refresh list so the soft-deleted user (is_active=false) disappears.
+      await dispatch(fetchUsersList({ page, role: roleFilter })).unwrap();
+    } catch (err) {
+      // Errors are handled by the thunk + toast.
+    }
+  };
+
   return (
     <div className="user-management-container">
       {/* Page Header */}
@@ -341,8 +370,7 @@ const filteredUsers = useMemo(() => {
                 <th>Email</th>
                 <th>Role</th>
                 <th>Status</th>
-                {roleFilter === 'seller' && <th>Actions</th>}
-                {/* Actions column only shown for sellers */}
+                {(roleFilter === 'seller' || roleFilter === 'clerk') && <th>Actions</th>}
               </tr>
             </thead>
 
@@ -384,21 +412,39 @@ const filteredUsers = useMemo(() => {
                       {getUserStatus(user)}
                     </span>
                   </td>
-                  {roleFilter === 'seller' && user.role === 'seller' && (
+                  {(roleFilter === 'seller' || roleFilter === 'clerk') && user.role === roleFilter && (
                     <td className="user-management-actions-cell" onClick={(e) => e.stopPropagation()}>
                       <div className="user-management-actions-dropdown">
+                        {user.role === 'seller' && (
+                          <button
+                            className="user-management-action-btn user-management-action-edit"
+                            onClick={() => navigate(`/admin/seller/edit/${user.id}`, { state: { user } })}
+                            title="Edit Seller"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Edit
+                          </button>
+                        )}
+
                         <button
-                          className="user-management-action-btn user-management-action-edit"
-                          onClick={() => navigate(`/admin/seller/edit/${user.id}`, { state: { user } })}
-                          title="Edit Seller"
+                          className="user-management-action-btn user-management-action-delete"
+                          onClick={() => handleDeleteUser(user.id)}
+                          title={`Delete ${user.role}`}
+                          disabled={isPerformingAction}
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M3 6h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            <path d="M8 6V4h8v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M19 6l-1 14H6L5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M10 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            <path d="M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                           </svg>
-                          Edit
+                          Delete
                         </button>
-                        {/* <div className="user-management-actions-menu">
+                          {/* <div className="user-management-actions-menu">
                           {user.role === 'seller' && !user.is_verified && (
                             <button
                               className="user-management-action-btn user-management-action-verify"
