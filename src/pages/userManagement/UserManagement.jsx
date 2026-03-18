@@ -12,7 +12,18 @@ const UserManagement = () => {
     (state) => state.admin
   );
 
+  const features = useSelector((state) => state.permissions?.features);
+  const manageUsersPerm = features?.manage_users || {};
+
   const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+  const isManagerFlow = location.pathname.startsWith("/manager");
+
+  // Permissions are ONLY enforced in manager flow.
+  // Admin flow should behave as before (role management available based on admin capabilities).
+  const canReadUsers = isManagerFlow ? manageUsersPerm?.read === true : true;
+  const canCreateUsers = isManagerFlow ? manageUsersPerm?.create === true : true;
+  const canUpdateUsers = isManagerFlow ? manageUsersPerm?.update === true : true;
+  const canDeleteUsers = isManagerFlow ? manageUsersPerm?.delete === true : true;
 
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState(() => {
@@ -259,6 +270,7 @@ const filteredUsers = useMemo(() => {
   };
 
   const handleDeleteUser = async (userId) => {
+    if (!canDeleteUsers) return;
     const currentRole = roleFilter;
     const confirmMsg = `Are you sure you want to delete this ${currentRole}? This will soft-delete the account.`;
 
@@ -274,10 +286,16 @@ const filteredUsers = useMemo(() => {
   };
 
   const handleOpenRoleManagement = (user) => {
+    if (!canUpdateUsers) return;
     navigate(`${basePath}/role-management/${user.id}`, {
       state: { role: user.role, user },
     });
   };
+
+  const shouldShowActionsColumn =
+    (roleFilter === 'manager' && canUpdateUsers) ||
+    (roleFilter === 'seller' && (canUpdateUsers || canDeleteUsers)) ||
+    (roleFilter === 'clerk' && canDeleteUsers);
 
   return (
     <div className="user-management-container">
@@ -287,7 +305,7 @@ const filteredUsers = useMemo(() => {
           <h1 className="user-management-title">User Management</h1>
           <p className="user-management-subtitle">Manage all users on the Hammer & Tongues platform.</p>
         </div>
-        {(roleFilter === 'manager' || roleFilter === 'seller' || roleFilter === 'clerk') && (
+        {(roleFilter === 'manager' || roleFilter === 'seller' || roleFilter === 'clerk') && canCreateUsers && (
           <button 
             className="user-management-create-btn"
             onClick={() =>
@@ -378,7 +396,7 @@ const filteredUsers = useMemo(() => {
                 <th>Email</th>
                 <th>Role</th>
                 <th>Status</th>
-                {(roleFilter === 'seller' || roleFilter === 'clerk' || roleFilter === 'manager') && <th>Actions</th>}
+                {shouldShowActionsColumn && <th>Actions</th>}
               </tr>
             </thead>
 
@@ -388,15 +406,15 @@ const filteredUsers = useMemo(() => {
                   key={user.id} 
                   className="user-management-table-row" 
                   onClick={
-                    roleFilter === 'seller' && user.role === 'seller' 
+                    roleFilter === 'seller' && user.role === 'seller' && canUpdateUsers
                       ? () => navigate(`${basePath}/seller/edit/${user.id}`, { state: { user } })
-                      : roleFilter === 'manager' && user.role === 'manager'
+                      : roleFilter === 'manager' && user.role === 'manager' && canReadUsers
                       ? () => navigate(`${basePath}/manager/${user.id}`)
                       : undefined
                   }
                   style={
-                    (roleFilter === 'seller' && user.role === 'seller') || 
-                    (roleFilter === 'manager' && user.role === 'manager')
+                    ((roleFilter === 'seller' && user.role === 'seller') && canUpdateUsers) || 
+                    ((roleFilter === 'manager' && user.role === 'manager') && canReadUsers)
                       ? { cursor: 'pointer' } 
                       : { cursor: 'default' }
                   }
@@ -424,10 +442,10 @@ const filteredUsers = useMemo(() => {
                     (roleFilter === 'seller' && user.role === 'seller') ||
                     (roleFilter === 'clerk' && user.role === 'clerk') ||
                     (roleFilter === 'manager' && user.role === 'manager')
-                  ) && (
+                  ) && shouldShowActionsColumn && (
                     <td className="user-management-actions-cell" onClick={(e) => e.stopPropagation()}>
                       <div className="user-management-actions-dropdown">
-                        {(roleFilter === 'manager' || roleFilter === 'clerk') && (
+                        {(roleFilter === 'manager' || roleFilter === 'clerk') && canUpdateUsers && (
                           <button
                             className="user-management-action-btn user-management-action-roles"
                             onClick={() => handleOpenRoleManagement(user)}
@@ -444,7 +462,7 @@ const filteredUsers = useMemo(() => {
                           </button>
                         )}
 
-                        {roleFilter === 'seller' && user.role === 'seller' && (
+                        {roleFilter === 'seller' && user.role === 'seller' && canUpdateUsers && (
                           <button
                             className="user-management-action-btn user-management-action-edit"
                             onClick={() => navigate(`${basePath}/seller/edit/${user.id}`, { state: { user } })}
@@ -458,7 +476,7 @@ const filteredUsers = useMemo(() => {
                           </button>
                         )}
 
-                        {(roleFilter === 'seller' || roleFilter === 'clerk') && (
+                        {(roleFilter === 'seller' || roleFilter === 'clerk') && canDeleteUsers && (
                           <button
                             className="user-management-action-btn user-management-action-delete"
                             onClick={() => handleDeleteUser(user.id)}

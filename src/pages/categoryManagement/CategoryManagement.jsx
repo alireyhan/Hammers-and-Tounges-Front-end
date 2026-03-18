@@ -10,6 +10,14 @@ import './CategoryManagement.css';
 export default function CategoryManagement() {
   const dispatch = useDispatch();
   const { categories: categoriesFromStore, isLoading } = useSelector((state) => state.admin);
+  const features = useSelector((state) => state.permissions?.features);
+  const manageCategoriesPerm = features?.manage_categories || {};
+
+  const canCreateCategories = manageCategoriesPerm?.create === true;
+  const canUpdateCategories = manageCategoriesPerm?.update === true;
+  const canDeleteCategories = manageCategoriesPerm?.delete === true;
+
+  const shouldShowActionsColumn = canUpdateCategories || canDeleteCategories;
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,6 +44,7 @@ export default function CategoryManagement() {
   const [togglingCategoryId, setTogglingCategoryId] = useState(null);
 
   const handleStatusToggle = async (id) => {
+    if (!canUpdateCategories) return;
     const category = categories.find(cat => cat.id === id);
     console.log("category: ", category);
     
@@ -69,6 +78,7 @@ export default function CategoryManagement() {
   };
 
   const handleEdit = (id) => {
+    if (!canUpdateCategories) return;
     // Store category ID in localStorage to pass to edit flow
     localStorage.setItem('editingCategoryId', id.toString());
     // Find the category to get its name
@@ -80,6 +90,7 @@ export default function CategoryManagement() {
   };
 
   const handleDelete = async (id) => {
+    if (!canDeleteCategories) return;
     if (window.confirm('Are you sure you want to delete this category?\n\nThis will permanently remove the category and all associated products and auctions.'
 )) {
       try {
@@ -157,14 +168,14 @@ export default function CategoryManagement() {
               <p className="category-page-subtitle">Manage auction categories and their visibility status</p>
             </div>
             <div className="category-header-actions">
-              <button className="category-primary-action-btn" onClick={
-                () => navigate(`${basePath}/add-category`)
-              }>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-                New Category
-              </button>
+              {canCreateCategories && (
+                <button className="category-primary-action-btn" onClick={() => navigate(`${basePath}/add-category`)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  New Category
+                </button>
+              )}
             </div>
           </div>
 
@@ -282,7 +293,7 @@ export default function CategoryManagement() {
                     <th>Category</th>
                     <th>ID</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    {shouldShowActionsColumn && <th>Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -308,8 +319,15 @@ export default function CategoryManagement() {
                           <div className="category-status-cell">
                             <div
                               className={`category-status-toggle ${category.status ? 'active' : ''} ${togglingCategoryId === category.id ? 'toggling' : ''}`}
-                              onClick={() => handleStatusToggle(category.id)}
-                              style={{ cursor: togglingCategoryId === category.id ? 'wait' : 'pointer' }}
+                              onClick={() => canUpdateCategories && handleStatusToggle(category.id)}
+                              style={{
+                                cursor: !canUpdateCategories
+                                  ? 'not-allowed'
+                                  : togglingCategoryId === category.id
+                                    ? 'wait'
+                                    : 'pointer',
+                                opacity: !canUpdateCategories ? 0.6 : 1,
+                              }}
                             >
                               <div className="category-toggle-handle"></div>
                             </div>
@@ -318,35 +336,41 @@ export default function CategoryManagement() {
                             </span>
                           </div>
                         </td>
-                        <td>
-                          <div className="category-action-buttons">
-                            <button
-                              className="category-action-btn category-edit-btn"
-                              onClick={() => handleEdit(category.id)}
-                              title="Edit category"
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            </button>
-                            <button
-                              className="category-action-btn category-delete-btn"
-                              onClick={() => handleDelete(category.id)}
-                              title="Delete category"
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                                <polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            </button>
-                          </div>
-                        </td>
+                        {shouldShowActionsColumn && (
+                          <td>
+                            <div className="category-action-buttons">
+                              {canUpdateCategories && (
+                                <button
+                                  className="category-action-btn category-edit-btn"
+                                  onClick={() => handleEdit(category.id)}
+                                  title="Edit category"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                </button>
+                              )}
+                              {canDeleteCategories && (
+                                <button
+                                  className="category-action-btn category-delete-btn"
+                                  onClick={() => handleDelete(category.id)}
+                                  title="Delete category"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4">
+                      <td colSpan={shouldShowActionsColumn ? 4 : 3}>
                         <div className="category-empty-state">
                           <div className="category-empty-icon">
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none">

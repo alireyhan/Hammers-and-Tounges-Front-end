@@ -14,6 +14,11 @@ const ManagerPublishNew = () => {
   const location = useLocation();
   const fileInputRef = useRef(null);
   const authUserRole = useSelector((state) => (state.auth?.user?.role || '').toLowerCase());
+  const features = useSelector((state) => state.permissions?.features);
+  const manageEventsPerm = features?.manage_events || {};
+  const canCreateEvents = manageEventsPerm?.create === true;
+  const canUpdateEvents = manageEventsPerm?.update === true;
+  const isManagerFlow = location?.pathname?.startsWith('/manager') === true;
 
   const { eventId, event, lotId, lot: existingLot, isEdit, fromAdmin } = location.state || {};
   const fromClerk = location.state?.fromClerk;
@@ -372,6 +377,19 @@ const ManagerPublishNew = () => {
       setSubmitting(true);
       try {
         const effectiveStatus = authUserRole === 'clerk' ? 'DRAFT' : status;
+        if (isManagerFlow) {
+          if (isEdit && lotId && !canUpdateEvents) {
+            toast.error('You do not have permission to edit lots.');
+            setSubmitting(false);
+            return;
+          }
+          if (!isEdit && !canCreateEvents) {
+            toast.error('You do not have permission to create lots.');
+            setSubmitting(false);
+            return;
+          }
+        }
+
         if (isEdit && lotId) {
           const evId = eventId || existingLot?.auction_event;
           const payload = {

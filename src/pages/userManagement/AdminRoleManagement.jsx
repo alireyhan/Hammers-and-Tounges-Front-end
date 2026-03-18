@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { adminService } from "../../services/interceptors/admin.service";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserPermissions } from "../../store/actions/permissionsActions";
 import "./AdminRoleManagement.css";
 
 const PERMISSION_KEYS = ["read", "create", "update", "delete"];
@@ -43,6 +45,8 @@ const AdminRoleManagement = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const authUserId = useSelector((state) => state.auth?.user?.id);
 
   const roleType = location.state?.role || "manager"; // "manager" | "clerk"
   const user = location.state?.user;
@@ -142,6 +146,13 @@ const AdminRoleManagement = () => {
 
       await adminService.updateUserPermissions(id, payload);
       toast.success("Permissions updated successfully!");
+
+      // If the currently logged-in user updated their own permissions,
+      // refresh Redux so tabs/actions reflect the new access immediately.
+      if (authUserId != null && String(authUserId) === String(id)) {
+        dispatch(fetchUserPermissions(authUserId));
+      }
+
       navigate(`${basePath}/users`, { state: { role: roleType } });
     } catch (err) {
       const message =

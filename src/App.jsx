@@ -240,6 +240,11 @@ function App() {
                     <CategoryManagement />
                   </>
                 } />
+                <Route path="/manager/add-category" element={
+                  <>
+                    <ManagerCreateCategory />
+                  </>
+                } />
                 <Route path="/manager/edit-category" element={
                   <>
                     <ManagerCreateCategory />

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../store/slices/authSlice'
 import { useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
@@ -12,6 +12,33 @@ const ManagerSideDrawer = ({ isOpen, onClose }) => {
   const location = useLocation()
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  const features = useSelector((state) => state.permissions?.features)
+  const permissionsLoading = useSelector((state) => state.permissions?.isLoading)
+  const lastFetchedUserId = useSelector((state) => state.permissions?.lastFetchedUserId)
+  const authUserId = useSelector((state) => state.auth?.user?.id)
+  const manageUsers = features?.manage_users || {}
+  const manageCategories = features?.manage_categories || {}
+
+  // Show tabs only when the user can read AND has at least one write permission.
+  const canShowManageUsersTab =
+    !permissionsLoading &&
+    lastFetchedUserId != null &&
+    String(lastFetchedUserId) === String(authUserId) &&
+    manageUsers?.read === true &&
+    (manageUsers?.create === true ||
+      manageUsers?.update === true ||
+      manageUsers?.delete === true)
+
+  const canShowManageCategoriesTab =
+    !permissionsLoading &&
+    lastFetchedUserId != null &&
+    String(lastFetchedUserId) === String(authUserId) &&
+    manageCategories?.read === true &&
+    (manageCategories?.create === true ||
+      manageCategories?.update === true ||
+      manageCategories?.delete === true)
+
   // Buy/Sell tabs commented out
   // const [buyExpanded, setBuyExpanded] = useState(false)
   // const { categories } = useSelector((state) => state.buyer)
@@ -87,18 +114,84 @@ const ManagerSideDrawer = ({ isOpen, onClose }) => {
         <ThemeToggle className="manager-side-drawer__theme-toggle" />
 
         <nav className="manager-side-drawer__nav">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`manager-side-drawer__link ${isActive(item.path) ? 'active' : ''}`}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            if (item.path === '/manager/users') {
+              if (permissionsLoading || !features) {
+                return (
+                  <div
+                    key={item.path}
+                    className="manager-side-drawer__link"
+                    style={{ opacity: 0.65, pointerEvents: 'none' }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {item.label}
+                  </div>
+                );
+              }
+
+              if (!canShowManageUsersTab) return null;
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`manager-side-drawer__link ${isActive(item.path) ? 'active' : ''}`}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {item.label}
+                </Link>
+              );
+            }
+
+            if (item.path === '/manager/category') {
+              if (permissionsLoading || !features) {
+                return (
+                  <div
+                    key={item.path}
+                    className="manager-side-drawer__link"
+                    style={{ opacity: 0.65, pointerEvents: 'none' }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {item.label}
+                  </div>
+                );
+              }
+
+              if (!canShowManageCategoriesTab) return null;
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`manager-side-drawer__link ${isActive(item.path) ? 'active' : ''}`}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {item.label}
+                </Link>
+              );
+            }
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`manager-side-drawer__link ${isActive(item.path) ? 'active' : ''}`}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="manager-side-drawer__actions">

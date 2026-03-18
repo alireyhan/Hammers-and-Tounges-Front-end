@@ -1,10 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import ClerkSideDrawer from "../components/ClerkSideDrawer";
 import "./ManagerLayout.css";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserPermissions } from "../store/actions/permissionsActions";
+import { clearPermissions } from "../store/slices/permissionsSlice";
 
 const ClerkLayout = () => {
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const dispatch = useDispatch();
+  const authUserId = useSelector((state) => state.auth?.user?.id);
+
+  useEffect(() => {
+    if (!authUserId) return;
+    // Always re-fetch for manager/clerk flow to avoid stale UI from Redux.
+    dispatch(clearPermissions());
+    dispatch(fetchUserPermissions(authUserId));
+  }, [dispatch, authUserId]);
 
   return (
     <div className={`manager-layout ${drawerOpen ? "drawer-open" : ""}`}>

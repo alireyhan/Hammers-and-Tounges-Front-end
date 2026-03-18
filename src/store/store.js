@@ -5,6 +5,7 @@ import adminReducer from './slices/adminSlice';
 import managerReducer from './slices/managerSlice';
 import sellerReducer from './slices/sellerSlice';
 import buyerReducer from './slices/buyerSlice';
+import permissionsReducer from './slices/permissionsSlice';
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     manager: managerReducer,
     seller: sellerReducer,
     buyer: buyerReducer,
+    permissions: permissionsReducer,
   },
   // middleware: (getDefaultMiddleware) =>
   //   getDefaultMiddleware({

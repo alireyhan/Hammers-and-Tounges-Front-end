@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { auctionService } from '../services/interceptors/auction.service';
 import { toast } from 'react-toastify';
 import { generateEventId } from '../utils/eventId';
@@ -14,6 +15,9 @@ const formatDateTimeForDisplay = (datetimeLocalValue) => {
 
 export default function ManagerCreateEvent() {
   const navigate = useNavigate();
+  const features = useSelector((state) => state.permissions?.features);
+  const permissionsLoading = useSelector((state) => state.permissions?.isLoading);
+  const canCreateEvents = features?.manage_events?.create === true;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
@@ -103,6 +107,32 @@ export default function ManagerCreateEvent() {
   const handleCancel = () => {
     navigate('/manager/dashboard');
   };
+
+  if (permissionsLoading || !features) {
+    return (
+      <div className="create-event-page">
+        <div className="create-event-content">
+          <div className="create-event-card">Loading permissions...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canCreateEvents) {
+    return (
+      <div className="create-event-page">
+        <div className="create-event-content">
+          <div className="create-event-card">
+            <h1 className="create-event-title">Not authorized</h1>
+            <p className="create-event-subtitle">You do not have access to create events.</p>
+            <button type="button" className="primary-action-btn" onClick={handleCancel}>
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="create-event-page">

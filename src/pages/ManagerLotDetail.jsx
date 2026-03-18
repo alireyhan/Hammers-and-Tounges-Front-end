@@ -4,6 +4,7 @@ import { auctionService } from '../services/interceptors/auction.service';
 import { buyerService } from '../services/interceptors/buyer.service';
 import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
 import './ManagerLotDetail.css';
 
 const formatPrice = (price) => {
@@ -45,7 +46,12 @@ const ManagerLotDetail = () => {
   const highestBidBelowReserve = hasBids && reservePrice > 0 && highestBid < reservePrice;
   const showStcNotice = isEventCompleted && stcEligible && highestBidBelowReserve && !bidsLoading;
   const isLotActive = lotStatus === 'ACTIVE';
-  const canEditDelete = eventStatus === 'SCHEDULED' && !isLotActive;
+  const features = useSelector((state) => state.permissions?.features);
+  const manageEventsPerm = features?.manage_events || {};
+  const canUpdateEvents = manageEventsPerm?.update === true;
+  const canDeleteEvents = manageEventsPerm?.delete === true;
+  const canEdit = eventStatus === 'SCHEDULED' && !isLotActive && canUpdateEvents;
+  const canDelete = eventStatus === 'SCHEDULED' && !isLotActive && canDeleteEvents;
 
   const imageMedia = lot?.media?.filter((m) => m.media_type === 'image') || [];
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
@@ -223,12 +229,20 @@ const ManagerLotDetail = () => {
   };
 
   const handleEdit = () => {
+    if (!canUpdateEvents) {
+      toast.error('You do not have permission to edit lots.');
+      return;
+    }
     navigate('/manager/publishnew', {
       state: { eventId, event: eventFromState, lotId: lot.id, lot, isEdit: true },
     });
   };
 
   const handleDelete = async () => {
+    if (!canDeleteEvents) {
+      toast.error('You do not have permission to delete lots.');
+      return;
+    }
     if (!window.confirm('Are you sure you want to delete this lot?')) return;
     setDeleting(true);
     try {
@@ -275,23 +289,27 @@ const ManagerLotDetail = () => {
           <h1 className="manager-lot-detail__title">{eventFromState?.title || 'Lot Detail'}</h1>
           <p className="manager-lot-detail__subtitle">1 lot in this event</p>
         </div>
-        {canEditDelete && (
+        {(canEdit || canDelete) && (
           <div className="manager-lot-detail__actions">
-            <button
-              className="manager-lot-detail__btn manager-lot-detail__btn--edit"
-              onClick={handleEdit}
-              aria-label="Edit lot"
-            >
-              Edit
-            </button>
-            <button
-              className="manager-lot-detail__btn manager-lot-detail__btn--delete"
-              onClick={handleDelete}
-              disabled={deleting}
-              aria-label="Delete lot"
-            >
-              {deleting ? 'Deleting...' : 'Delete'}
-            </button>
+            {canEdit && (
+              <button
+                className="manager-lot-detail__btn manager-lot-detail__btn--edit"
+                onClick={handleEdit}
+                aria-label="Edit lot"
+              >
+                Edit
+              </button>
+            )}
+            {canDelete && (
+              <button
+                className="manager-lot-detail__btn manager-lot-detail__btn--delete"
+                onClick={handleDelete}
+                disabled={deleting}
+                aria-label="Delete lot"
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            )}
           </div>
         )}
       </header>

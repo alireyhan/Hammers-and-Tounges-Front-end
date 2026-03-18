@@ -31,6 +31,11 @@ const ManagerEventLots = () => {
   const dispatch = useDispatch();
   const eventFromState = location.state?.event;
   const authUserRole = useSelector((state) => (state.auth?.user?.role || '').toLowerCase());
+  const features = useSelector((state) => state.permissions?.features);
+  const manageEventsPerm = features?.manage_events || {};
+  const canCreateEvents = manageEventsPerm?.create === true;
+  const canUpdateEvents = manageEventsPerm?.update === true;
+  const canDeleteEvents = manageEventsPerm?.delete === true;
 
   const [lots, setLots] = useState([]);
   const [eventTitle, setEventTitle] = useState(eventFromState?.title || 'Event Lots');
@@ -144,6 +149,10 @@ const ManagerEventLots = () => {
   }, [id, eventFromState]);
 
   const handleCreateLot = () => {
+    if (!canCreateEvents) {
+      toast.error('You do not have permission to create lots/events.');
+      return;
+    }
     const eventData = eventFromState || { id, title: eventTitle, status: eventStatus };
     if (authUserRole === 'clerk') {
       navigate('/clerk/publishnew', { state: { eventId: id, event: eventData, fromClerk: true } });
@@ -185,6 +194,10 @@ const ManagerEventLots = () => {
   }, [eventStatus, authUserRole, checkCanDeleteEvent]);
 
   const handleDeleteEvent = async () => {
+    if (!canDeleteEvents) {
+      toast.error('You do not have permission to delete events.');
+      return;
+    }
     const ok = await checkCanDeleteEvent();
     if (!ok) {
       toast.error('Event cannot be deleted because it has active (or non-draft) lots.');
@@ -204,8 +217,9 @@ const ManagerEventLots = () => {
     }
   };
 
-  const showCreateLot = eventStatus === 'SCHEDULED' && authUserRole !== 'clerk';
-  const showDeleteEvent = eventStatus === 'SCHEDULED' && authUserRole !== 'clerk' && canDeleteEvent;
+  const showCreateLot = eventStatus === 'SCHEDULED' && authUserRole !== 'clerk' && canCreateEvents;
+  const showDeleteEvent =
+    eventStatus === 'SCHEDULED' && authUserRole !== 'clerk' && canDeleteEvents && canDeleteEvent;
 
   const handleLotUpdated = useCallback(() => {
     fetchLots(page);
