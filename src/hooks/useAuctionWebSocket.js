@@ -35,7 +35,7 @@ export function useAuctionWebSocket(eventId, lotId, onBidUpdate) {
   useEffect(() => {
     if (!eventId || !lotId) return;
 
-    const base = API_CONFIG.WEB_SOCKET_URL || 'ws://207.180.233.44:8001';
+    const base = API_CONFIG.WEB_SOCKET_URL || 'wss://developer.hashverx.com';
     const url = `${base}/ws/auction/event/${eventId}/`;
     const ws = new WebSocket(url);
     wsRef.current = ws;

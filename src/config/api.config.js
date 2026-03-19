@@ -8,16 +8,32 @@
 // };
 
 const getBaseUrl = () => {
+  // If someone explicitly configured the env var, prefer it (supports both absolute URLs and '/api' style paths).
+  const envUrlRaw = import.meta.env.VITE_API_BASE_URL;
+  const envUrl = typeof envUrlRaw === 'string' ? envUrlRaw.trim() : '';
+
+  if (envUrl) {
+    // If it's already a path (e.g. '/api'), just use it as-is.
+    if (envUrl.startsWith('/')) return envUrl;
+
+    // Absolute URL: append '/api' if missing.
+    const base = envUrl;
+    return base.endsWith('/api') ? base : `${base.replace(/\/$/, '')}/api`;
+  }
+
+  // Defaults
   if (import.meta.env.PROD) return '/api';
-  // In dev: use direct backend URL (same as Postman) to avoid proxy/404 issues
-  const envUrl = import.meta.env.VITE_API_BASE_URL || 'http://207.180.233.44:8001';
-  const base = (typeof envUrl === 'string' ? envUrl : '').trim() || 'http://207.180.233.44:8001';
-  return base.endsWith('/api') ? base : `${base.replace(/\/$/, '')}/api`;
+  return 'https://developer.hashverx.com/api';
 };
 
 const getWebSocketBaseUrl = () => {
-  const envUrl = import.meta.env.VITE_API_BASE_URL || 'http://207.180.233.44:8001';
-  const base = (typeof envUrl === 'string' ? envUrl : '').trim() || 'http://207.180.233.44:8001';
+  const envUrlRaw = import.meta.env.VITE_API_BASE_URL;
+  const envUrl = typeof envUrlRaw === 'string' ? envUrlRaw.trim() : '';
+
+  // If it's a relative path like '/api', keep it (assumes websocket is under same prefix).
+  if (envUrl && envUrl.startsWith('/')) return envUrl;
+
+  const base = envUrl || 'https://developer.hashverx.com';
   const clean = base.replace(/\/$/, '').replace(/^http/, 'ws');
   return clean;
 };
@@ -74,7 +90,11 @@ export const getMediaUrl = (mediaPath) => {
 
   // 1. Handle the specific insecure backend origin
   if (path.startsWith('http://207.180.233.44:8001')) {
+    // Backwards compatibility for old deployments
     path = path.replace('http://207.180.233.44:8001', '');
+  } else if (path.startsWith('https://developer.hashverx.com')) {
+    // New API/media host
+    path = path.replace('https://developer.hashverx.com', '');
   } else if (path.startsWith('http://') || path.startsWith('https://')) {
     // 2. Handle other full URLs (e.g. unsplash)
     return path;
