@@ -250,6 +250,11 @@ function App() {
                     <ManagerCreateCategory />
                   </>
                 } />
+                <Route path="/manager/product-fields" element={
+                  <>
+                    <ManagerProductFields />
+                  </>
+                } />
                 <Route path="/manager/role-management/:id" element={
                   <>
                     <AdminRoleManagement />

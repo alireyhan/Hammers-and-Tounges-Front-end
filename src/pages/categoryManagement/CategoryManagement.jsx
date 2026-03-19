@@ -16,6 +16,7 @@ export default function CategoryManagement() {
   const canCreateCategories = manageCategoriesPerm?.create === true;
   const canUpdateCategories = manageCategoriesPerm?.update === true;
   const canDeleteCategories = manageCategoriesPerm?.delete === true;
+  const canToggleCategoryStatus = canCreateCategories;
 
   const shouldShowActionsColumn = canUpdateCategories || canDeleteCategories;
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,7 +45,7 @@ export default function CategoryManagement() {
   const [togglingCategoryId, setTogglingCategoryId] = useState(null);
 
   const handleStatusToggle = async (id) => {
-    if (!canUpdateCategories) return;
+    if (!canToggleCategoryStatus) return;
     const category = categories.find(cat => cat.id === id);
     console.log("category: ", category);
     
@@ -319,14 +320,14 @@ export default function CategoryManagement() {
                           <div className="category-status-cell">
                             <div
                               className={`category-status-toggle ${category.status ? 'active' : ''} ${togglingCategoryId === category.id ? 'toggling' : ''}`}
-                              onClick={() => canUpdateCategories && handleStatusToggle(category.id)}
+                              onClick={() => canToggleCategoryStatus && handleStatusToggle(category.id)}
                               style={{
-                                cursor: !canUpdateCategories
+                                cursor: !canToggleCategoryStatus
                                   ? 'not-allowed'
                                   : togglingCategoryId === category.id
                                     ? 'wait'
                                     : 'pointer',
-                                opacity: !canUpdateCategories ? 0.6 : 1,
+                                opacity: !canToggleCategoryStatus ? 0.6 : 1,
                               }}
                             >
                               <div className="category-toggle-handle"></div>

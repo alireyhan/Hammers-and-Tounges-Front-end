@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { createCategory, updateCategory, fetchCategories } from '../../store/actions/adminActions';
 import { fetchCategories as fetchCategoriesForBuyer } from '../../store/actions/AuctionsActions';
@@ -9,8 +9,10 @@ import './ManagerProductFields.css';
 const ManagerProductFields = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { categories: categoriesFromStore } = useSelector((state) => state.admin);
+  const basePath = location.pathname.startsWith('/manager') ? '/manager' : '/admin';
 
   // Check if we're in edit mode
   const editingCategoryId = localStorage.getItem('editingCategoryId');
@@ -50,7 +52,7 @@ const ManagerProductFields = () => {
       setCategoryName(name);
     } else {
       // If no name found, redirect back to category list
-      navigate('/admin/category');
+      navigate(`${basePath}/category`);
       return;
     }
 
@@ -77,7 +79,7 @@ const ManagerProductFields = () => {
         dispatch(fetchCategories());
       }
     }
-  }, [navigate, isEditMode, editingCategoryId, categoriesFromStore, dispatch]);
+  }, [navigate, basePath, isEditMode, editingCategoryId, categoriesFromStore, dispatch]);
 
   // Re-check for category after fetching
   useEffect(() => {
@@ -400,7 +402,7 @@ const ManagerProductFields = () => {
       dispatch(fetchCategoriesForBuyer());
       
       // Navigate back to category list
-      navigate('/admin/category');
+      navigate(`${basePath}/category`);
     } catch (error) {
       console.error(`Failed to ${isEditMode ? 'update' : 'create'} category:`, error);
     }
@@ -436,7 +438,7 @@ const ManagerProductFields = () => {
                     localStorage.removeItem('editingCategoryId');
                     localStorage.removeItem('pendingCategoryName');
                   }
-                  navigate('/admin/category');
+                  navigate(`${basePath}/category`);
                 }}
               >
                 Back to Categories

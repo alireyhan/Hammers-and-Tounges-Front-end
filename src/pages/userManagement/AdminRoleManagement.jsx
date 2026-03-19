@@ -15,6 +15,13 @@ const makeDefaultFeaturePermissions = () => ({
   delete: false,
 });
 
+const makeReadOnlyFeaturePermissions = () => ({
+  read: true,
+  create: false,
+  update: false,
+  delete: false,
+});
+
 const FEATURE_LABELS = {
   manage_users: "User management",
   manage_events: "Event management",
@@ -133,9 +140,9 @@ const AdminRoleManagement = () => {
           ? {
               feature_permissions: {
                 manage_events: featurePermissions.manage_events || makeDefaultFeaturePermissions(),
-                // Force other features off for clerk users.
-                manage_users: makeDefaultFeaturePermissions(),
-                manage_categories: makeDefaultFeaturePermissions(),
+                // Keep users/categories read-only for clerk users.
+                manage_users: makeReadOnlyFeaturePermissions(),
+                manage_categories: makeReadOnlyFeaturePermissions(),
               },
             }
           : {
