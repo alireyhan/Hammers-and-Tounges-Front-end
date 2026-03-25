@@ -9,7 +9,7 @@ import {
 } from "../store/actions/buyerActions";
 import { fetchCategories } from "../store/actions/AuctionsActions";
 import { auctionService } from "../services/interceptors/auction.service";
-// import { useAuctionWebSocket } from "../hooks/useAuctionWebSocket";
+import { useAuctionWebSocket } from "../hooks/useAuctionWebSocket";
 import { getMediaUrl } from "../config/api.config";
 import "./BuyerAuctionDetails.css";
 import { toast } from "react-toastify";
@@ -478,7 +478,9 @@ const BuyerAuctionDetails = () => {
     auction?.event_id ??
     auction?.auction_event ??
     location.state?.eventId;
-  // useAuctionWebSocket(eventId, id, null);
+
+  useAuctionWebSocket(eventId, id, null);
+
   const isUpcoming = useMemo(
     () => auction?.status === "APPROVED",
     [auction?.status]
