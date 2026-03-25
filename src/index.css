@@ -425,10 +425,53 @@ html[data-theme="dark"] {
   --color-shadow: rgba(0, 0, 0, 0.4);
 }
 
-/* Fix: native select/datalist dropdowns show dark background on Windows in dark mode */
+/*
+ * Dark mode: native inputs / selects / number spinners on Windows (Edge, Chrome)
+ * Tailwind preflight + OS light theme can leave dark text on dark fields — force contrast.
+ */
 html[data-theme="dark"] select,
 html[data-theme="dark"] input[list] {
   color-scheme: dark;
+}
+
+html[data-theme="dark"] input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="image"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  color: #f3f4f6 !important;
+  -webkit-text-fill-color: #f3f4f6 !important;
+  background-color: #0a0a0a !important;
+  color-scheme: dark;
+  caret-color: #f3f4f6;
+}
+
+html[data-theme="dark"] select option {
+  background-color: #1f2937 !important;
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="dark"]
+  input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="image"]):-webkit-autofill,
+html[data-theme="dark"]
+  input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="image"]):-webkit-autofill:hover,
+html[data-theme="dark"]
+  input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="image"]):-webkit-autofill:focus,
+html[data-theme="dark"] textarea:-webkit-autofill,
+html[data-theme="dark"] textarea:-webkit-autofill:hover,
+html[data-theme="dark"] textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f3f4f6 !important;
+  caret-color: #f3f4f6;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Remove default light spin buttons on number inputs (custom +/- UI elsewhere) */
+html[data-theme="dark"] input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+html[data-theme="dark"] input[type="number"]::-webkit-outer-spin-button,
+html[data-theme="dark"] input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 * {

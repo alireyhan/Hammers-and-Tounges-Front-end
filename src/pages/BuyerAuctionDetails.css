@@ -496,7 +496,7 @@
 .buyer-details-bid-error {
   margin: 0;
   font-size: 0.8125rem;
-  color: #f87171;
+  color: #fca5a5;
 }
 
 .buyer-details-bid-input {
@@ -510,6 +510,13 @@
   font-size: 1rem;
   transition: all 0.2s;
   outline: none;
+}
+
+html[data-theme="dark"] .buyer-details-bid-input {
+  color: #f3f4f6 !important;
+  -webkit-text-fill-color: #f3f4f6 !important;
+  background-color: #0a0a0a !important;
+  color-scheme: dark;
 }
 
 .buyer-details-bid-input:focus {

@@ -22,8 +22,12 @@ const applyTheme = (theme) => {
 export const ThemeProvider = ({ children }) => {
   const [theme, setThemeState] = useState(() => {
     const saved = localStorage.getItem(THEME_KEY)
-    if (saved === 'light' || saved === 'dark') return saved
-    return 'dark'
+    const value = saved === 'light' || saved === 'dark' ? saved : 'dark'
+    // Apply before first paint so CSS matches saved theme (avoids light OS + dark app FOUC)
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', value)
+    }
+    return value
   })
 
   const setTheme = (newTheme) => {
