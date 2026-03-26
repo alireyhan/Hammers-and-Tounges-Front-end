@@ -863,6 +863,21 @@ html[data-theme="light"] .mpn-container .mpn-spinner {
   border-top-color: #8cc63f;
 }
 
+/* Force dark theme colors on Create/Edit Lot when OS is light */
+html[data-theme="dark"] .mpn-container .mpn-title,
+html[data-theme="dark"] .mpn-container .mpn-card-title,
+html[data-theme="dark"] .mpn-container .mpn-form-label,
+html[data-theme="dark"] .mpn-container .mpn-subtitle,
+html[data-theme="dark"] .mpn-container .mpn-drop-area-title {
+  color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .mpn-container .mpn-drop-area-subtitle,
+html[data-theme="dark"] .mpn-container .mpn-input-hint,
+html[data-theme="dark"] .mpn-container .mpn-input-prefix {
+  color: var(--color-text-muted) !important;
+}
+
 /* Edit Lot: Light borders, visible placeholders in light mode */
 @media (prefers-color-scheme: light) {
   .mpn-container .mpn-card {
