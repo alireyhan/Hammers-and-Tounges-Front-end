@@ -107,7 +107,7 @@ const Register = () => {
     } else if (formData.password.length < 8) {
       errors.password = "Password must be at least 8 characters long";
     } else if (
-      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])/.test(formData.password)
+      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/.test(formData.password)
     ) {
       errors.password =
         "Password must contain uppercase, lowercase, number and special character";

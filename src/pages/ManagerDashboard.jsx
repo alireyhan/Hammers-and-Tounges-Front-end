@@ -67,15 +67,11 @@ function ManagerDashboard() {
     setIsLoadingEvents(true);
     try {
       const allEvents = await auctionService.fetchAllEvents();
-      const nonCompletedEvents = allEvents.filter((e) => {
-        const s = (e.status || '').toUpperCase();
-        return s !== 'CLOSED' && s !== 'CLOSING';
-      });
-      setEvents(nonCompletedEvents);
-      setEventCount(nonCompletedEvents.length);
+      setEvents(allEvents);
+      setEventCount(allEvents.length);
 
       // Precompute delete eligibility for scheduled events
-      const scheduled = nonCompletedEvents.filter((e) => String(e?.status || '').toUpperCase() === 'SCHEDULED');
+      const scheduled = allEvents.filter((e) => String(e?.status || '').toUpperCase() === 'SCHEDULED');
       const checks = await Promise.all(
         scheduled.map(async (e) => [String(e.id), await canDeleteEventByLots(e.id)])
       );
@@ -102,6 +98,9 @@ function ManagerDashboard() {
     if (filterStatus === 'ALL') return events;
     return events.filter((event) => {
       const status = (event.status || '').toUpperCase();
+      if (filterStatus === 'COMPLETED') {
+        return status === 'CLOSING' || status === 'CLOSED' || status === 'COMPLETED';
+      }
       return status === filterStatus;
     });
   }, [events, filterStatus]);
@@ -205,6 +204,7 @@ function ManagerDashboard() {
                 <option value="ALL">All</option>
                 <option value="SCHEDULED">Scheduled</option>
                 <option value="LIVE">Live</option>
+                <option value="COMPLETED">Completed/Closing</option>
               </select>
             </div>
           </div>
