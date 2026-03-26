@@ -130,7 +130,7 @@ const AdminEventLots = () => {
   const eventStatusUpper = (eventStatus || '').toUpperCase();
   const showCreateLot = eventStatusUpper === 'SCHEDULED';
   const showDeleteEvent = eventStatusUpper === 'SCHEDULED' && canDeleteEvent;
-  const showEditEvent = eventStatusUpper === 'SCHEDULED' && !hasActiveLot;
+  // const showEditEvent = eventStatusUpper === 'SCHEDULED' && !hasActiveLot;
 
   const handleLotUpdated = useCallback(() => {
     fetchLots(page);
@@ -274,6 +274,8 @@ const AdminEventLots = () => {
           </p>
         </div>
         <div className="admin-event-lots__header-actions">
+          {/* Edit Event option hidden for admin flow */}
+          {/*
           {showEditEvent && (
             <button
               className="admin-event-lots__edit-event"
@@ -283,6 +285,7 @@ const AdminEventLots = () => {
               Edit Event
             </button>
           )}
+          */}
           {showCreateLot && (
             <button
               className="admin-event-lots__create-lot"
