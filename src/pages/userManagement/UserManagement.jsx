@@ -90,31 +90,6 @@ const UserManagement = () => {
     return "Active";
   };
 
-  // Check if seller has KYC images attached
-  const hasKYCImages = (user) => {
-    if (user.role !== 'seller' || !user?.seller_details) return false;
-    
-    const sellerDetails = user.seller_details;
-    const kycImageFields = [
-      'id_front',
-      'id_back',
-      'driving_license_front',
-      'driving_license_back',
-      'passport_front'
-    ];
-    
-    // Check if at least one KYC image field exists and is not null/empty
-    return kycImageFields.some(field => {
-      const value = sellerDetails[field];
-      if (!value) return false;
-      // Handle both string and non-string values
-      if (typeof value === 'string') {
-        return value.trim() !== '';
-      }
-      return value !== null && value !== undefined;
-    });
-  };
-
   // Filter and paginate users
   // const filteredUsers = useMemo(() => {
   //   if (!users?.results) return [];
@@ -165,24 +140,17 @@ const filteredUsers = useMemo(() => {
       user?.is_staff === 1 ||
       false;
 
+    const normalizedRole = String(user.role || '').toLowerCase();
+
     // Role-based filtering
     let matchesRole;
     if (roleFilter === "manager") {
-      matchesRole = user.role === "manager" && !isStaff;
+      matchesRole = normalizedRole === "manager" && !isStaff;
     } else if (roleFilter === "seller") {
-      // Seller filtering: Only show if verified OR (pending with images)
-      const isVerified = user?.seller_details?.verified === true;
-      const isPending = !isVerified;
-      
-      if (user.role !== 'seller') {
-        matchesRole = false;
-      } else if (isPending && !hasKYCImages(user)) {
-        matchesRole = false;
-      } else {
-        matchesRole = true;
-      }
+      // Do not hide sellers based on KYC payload shape; backend already controls eligibility.
+      matchesRole = normalizedRole === "seller";
     } else {
-      matchesRole = user.role === roleFilter;
+      matchesRole = normalizedRole === roleFilter;
     }
 
     return matchesSearch && matchesRole;
@@ -193,11 +161,18 @@ const filteredUsers = useMemo(() => {
 
 
   // Use API pagination data for "all" filter, show all filtered users for other filters
-  const totalPages = users?.total_pages || 1;
+  const totalPages = Math.max(1, users?.total_pages || 1);
   const hasNext = users?.has_next || false;
   const hasPrevious = users?.has_previous || false;
   const totalCount = users?.count || 0;
-  const currentPage = users?.current_page || 1;
+  const currentPage = page;
+
+  // Keep current page in range after list changes (edit/delete/filter transitions).
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
   
   // For "all" filter, use filteredUsers directly (API already paginates)
   // For other filters, show all filtered users without pagination
@@ -305,6 +280,7 @@ const filteredUsers = useMemo(() => {
     // - Admin: role management + delete
     // - Manager: only delete (role management hidden)
     (roleFilter === 'clerk' && (isAdminFlow ? (canUpdateUsers || canDeleteUsers) : canDeleteUsers));
+  const shouldShowStatusColumn = roleFilter !== 'seller';
 
   return (
     <div className="user-management-container">
@@ -404,7 +380,7 @@ const filteredUsers = useMemo(() => {
                 <th>User Name</th>
                 <th>Email</th>
                 <th>Role</th>
-                <th>Status</th>
+                {shouldShowStatusColumn && <th>Status</th>}
                 {shouldShowActionsColumn && <th>Actions</th>}
               </tr>
             </thead>
@@ -442,11 +418,13 @@ const filteredUsers = useMemo(() => {
                   <td className="user-management-role-cell">
                     {getRoleDisplayName(user.role) || 'N/A'}
                   </td>
-                  <td className="user-management-status-cell">
-                    <span className={`user-management-status user-management-status-${getStatusClass(user)}`}>
-                      {getUserStatus(user)}
-                    </span>
-                  </td>
+                  {shouldShowStatusColumn && (
+                    <td className="user-management-status-cell">
+                      <span className={`user-management-status user-management-status-${getStatusClass(user)}`}>
+                        {getUserStatus(user)}
+                      </span>
+                    </td>
+                  )}
                   {(
                     (roleFilter === 'seller' && user.role === 'seller') ||
                     (roleFilter === 'clerk' && user.role === 'clerk') ||

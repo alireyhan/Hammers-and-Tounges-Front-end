@@ -11,7 +11,30 @@ const formatPrice = (price) => {
   return parseFloat(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, showFavorite = false, isFavorite = false, onFavoriteToggle, statusOnly = false }) => {
+const formatCountdown = ({ days, hours, minutes, seconds }) => {
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m ${seconds}s`;
+};
+
+const parseDate = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const LotRow = ({
+  lot,
+  eventStartTime,
+  eventEndTime,
+  eventTitle,
+  eventStatus,
+  onOpenDetail,
+  showFavorite = false,
+  isFavorite = false,
+  onFavoriteToggle,
+  statusOnly = false
+}) => {
   const dispatch = useDispatch();
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -19,12 +42,20 @@ const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, show
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
   const displayUrl = imageUrls[0];
 
+  const startTime = lot.start_date || lot.start_time || eventStartTime;
   const endTime = lot.end_date || lot.end_time || eventEndTime;
-  const timerTarget = endTime || new Date(Date.now() + 86400000).toISOString();
-  const timer = useCountdownTimer(timerTarget);
-  const timerSaysEnded = !endTime || timer.isFinished || (endTime && new Date(endTime) <= new Date());
+  const now = new Date();
+  const startAt = parseDate(startTime);
+  const endAt = parseDate(endTime);
+
   const isEventLive = (eventStatus || '').toUpperCase() === 'LIVE' || (eventStatus || '').toUpperCase() === 'ACTIVE';
-  const isEnded = isEventLive ? false : timerSaysEnded;
+  const shouldCountToStart = Boolean(startAt && startAt > now && !isEventLive);
+  const timerTarget = shouldCountToStart
+    ? startAt.toISOString()
+    : (endAt?.toISOString() || new Date(Date.now() + 86400000).toISOString());
+  const timer = useCountdownTimer(timerTarget);
+  const isEnded = Boolean(!shouldCountToStart && endAt && endAt <= now);
+  const timeLabel = shouldCountToStart ? 'STARTS IN' : 'TIME LEFT';
 
   const currentBid = lot.current_price ?? lot.highest_bid ?? lot.initial_price;
   const currency = lot.currency || 'USD';
@@ -33,19 +64,19 @@ const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, show
     if (statusOnly) {
       return isEventLive ? 'Live' : 'Closed';
     }
-    // When we have time left, always show the countdown
-    if (!timer.isFinished && endTime && new Date(endTime) > new Date()) {
-      const { days, hours, minutes, seconds } = timer;
-      if (days > 0) return `${days}d ${hours}h`;
-      if (hours > 0) return `${hours}h ${minutes}m`;
-      return `${minutes}m ${seconds}s`;
+
+    if (shouldCountToStart) {
+      if (!timer.isFinished) return formatCountdown(timer);
+      return 'Live';
     }
-    if (isEventLive && timerSaysEnded) return 'Live';
+
+    if (endAt && !timer.isFinished && endAt > new Date()) {
+      return formatCountdown(timer);
+    }
+
     if (isEnded) return 'Ended';
-    const { days, hours, minutes, seconds } = timer;
-    if (days > 0) return `${days}d ${hours}h`;
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m ${seconds}s`;
+    if (isEventLive) return 'Live';
+    return 'Scheduled';
   })();
 
   const isClosed = timeLeftDisplay === 'Closed' || timeLeftDisplay === 'Ended';
@@ -129,7 +160,7 @@ const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, show
           </button>
         )}
         <div className="lot-row__time">
-          {!statusOnly && <span className="lot-row__time-label">TIME LEFT</span>}
+          {!statusOnly && <span className="lot-row__time-label">{timeLabel}</span>}
           <span className={`lot-row__time-value ${isClosed ? 'ended' : ''}`}>{timeLeftDisplay}</span>
         </div>
       </div>
