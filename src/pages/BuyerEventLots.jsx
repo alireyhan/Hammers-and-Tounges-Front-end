@@ -37,6 +37,7 @@ const BuyerEventLots = () => {
   const [lots, setLots] = useState([]);
   const [eventTitle, setEventTitle] = useState(eventFromState?.title || 'Event Lots');
   const [eventStatus, setEventStatus] = useState(eventFromState?.status ?? 'LIVE');
+  const [eventStartTime, setEventStartTime] = useState(eventFromState?.start_time || null);
   const [eventEndTime, setEventEndTime] = useState(eventFromState?.end_time || null);
   const [selectedLot, setSelectedLot] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -147,6 +148,7 @@ const BuyerEventLots = () => {
         if (!cancelled) {
           setEventTitle(ev.title || eventTitle);
           setEventStatus(ev.status ?? 'LIVE');
+          setEventStartTime(ev.start_time || null);
           setEventEndTime(ev.end_time || null);
         }
       } catch {
@@ -278,8 +280,10 @@ const BuyerEventLots = () => {
                       <LotRow
                         key={lot.id}
                         lot={lot}
+                        eventStartTime={eventStartTime ?? eventFromState?.start_time}
                         eventEndTime={eventEndTime ?? eventFromState?.end_time}
                         eventTitle={eventTitle}
+                        eventStatus={eventStatus ?? eventFromState?.status}
                         onOpenDetail={handleLotClick}
                         showFavorite
                         isFavorite={favoriteIds?.has(lot.id) ?? lot.is_favourite ?? false}

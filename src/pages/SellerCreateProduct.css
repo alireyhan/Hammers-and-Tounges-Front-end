@@ -67,6 +67,9 @@
   font-size: 0.8125rem;
   transition: all 0.2s;
   outline: none;
+  color-scheme: dark;
+  -webkit-text-fill-color: #ffffff;
+  caret-color: #ffffff;
 
 }
 
