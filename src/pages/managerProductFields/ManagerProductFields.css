@@ -637,6 +637,28 @@ html[data-theme="light"] .dashboard-page .increment-rule-arrow {
   color: #6b7280 !important;
 }
 
+/* Keep headings/text readable when app theme is dark (incognito-safe) */
+html[data-theme="dark"] .dashboard-page .manage-field-page-title,
+html[data-theme="dark"] .dashboard-page .section-title,
+html[data-theme="dark"] .dashboard-page .preview-title {
+  color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .dashboard-page .manage-field-page-subtitle,
+html[data-theme="dark"] .dashboard-page .preview-label,
+html[data-theme="dark"] .dashboard-page .section-description,
+html[data-theme="dark"] .dashboard-page .field-name,
+html[data-theme="dark"] .dashboard-page .preview-subtitle,
+html[data-theme="dark"] .dashboard-page .field-type,
+html[data-theme="dark"] .dashboard-page .field-placeholder,
+html[data-theme="dark"] .dashboard-page .form-label {
+  color: var(--color-text-secondary) !important;
+}
+
+html[data-theme="dark"] .dashboard-page .increment-rule-arrow {
+  color: var(--color-text-muted) !important;
+}
+
 @media (max-width: 1024px) {
   .progress-steps {
     flex-direction: column;

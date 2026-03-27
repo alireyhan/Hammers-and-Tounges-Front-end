@@ -547,3 +547,13 @@
     font-size: 1rem;
   }
 }
+
+/* Keep heading text readable in explicit dark theme */
+html[data-theme="dark"] .category-dashboard-page .category-page-title {
+  color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .category-dashboard-page .category-page-subtitle,
+html[data-theme="dark"] .category-dashboard-page .card-label {
+  color: var(--color-text-muted) !important;
+}
