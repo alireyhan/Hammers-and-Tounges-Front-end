@@ -101,6 +101,13 @@ export const profileService = {
     return data;
   },
 
+  /** GET /payments/history/ — list shape may be array, { results }, { data }, etc. */
+  getPaymentsHistory: async () => {
+    const { data } = await apiClient.get(API_ROUTES.PAYMENTS_HISTORY);
+    console.log('[payments/history] API response:', data);
+    return data;
+  },
+
   deposit: async ({ amount, cell_number }) => {
     const payload = {
       amount: String(amount),
