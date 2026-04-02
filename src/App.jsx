@@ -26,6 +26,7 @@ import BuyerWonItems from "./pages/BuyerWonItems";
 import BuyerInvoices from "./pages/BuyerInvoices";
 import BuyerWallet from "./pages/BuyerWallet";
 import BuyerProfile from "./pages/BuyerProfile";
+import BuyerAddBalance from "./pages/BuyerAddBalance";
 import BuyerSell from "./pages/BuyerSell";
 import FavoriteAuctions from "./pages/FavoriteAuctions";
 
@@ -146,6 +147,7 @@ function App() {
                 <Route path="/buyer/invoices" element={<BuyerInvoices />} />
                 <Route path="/buyer/wallet" element={<BuyerWallet />} />
                 <Route path="/buyer/profile" element={<BuyerProfile />} />
+                <Route path="/buyer/add-balance" element={<BuyerAddBalance />} />
                 <Route path="/buyer/favorite-items" element={<FavoriteAuctions />} />
               </Route>
             </Route>

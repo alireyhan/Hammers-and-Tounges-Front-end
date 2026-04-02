@@ -85,7 +85,7 @@ const BuyerWallet = () => {
                 <div className="balance-amount">{formatCurrency(walletData.availableBalance)}</div>
                 <button 
                   className="deposit-button"
-                  onClick={() => navigate('/deposit')}
+                  onClick={() => navigate('/buyer/add-balance')}
                 >
                   <div className="deposit-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

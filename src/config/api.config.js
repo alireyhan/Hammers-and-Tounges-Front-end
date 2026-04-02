@@ -142,6 +142,7 @@ export const API_ROUTES = {
   PROFILE_DELETE: '/users/profile/delete/',
   PROFILE_UPDATE: '/users/profile/',
   WALLET: '/users/wallet/',
+  DEPOSIT: '/payments/deposit/',
 
   // Admin Routes
   ADMIN_DASHBOARD: '/inspections/admin/dashboard/',

@@ -100,4 +100,13 @@ export const profileService = {
     const { data } = await apiClient.get(API_ROUTES.WALLET);
     return data;
   },
+
+  deposit: async ({ amount, cell_number }) => {
+    const payload = {
+      amount: String(amount),
+      cell_number: String(cell_number),
+    };
+    const { data } = await apiClient.post(API_ROUTES.DEPOSIT, payload);
+    return data;
+  },
 };

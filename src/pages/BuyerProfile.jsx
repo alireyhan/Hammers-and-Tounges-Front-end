@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./BuyerProfile.css";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { fetchProfile, updateProfile } from "../store/actions/profileActions";
 import { toast } from "react-toastify";
 import { profileService } from "../services/interceptors/profile.service";
 
 const BuyerProfile = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Get profile data from Redux store
   const {
@@ -430,12 +432,21 @@ const BuyerProfile = () => {
 
                 {wallet && (
                   <div className="info-section" style={{ marginTop: '1.5rem' }}>
-                    <h3 className="section-title">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      Wallet
-                    </h3>
+                    <div className="wallet-header-row">
+                      <h3 className="section-title" style={{ marginBottom: 0 }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 1v22M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Wallet
+                      </h3>
+                      <button
+                        className="b-action-btn b-primary"
+                        type="button"
+                        onClick={() => navigate("/buyer/add-balance")}
+                      >
+                        Add Balance
+                      </button>
+                    </div>
                     <div className="info-grid wallet-grid">
                       <div className="info-item">
                         <label>Available Balance</label>
