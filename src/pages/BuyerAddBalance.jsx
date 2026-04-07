@@ -46,7 +46,7 @@ const BuyerAddBalance = () => {
       }
 
       toast.success("Payment initialized successfully");
-      navigate("/buyer/profile");
+      navigate("/buyer/wallet");
     } catch (error) {
       const message =
         error?.response?.data?.detail ||

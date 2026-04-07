@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { auctionService } from '../services/interceptors/auction.service';
 import { buyerService } from '../services/interceptors/buyer.service';
+import { profileService } from '../services/interceptors/profile.service';
 import { getMediaUrl } from '../config/api.config';
 import { useCountdownTimer } from '../hooks/useCountdownTimer';
 import { placeBid } from '../store/actions/buyerActions';
@@ -34,6 +35,12 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
   const [bids, setBids] = useState([]);
   const [bidsLoading, setBidsLoading] = useState(false);
   const [customBidAmount, setCustomBidAmount] = useState('');
+  const [walletSummary, setWalletSummary] = useState({
+    availableBalance: null,
+    biddingPower: null,
+    lockedBalance: null,
+    loading: false,
+  });
 
   const imageMedia = lot?.media?.filter((m) => m.media_type === 'image') || [];
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
@@ -165,6 +172,37 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     },
     [currency]
   );
+  const formatWalletCurrency = useCallback(
+    (amount) =>
+      new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Number(amount || 0)),
+    [currency]
+  );
+
+  const loadWalletSummary = useCallback(async () => {
+    if (!isBuyer) return;
+    setWalletSummary((prev) => ({ ...prev, loading: true }));
+    try {
+      const wallet = await profileService.getWallet();
+      setWalletSummary({
+        availableBalance: wallet?.available_balance ?? wallet?.availableBalance ?? 0,
+        biddingPower: wallet?.bidding_power ?? wallet?.biddingPower ?? 0,
+        lockedBalance: wallet?.locked_balance ?? wallet?.lockedBalance ?? 0,
+        loading: false,
+      });
+    } catch {
+      setWalletSummary({
+        availableBalance: null,
+        biddingPower: null,
+        lockedBalance: null,
+        loading: false,
+      });
+    }
+  }, [isBuyer]);
 
   const handleQuickBidAdd = useCallback(
     (addAmount) => {
@@ -195,9 +233,10 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
           const list = Array.isArray(data) ? data : data?.results ?? data?.bids ?? [];
           setBids(list);
         });
+        loadWalletSummary();
       }
     });
-  }, [effectiveLotForBid?.id, effectiveBidAmount, isPlacingBid, dispatch]);
+  }, [effectiveLotForBid?.id, effectiveBidAmount, isPlacingBid, dispatch, loadWalletSummary]);
 
   useEffect(() => {
     if (!initialLot?.id) return;
@@ -236,6 +275,10 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
       });
     return () => { cancelled = true; };
   }, [lot?.id]);
+
+  useEffect(() => {
+    loadWalletSummary();
+  }, [loadWalletSummary, lot?.id]);
 
   const handleSignIn = () => {
     onClose?.();
@@ -390,6 +433,37 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
             </div>
           ) : (
             <div className="guest-lot-drawer__scroll">
+              {isBuyer && (
+                <div className="guest-lot-drawer__wallet-top">
+                  <div className="guest-lot-drawer__wallet-top-head">Wallet snapshot</div>
+                  {walletSummary.loading ? (
+                    <p className="guest-lot-drawer__wallet-summary-state">Loading wallet...</p>
+                  ) : walletSummary.availableBalance == null ? (
+                    <p className="guest-lot-drawer__wallet-summary-state">Wallet info unavailable.</p>
+                  ) : (
+                    <div className="guest-lot-drawer__wallet-top-grid">
+                      <div className="guest-lot-drawer__wallet-top-item">
+                        <span className="guest-lot-drawer__wallet-top-label">Available</span>
+                        <span className="guest-lot-drawer__wallet-top-value">
+                          {formatWalletCurrency(walletSummary.availableBalance)}
+                        </span>
+                      </div>
+                      <div className="guest-lot-drawer__wallet-top-item">
+                        <span className="guest-lot-drawer__wallet-top-label">Bidding power</span>
+                        <span className="guest-lot-drawer__wallet-top-value">
+                          {formatWalletCurrency(walletSummary.biddingPower)}
+                        </span>
+                      </div>
+                      <div className="guest-lot-drawer__wallet-top-item">
+                        <span className="guest-lot-drawer__wallet-top-label">Locked</span>
+                        <span className="guest-lot-drawer__wallet-top-value">
+                          {formatWalletCurrency(walletSummary.lockedBalance)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="guest-lot-drawer__main">
                 <div className="guest-lot-drawer__content">
                   <div className="guest-lot-drawer__media">
