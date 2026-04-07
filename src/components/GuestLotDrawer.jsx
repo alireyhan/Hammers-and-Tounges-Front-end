@@ -41,8 +41,21 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     lockedBalance: null,
     loading: false,
   });
+  const [deleting, setDeleting] = useState(false);
+  const [activating, setActivating] = useState(false);
+  const [autoBidRecord, setAutoBidRecord] = useState(null);
+  const [autoBidLoading, setAutoBidLoading] = useState(false);
+  const [autobidToggleOn, setAutobidToggleOn] = useState(false);
+  const [autobidMaxInput, setAutobidMaxInput] = useState('');
+  const [autobidSaving, setAutobidSaving] = useState(false);
 
-  const imageMedia = lot?.media?.filter((m) => m.media_type === 'image') || [];
+  const effectiveLot = useMemo(() => lot || initialLot, [lot, initialLot]);
+  const eventData = useMemo(
+    () => event || { id: eventId, title: eventTitle, status: eventStatus },
+    [event, eventId, eventTitle, eventStatus]
+  );
+
+  const imageMedia = effectiveLot?.media?.filter((m) => m.media_type === 'image') || [];
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
   const displayImage = imageUrls[selectedImage] || imageUrls[0];
 
@@ -59,8 +72,7 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
   }, [effectiveEventStatus]);
   const isEnded = isEventLiveFromApi ? false : timerSaysEnded;
 
-  const effectiveLotForBid = lot || initialLot;
-  const initialPrice = parseFloat(effectiveLotForBid?.initial_price || 0);
+  const initialPrice = parseFloat(effectiveLot?.initial_price || 0);
   const highestBidAmount = bids?.length
     ? Math.max(initialPrice, ...bids.map((b) => parseFloat(b.amount) || 0))
     : null;
@@ -68,7 +80,7 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     highestBidAmount != null
       ? highestBidAmount
       : (lot?.current_price ?? lot?.highest_bid ?? lot?.initial_price);
-  const currency = lot?.currency || effectiveLotForBid?.currency || 'USD';
+  const currency = lot?.currency || effectiveLot?.currency || 'USD';
 
   const isEventLive = isEventLiveFromApi;
   const specificData = (() => {
@@ -104,13 +116,13 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
   }, [dispatch]);
 
   const categoryDetail = useMemo(() => {
-    const categoryId = effectiveLotForBid?.category ?? effectiveLotForBid?.category_id;
+    const categoryId = effectiveLot?.category ?? effectiveLot?.category_id;
     if (!categoryId) return null;
     const list = Array.isArray(categories) ? categories : categories?.results ?? [];
     if (!list.length) return null;
     const id = Number(categoryId);
     return list.find((c) => c.id === id || Number(c.id) === id) ?? null;
-  }, [effectiveLotForBid?.category, effectiveLotForBid?.category_id, categories]);
+  }, [effectiveLot?.category, effectiveLot?.category_id, categories]);
 
   const { nextBidAmount, incrementRules, minBid, maxBid } = useMemo(() => {
     const ranges = categoryDetail?.increment_rules?.ranges;
@@ -204,6 +216,41 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     }
   }, [isBuyer]);
 
+  const refreshAutoBidForLot = useCallback(
+    async (lotId) => {
+      if (!isBuyer || !lotId) {
+        setAutoBidRecord(null);
+        setAutobidToggleOn(false);
+        setAutobidMaxInput('');
+        return null;
+      }
+      setAutoBidLoading(true);
+      try {
+        const list = await buyerService.getMyAutoBids();
+        const match = list.find((r) => {
+          const lid = r.lot?.id ?? r.lot;
+          return Number(lid) === Number(lotId);
+        });
+        if (match) {
+          setAutoBidRecord(match);
+          setAutobidToggleOn(true);
+          setAutobidMaxInput(String(match.max_amount ?? match.maxAmount ?? '').trim());
+        } else {
+          setAutoBidRecord(null);
+          setAutobidToggleOn(false);
+          setAutobidMaxInput('');
+        }
+        return match;
+      } catch {
+        setAutoBidRecord(null);
+        return null;
+      } finally {
+        setAutoBidLoading(false);
+      }
+    },
+    [isBuyer]
+  );
+
   const handleQuickBidAdd = useCallback(
     (addAmount) => {
       if (addAmount === 'max') {
@@ -219,7 +266,7 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
 
   const handlePlaceBidSubmit = useCallback(() => {
     const amount = effectiveBidAmount;
-    const lotId = effectiveLotForBid?.id;
+    const lotId = effectiveLot?.id;
     if (!lotId || amount == null || isPlacingBid) return;
     dispatch(
       placeBid({
@@ -234,9 +281,10 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
           setBids(list);
         });
         loadWalletSummary();
+        refreshAutoBidForLot(lotId);
       }
     });
-  }, [effectiveLotForBid?.id, effectiveBidAmount, isPlacingBid, dispatch, loadWalletSummary]);
+  }, [effectiveLot?.id, effectiveBidAmount, isPlacingBid, dispatch, loadWalletSummary, refreshAutoBidForLot]);
 
   useEffect(() => {
     if (!initialLot?.id) return;
@@ -280,24 +328,105 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     loadWalletSummary();
   }, [loadWalletSummary, lot?.id]);
 
-  const handleSignIn = () => {
-    onClose?.();
-    navigate('/signin', { state: { from: window.location.pathname } });
-  };
+  useEffect(() => {
+    if (!isBuyer || !lot?.id) {
+      setAutoBidRecord(null);
+      setAutobidToggleOn(false);
+      setAutobidMaxInput('');
+      return;
+    }
+    refreshAutoBidForLot(lot.id);
+  }, [isBuyer, lot?.id, refreshAutoBidForLot]);
 
-  if (!lot && !initialLot) return null;
+  useEffect(() => {
+    if (!isBuyer || !lot?.id || !autoBidRecord?.id) return undefined;
+    const lid = autoBidRecord.lot?.id ?? autoBidRecord.lot;
+    if (Number(lid) !== Number(lot.id)) return undefined;
+    if (autoBidRecord.ceiling_reached === true) return undefined;
+    const poll = () => {
+      buyerService
+        .getLotBids(lot.id)
+        .then((data) => {
+          const list = Array.isArray(data) ? data : data?.results ?? data?.bids ?? [];
+          setBids(list);
+        })
+        .catch(() => {});
+    };
+    const t = setInterval(poll, 3000);
+    return () => clearInterval(t);
+  }, [isBuyer, lot?.id, autoBidRecord?.id, autoBidRecord?.lot, autoBidRecord?.ceiling_reached]);
 
-  const effectiveLot = lot || initialLot;
-  const isStaffView = isAdmin || isManager || isClerk;
-  const eventData = event || { id: eventId, title: eventTitle, status: eventStatus };
-  const lotStatus = (effectiveLot?.status ?? effectiveLot?.listing_status ?? '').toUpperCase();
-  const isLotActive = lotStatus === 'ACTIVE';
-  const isLotDraft = lotStatus === 'DRAFT';
-  const isEventCompleted = ((eventStatus ?? event?.status) || '').toUpperCase() === 'CLOSING' || ((eventStatus ?? event?.status) || '').toUpperCase() === 'CLOSED';
-  const canEditDelete = (eventData?.status || '').toUpperCase() === 'SCHEDULED' && !isLotActive;
+  const handleAutobidToggle = useCallback(
+    async (nextOn) => {
+      if (!effectiveLot?.id) return;
+      if (!nextOn) {
+        if (autoBidRecord?.id) {
+          try {
+            setAutobidSaving(true);
+            await buyerService.deleteAutoBid(autoBidRecord.id);
+            toast.success('Auto-bid stopped');
+            setAutoBidRecord(null);
+            setAutobidToggleOn(false);
+            setAutobidMaxInput('');
+          } catch (err) {
+            toast.error(
+              err?.response?.data?.detail ||
+                err?.response?.data?.message ||
+                err?.message ||
+                'Could not stop auto-bid'
+            );
+          } finally {
+            setAutobidSaving(false);
+          }
+        } else {
+          setAutobidToggleOn(false);
+          setAutobidMaxInput('');
+        }
+        return;
+      }
+      setAutobidToggleOn(true);
+      if (!autoBidRecord) {
+        setAutobidMaxInput('');
+      }
+    },
+    [effectiveLot?.id, autoBidRecord]
+  );
 
-  const [deleting, setDeleting] = useState(false);
-  const [activating, setActivating] = useState(false);
+  const handleSaveAutobid = useCallback(async () => {
+    if (!effectiveLot?.id) return;
+    const amt = parseFloat(String(autobidMaxInput).replace(/[^0-9.-]/g, ''));
+    if (Number.isNaN(amt) || amt <= 0) {
+      toast.error('Enter a valid max amount');
+      return;
+    }
+    const latestBidOrStart = highestBidAmount != null ? highestBidAmount : initialPrice;
+    if (amt <= latestBidOrStart) {
+      toast.error(
+        `Max amount must be greater than ${formatCurrency(latestBidOrStart)}.`
+      );
+      return;
+    }
+    setAutobidSaving(true);
+    try {
+      if (autoBidRecord?.id) {
+        await buyerService.updateAutoBid(effectiveLot.id, amt);
+        toast.success('Auto-bid updated');
+      } else {
+        await buyerService.createAutoBid({ lotId: effectiveLot.id, maxAmount: amt });
+        toast.success('Auto-bid started');
+      }
+      await refreshAutoBidForLot(effectiveLot.id);
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.detail ||
+          err?.response?.data?.message ||
+          err?.message ||
+          'Could not save auto-bid'
+      );
+    } finally {
+      setAutobidSaving(false);
+    }
+  }, [effectiveLot?.id, autobidMaxInput, autoBidRecord?.id, refreshAutoBidForLot, highestBidAmount, initialPrice, formatCurrency]);
 
   const handleEdit = useCallback(() => {
     onClose?.();
@@ -361,6 +490,20 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
       setActivating(false);
     }
   }, [effectiveLot, eventId, event?.id, onClose, onLotUpdated]);
+
+  const handleSignIn = () => {
+    onClose?.();
+    navigate('/signin', { state: { from: window.location.pathname } });
+  };
+
+  if (!effectiveLot) return null;
+
+  const isStaffView = isAdmin || isManager || isClerk;
+  const lotStatus = (effectiveLot?.status ?? effectiveLot?.listing_status ?? '').toUpperCase();
+  const isLotActive = lotStatus === 'ACTIVE';
+  const isLotDraft = lotStatus === 'DRAFT';
+  const isEventCompleted = ((eventStatus ?? event?.status) || '').toUpperCase() === 'CLOSING' || ((eventStatus ?? event?.status) || '').toUpperCase() === 'CLOSED';
+  const canEditDelete = (eventData?.status || '').toUpperCase() === 'SCHEDULED' && !isLotActive;
 
   return (
     <>
@@ -569,6 +712,58 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
                               <> · Increment: {formatCurrency(incrementRules.increment)}</>
                             )}
                           </p>
+                          <div className="guest-lot-drawer__autobid">
+                            <div className="guest-lot-drawer__autobid-row">
+                              <label className="guest-lot-drawer__autobid-toggle">
+                                <input
+                                  type="checkbox"
+                                  className="guest-lot-drawer__autobid-checkbox"
+                                  checked={autobidToggleOn}
+                                  onChange={(e) => handleAutobidToggle(e.target.checked)}
+                                  disabled={autobidSaving || autoBidLoading}
+                                />
+                                <span className="guest-lot-drawer__autobid-toggle-text">Auto-bid</span>
+                              </label>
+                              {autoBidLoading ? (
+                                <span className="guest-lot-drawer__autobid-loading">Loading…</span>
+                              ) : null}
+                            </div>
+                            {autoBidRecord?.ceiling_reached === true && (
+                              <p className="guest-lot-drawer__autobid-ceiling">
+                                Auto-bid maximum reached for this lot.
+                              </p>
+                            )}
+                            {autobidToggleOn && (
+                              <>
+                                <label className="guest-lot-drawer__custom-bid-label" htmlFor="guest-autobid-max">
+                                  Max amount (auto-bid)
+                                </label>
+                                <input
+                                  id="guest-autobid-max"
+                                  type="number"
+                                  className="guest-lot-drawer__bid-input"
+                                  min={0}
+                                  step="0.01"
+                                  placeholder="Enter max amount"
+                                  value={autobidMaxInput}
+                                  onChange={(e) => setAutobidMaxInput(e.target.value)}
+                                  disabled={autobidSaving}
+                                />
+                                <button
+                                  type="button"
+                                  className="guest-lot-drawer__autobid-save"
+                                  onClick={handleSaveAutobid}
+                                  disabled={autobidSaving}
+                                >
+                                  {autobidSaving
+                                    ? 'Saving…'
+                                    : autoBidRecord?.id
+                                      ? 'Update auto-bid'
+                                      : 'Start auto-bid'}
+                                </button>
+                              </>
+                            )}
+                          </div>
                           <div className="guest-lot-drawer__custom-bid-row">
                             <label className="guest-lot-drawer__custom-bid-label">Bid amount</label>
                             <input
