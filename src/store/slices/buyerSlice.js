@@ -102,16 +102,31 @@ const buyerSlice = createSlice({
 
     // Fetch Auction Bids
     builder
-      .addCase(fetchAuctionBids.pending, (state) => {
+      .addCase(fetchAuctionBids.pending, (state, action) => {
+        const silent =
+          typeof action.meta.arg === 'object' &&
+          action.meta.arg !== null &&
+          action.meta.arg.silent === true;
+        if (silent) return;
         state.isLoading = true;
         state.error = null;
       })
       .addCase(fetchAuctionBids.fulfilled, (state, action) => {
-        state.isLoading = false;
+        const silent =
+          typeof action.meta.arg === 'object' &&
+          action.meta.arg !== null &&
+          action.meta.arg.silent === true;
+        if (!silent) {
+          state.isLoading = false;
+        }
         state.auctionBids = action.payload;
-
       })
       .addCase(fetchAuctionBids.rejected, (state, action) => {
+        const silent =
+          typeof action.meta.arg === 'object' &&
+          action.meta.arg !== null &&
+          action.meta.arg.silent === true;
+        if (silent) return;
         state.isLoading = false;
         state.error = action.payload;
       });

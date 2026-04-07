@@ -11,6 +11,7 @@ import { fetchCategories } from "../store/actions/AuctionsActions";
 import { auctionService } from "../services/interceptors/auction.service";
 import { profileService } from "../services/interceptors/profile.service";
 import { useAuctionWebSocket } from "../hooks/useAuctionWebSocket";
+import { useBuyerLotAutoBid } from "../hooks/useBuyerLotAutoBid";
 import { getMediaUrl } from "../config/api.config";
 import "./BuyerAuctionDetails.css";
 import { toast } from "react-toastify";
@@ -528,6 +529,29 @@ const BuyerAuctionDetails = () => {
     [auction?.currency]
   );
 
+  const refreshBidsForPoll = useCallback(() => {
+    if (!id) return undefined;
+    return dispatch(fetchAuctionBids({ lotId: id, silent: true }));
+  }, [dispatch, id]);
+
+  const {
+    autoBidRecord,
+    autoBidLoading,
+    autobidToggleOn,
+    autobidMaxInput,
+    setAutobidMaxInput,
+    autobidSaving,
+    handleAutobidToggle,
+    handleSaveAutobid,
+    refreshAutoBidForLot
+  } = useBuyerLotAutoBid({
+    lotId: id,
+    enabled: Boolean(id && !fromBuyAndSell && isEventLive),
+    floorAmount: currentHighest,
+    formatCurrency,
+    onRefreshBids: refreshBidsForPoll
+  });
+
   const loadWalletSummary = useCallback(async () => {
     setWalletSummary((prev) => ({ ...prev, loading: true }));
     try {
@@ -591,9 +615,18 @@ const BuyerAuctionDetails = () => {
         setState((prev) => ({ ...prev, customBidAmount: "" }));
         dispatch(fetchAuctionBids(id));
         loadWalletSummary();
+        if (id) void refreshAutoBidForLot(id);
       }
     });
-  }, [auction, effectiveBidAmount, isPlacingBid, dispatch, id, loadWalletSummary]);
+  }, [
+    auction,
+    effectiveBidAmount,
+    isPlacingBid,
+    dispatch,
+    id,
+    loadWalletSummary,
+    refreshAutoBidForLot
+  ]);
 
   const handleQuickBidAdd = useCallback(
     (addAmount) => {
@@ -876,6 +909,63 @@ const BuyerAuctionDetails = () => {
                         </span>
                       </div>
                     </div>
+                  )}
+                </div>
+                <div className="buyer-details-autobid">
+                  <div className="buyer-details-autobid__row">
+                    <label className="buyer-details-autobid__toggle">
+                      <input
+                        type="checkbox"
+                        className="buyer-details-autobid__checkbox"
+                        checked={autobidToggleOn}
+                        onChange={(e) => handleAutobidToggle(e.target.checked)}
+                        disabled={autobidSaving || autoBidLoading}
+                      />
+                      <span className="buyer-details-autobid__toggle-text">
+                        Auto-bid
+                      </span>
+                    </label>
+                    {autoBidLoading ? (
+                      <span className="buyer-details-autobid__loading">Loading…</span>
+                    ) : null}
+                  </div>
+                  {autoBidRecord?.ceiling_reached === true && (
+                    <p className="buyer-details-autobid__ceiling">
+                      Auto-bid maximum reached for this lot.
+                    </p>
+                  )}
+                  {autobidToggleOn && (
+                    <>
+                      <label
+                        className="buyer-details-custom-bid-label"
+                        htmlFor="buyer-details-autobid-max"
+                      >
+                        Max amount (auto-bid)
+                      </label>
+                      <input
+                        id="buyer-details-autobid-max"
+                        type="number"
+                        className="buyer-details-bid-input"
+                        min={0}
+                        step="0.01"
+                        placeholder="Enter max amount"
+                        value={autobidMaxInput}
+                        onChange={(e) => setAutobidMaxInput(e.target.value)}
+                        disabled={autobidSaving}
+                      />
+                      <button
+                        type="button"
+                        className="buyer-details-autobid__save"
+                        onClick={handleSaveAutobid}
+                        disabled={autobidSaving}
+                      >
+                        {autobidSaving
+                          ? "Saving…"
+                          : autoBidRecord?.id
+                            ? "Update auto-bid"
+                            : "Start auto-bid"}
+                      </button>
+                    </>
                   )}
                 </div>
                 <p className="buyer-details-increment-hint">

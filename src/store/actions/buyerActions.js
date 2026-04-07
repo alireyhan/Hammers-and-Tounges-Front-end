@@ -48,7 +48,11 @@ export const placeBid = createAsyncThunk(
 
 export const fetchAuctionBids = createAsyncThunk(
   'buyer/fetchAuctionBids',
-  async (lotId, { rejectWithValue }) => {
+  async (arg, { rejectWithValue }) => {
+    const lotId =
+      typeof arg === 'object' && arg !== null && 'lotId' in arg ? arg.lotId : arg;
+    const silent =
+      typeof arg === 'object' && arg !== null && arg.silent === true;
     try {
       return await buyerService.getLotBids(lotId);
     } catch (error) {
@@ -56,7 +60,9 @@ export const fetchAuctionBids = createAsyncThunk(
         error.response?.data?.message ||
         error.response?.data?.error ||
         'Failed to fetch bids';
-      toast.error(message);
+      if (!silent) {
+        toast.error(message);
+      }
       return rejectWithValue(error.response?.data || { message });
     }
   }
