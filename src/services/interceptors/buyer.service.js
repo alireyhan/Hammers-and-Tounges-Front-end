@@ -21,6 +21,52 @@ export const buyerService = {
     }
   },
 
+  /** GET /api/auctions/auto-bids/my/ — paginated { results: [...] } or array */
+  getMyAutoBids: async () => {
+    try {
+      const { data } = await apiClient.get('auctions/auto-bids/my/');
+      if (Array.isArray(data)) return data;
+      return data?.results ?? data?.data ?? [];
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
+  /** POST /api/auctions/lots/{lotId}/auto-bid/ — { max_amount } (same as mobile / Postman) */
+  createAutoBid: async ({ lotId, maxAmount }) => {
+    const amt = Number(maxAmount);
+    if (Number.isNaN(amt) || amt <= 0) {
+      throw new Error('Enter a valid max amount');
+    }
+    const payload = { max_amount: Number(amt.toFixed(2)) };
+    const { data } = await apiClient.post(
+      `${API_ROUTES.AUCTIONS_LOTS}${Number(lotId)}/auto-bid/`,
+      payload
+    );
+    return data;
+  },
+
+  /** Same lot-scoped URL as create */
+  updateAutoBid: async (lotId, maxAmount) => {
+    const amt = Number(maxAmount);
+    if (Number.isNaN(amt) || amt <= 0) {
+      throw new Error('Enter a valid max amount');
+    }
+    const { data } = await apiClient.post(
+      `${API_ROUTES.AUCTIONS_LOTS}${Number(lotId)}/auto-bid/`,
+      { max_amount: Number(amt.toFixed(2)) }
+    );
+    return data;
+  },
+
+  /** DELETE /api/auctions/auto-bids/{id}/ */
+  deleteAutoBid: async (autoBidId) => {
+    await apiClient.delete(`auctions/auto-bids/${autoBidId}/`);
+  },
+
   // Get bids for a lot (GET /auctions/lots/{id}/bids/)
   getLotBids: async (lotId) => {
     try {

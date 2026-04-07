@@ -1,106 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { createPortal } from "react-dom";
+import React, { useState, useEffect, useCallback } from "react";
 import "./BuyerProfile.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { fetchProfile, updateProfile } from "../store/actions/profileActions";
-import { profileService } from "../services/interceptors/profile.service";
-
-function listFromPaymentsHistoryPayload(raw) {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  if (Array.isArray(raw.results)) return raw.results;
-  if (Array.isArray(raw.data)) return raw.data;
-  if (Array.isArray(raw.history)) return raw.history;
-  if (Array.isArray(raw.payments)) return raw.payments;
-  if (raw.data && typeof raw.data === "object" && Array.isArray(raw.data.results)) {
-    return raw.data.results;
-  }
-  return [];
-}
-
-function pickPaymentRow(item, index) {
-  if (!item || typeof item !== "object") return null;
-  const amount =
-    item.amount ??
-    item.value ??
-    item.total ??
-    item.payment_amount ??
-    item.paid_amount;
-  const status = (item.status ?? item.state ?? item.payment_status ?? "").toString();
-  const created =
-    item.created_at ??
-    item.created ??
-    item.date ??
-    item.timestamp ??
-    item.updated_at;
-  const title =
-    item.description ??
-    item.type ??
-    item.payment_type ??
-    item.reference ??
-    (item.transaction_id != null ? String(item.transaction_id) : null) ??
-    (item.id != null ? `Payment #${item.id}` : "Payment");
-  return {
-    key: String(item.id ?? item.uuid ?? item.reference ?? `row-${index}`),
-    title: String(title),
-    amount: amount != null && !Number.isNaN(Number(amount)) ? Number(amount) : null,
-    status,
-    created,
-  };
-}
-
-function formatWalletCurrency(n) {
-  const v = Number(n);
-  if (Number.isNaN(v)) return "$0.00";
-  return `$${v.toFixed(2)}`;
-}
-
-function formatPaymentWhen(isoOrStr) {
-  if (isoOrStr == null || isoOrStr === "") return "—";
-  const d = new Date(isoOrStr);
-  if (Number.isNaN(d.getTime())) return String(isoOrStr);
-  return d.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
-
-function paymentStatusClass(status) {
-  const s = String(status).toLowerCase();
-  if (/(success|completed|paid|complete|confirmed)/i.test(s)) return "wallet-history-status--success";
-  if (/(pending|processing|init)/i.test(s)) return "wallet-history-status--pending";
-  if (/(fail|error|cancel|declin)/i.test(s)) return "wallet-history-status--failed";
-  return "wallet-history-status--neutral";
-}
-
-/**
- * Reads `payment` from the URL after a third-party checkout redirect.
- * Providers often append their own segment (e.g. `?payment=cancelled?ref=...`); we only
- * need the leading status token for the modal.
- */
-function parsePaymentFromSearch(search) {
-  const raw = (search && search.startsWith("?") ? search.slice(1) : search) || "";
-  const params = new URLSearchParams(raw);
-  let paymentRaw = params.get("payment");
-
-  if (paymentRaw && paymentRaw.includes("?")) {
-    paymentRaw = paymentRaw.slice(0, paymentRaw.indexOf("?")).trim();
-  }
-
-  const payment = (paymentRaw || "").trim().toLowerCase();
-  if (!payment) return { modal: null };
-
-  const successTokens = ["success", "completed", "complete", "paid", "succeeded", "ok"];
-  const cancelTokens = ["cancelled", "canceled", "cancel"];
-  const failTokens = ["failed", "fail", "error", "declined", "rejected"];
-
-  if (successTokens.includes(payment)) return { modal: "success" };
-  if (cancelTokens.includes(payment)) return { modal: "cancelled" };
-  if (failTokens.includes(payment)) return { modal: "fail" };
-
-  return { modal: null };
-}
 
 const BuyerProfile = () => {
   const dispatch = useDispatch();
@@ -113,6 +15,8 @@ const BuyerProfile = () => {
     loading,
     error
   } = useSelector((state) => state.profile);
+  const authUser = useSelector((state) => state.auth.user);
+  const effectiveProfile = profileData || authUser || null;
 
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
@@ -123,14 +27,6 @@ const BuyerProfile = () => {
     phone: ""
   });
 
-  const [wallet, setWallet] = useState(null);
-  const [paymentHistory, setPaymentHistory] = useState([]);
-  const [paymentHistoryLoading, setPaymentHistoryLoading] = useState(true);
-  const [paymentHistoryError, setPaymentHistoryError] = useState(null);
-  /** Shown after payment redirect: success | fail | cancelled */
-  const [paymentResultModal, setPaymentResultModal] = useState(null);
-  const paymentModalPrimaryRef = useRef(null);
-
   // State for image preview
   const [securityData, setSecurityData] = useState({
     currentPassword: "",
@@ -138,127 +34,19 @@ const BuyerProfile = () => {
     confirmPassword: ""
   });
 
-  const closePaymentModal = useCallback(() => {
-    setPaymentResultModal(null);
-  }, []);
-
   // Fetch profile on component mount
   useEffect(() => {
     dispatch(fetchProfile());
   }, [dispatch]);
 
+  // If a payment gateway redirects back to Profile with `?payment=...`,
+  // forward it to the dedicated Wallet tab.
   useEffect(() => {
-    let cancelled = false;
-    profileService
-      .getWallet()
-      .then((data) => {
-        if (!cancelled) setWallet(data);
-      })
-      .catch(() => {
-        if (!cancelled) setWallet(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    setPaymentHistoryLoading(true);
-    setPaymentHistoryError(null);
-    profileService
-      .getPaymentsHistory()
-      .then((raw) => {
-        if (cancelled) return;
-        const rows = listFromPaymentsHistoryPayload(raw)
-          .map((item, i) => pickPaymentRow(item, i))
-          .filter(Boolean);
-        setPaymentHistory(rows);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setPaymentHistory([]);
-          setPaymentHistoryError(
-            err?.response?.data?.detail ||
-              err?.response?.data?.message ||
-              err?.message ||
-              "Could not load payment history."
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setPaymentHistoryLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    const { modal } = parsePaymentFromSearch(location.search);
-    if (!modal) return undefined;
-
-    setPaymentResultModal(modal);
-    setPaymentHistoryLoading(true);
-
-    let cancelled = false;
-    profileService
-      .getWallet()
-      .then((data) => {
-        if (!cancelled) setWallet(data);
-      })
-      .catch(() => {
-        if (!cancelled) setWallet(null);
-      });
-    profileService
-      .getPaymentsHistory()
-      .then((raw) => {
-        if (cancelled) return;
-        const rows = listFromPaymentsHistoryPayload(raw)
-          .map((item, i) => pickPaymentRow(item, i))
-          .filter(Boolean);
-        setPaymentHistory(rows);
-        setPaymentHistoryError(null);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setPaymentHistory([]);
-          setPaymentHistoryError(
-            err?.response?.data?.detail ||
-              err?.response?.data?.message ||
-              err?.message ||
-              "Could not load payment history."
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setPaymentHistoryLoading(false);
-      });
-
-    navigate(location.pathname, { replace: true });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [location.search, location.pathname, navigate]);
-
-  useEffect(() => {
-    if (!paymentResultModal) return undefined;
-    const onKeyDown = (e) => {
-      if (e.key === "Escape") closePaymentModal();
-    };
-    document.addEventListener("keydown", onKeyDown);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const t = window.setTimeout(() => {
-      paymentModalPrimaryRef.current?.focus();
-    }, 0);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = prevOverflow;
-      window.clearTimeout(t);
-    };
-  }, [paymentResultModal, closePaymentModal]);
+    const params = new URLSearchParams(location.search || "");
+    const payment = params.get("payment");
+    if (!payment) return;
+    navigate(`/buyer/wallet${location.search || ""}`, { replace: true });
+  }, [location.search, navigate]);
 
   const handleRetry = useCallback(() => {
     dispatch(fetchProfile());
@@ -266,15 +54,15 @@ const BuyerProfile = () => {
 
   // Update formData when profileData changes from API
   useEffect(() => {
-    if (profileData) {
+    if (effectiveProfile) {
       setFormData({
-        firstName: profileData.first_name || "",
-        lastName: profileData.last_name || "",
-        email: profileData.email || "",
-        phone: profileData.phone || ""
+        firstName: effectiveProfile.first_name || effectiveProfile.firstName || "",
+        lastName: effectiveProfile.last_name || effectiveProfile.lastName || "",
+        email: effectiveProfile.email || "",
+        phone: effectiveProfile.phone || ""
       });
     }
-  }, [profileData]);
+  }, [effectiveProfile]);
 
   const getDisplayName = useCallback(() => {
     return `${formData.firstName} ${formData.lastName}`.trim() || "Buyer";
@@ -338,110 +126,8 @@ const BuyerProfile = () => {
     });
   };
 
-  const paymentModalCopy =
-    paymentResultModal === "success"
-      ? {
-          title: "Payment successful",
-          message:
-            "Your funds are on the way. Wallet balances usually update within a few moments.",
-          variant: "success",
-        }
-      : paymentResultModal === "cancelled"
-        ? {
-            title: "Payment cancelled",
-            message:
-              "You left checkout before completing payment. You have not been charged.",
-            variant: "fail",
-          }
-        : paymentResultModal === "fail"
-        ? {
-            title: "Payment failed",
-            message:
-              "We could not complete this payment. Check your payment method and try again, or contact support if the issue continues.",
-            variant: "fail",
-          }
-        : null;
-
-  const paymentModalPortal =
-    paymentModalCopy && typeof document !== "undefined"
-      ? createPortal(
-          <div
-            className="buyer-payment-modal-overlay"
-            role="presentation"
-            onClick={closePaymentModal}
-          >
-            <div
-              className={`buyer-payment-modal buyer-payment-modal--${paymentModalCopy.variant}`}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="buyer-payment-modal-title"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                className="buyer-payment-modal__dismiss"
-                aria-label="Close"
-                onClick={closePaymentModal}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path
-                    d="M18 6L6 18M6 6l12 12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-
-              <div
-                className={`buyer-payment-modal__icon buyer-payment-modal__icon--${paymentModalCopy.variant}`}
-                aria-hidden
-              >
-                {paymentModalCopy.variant === "success" ? (
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M20 6L9 17l-5-5"
-                      stroke="currentColor"
-                      strokeWidth="2.25"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                ) : (
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M18 6L6 18M6 6l12 12"
-                      stroke="currentColor"
-                      strokeWidth="2.25"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                )}
-              </div>
-
-              <h2 id="buyer-payment-modal-title" className="buyer-payment-modal__title">
-                {paymentModalCopy.title}
-              </h2>
-              <p className="buyer-payment-modal__message">{paymentModalCopy.message}</p>
-
-              <div className="buyer-payment-modal__actions">
-                <button
-                  ref={paymentModalPrimaryRef}
-                  type="button"
-                  className={`buyer-payment-modal__primary buyer-payment-modal__primary--${paymentModalCopy.variant}`}
-                  onClick={closePaymentModal}
-                >
-                  Got it
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )
-      : null;
-
   // Loading/error states - must be after all hooks to avoid "fewer hooks" error
-  if (loading && !profileData) {
+  if (loading && !effectiveProfile) {
     return (
       <>
         <div className="buyer-profile-container">
@@ -450,11 +136,10 @@ const BuyerProfile = () => {
             <p>Loading your profile...</p>
           </div>
         </div>
-        {paymentModalPortal}
       </>
     );
   }
-  if (error && !profileData) {
+  if (error && !effectiveProfile) {
     return (
       <>
         <div className="buyer-profile-container">
@@ -470,7 +155,6 @@ const BuyerProfile = () => {
             </button>
           </div>
         </div>
-        {paymentModalPortal}
       </>
     );
   }
@@ -749,141 +433,6 @@ const BuyerProfile = () => {
                   </div>
                 </div>
 
-                <div className="info-section buyer-wallet-section">
-                  <div className="buyer-wallet-panel">
-                    <div className="buyer-wallet-panel__top">
-                      <h3 className="section-title buyer-wallet-panel__title">
-                        <span className="buyer-wallet-panel__title-icon">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-                            <path
-                              d="M12 1v22M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        Wallet
-                      </h3>
-                      <div className="buyer-wallet-actions">
-                        <button
-                          className="b-action-btn b-primary buyer-wallet-add-btn"
-                          type="button"
-                          onClick={() => navigate("/buyer/add-balance")}
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-                            <path
-                              d="M12 5v14M5 12h14"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                          Add Balance
-                        </button>
-                      </div>
-                    </div>
-
-                    {wallet ? (
-                      <div className="buyer-wallet-overview">
-                        <div className="buyer-wallet-stat">
-                          <span className="buyer-wallet-stat__label">Available</span>
-                          <span className="buyer-wallet-stat__value">
-                            {formatWalletCurrency(wallet.available_balance ?? 0)}
-                          </span>
-                          <span className="buyer-wallet-stat__hint">Ready to bid or withdraw</span>
-                        </div>
-                        <div className="buyer-wallet-stat">
-                          <span className="buyer-wallet-stat__label">Locked</span>
-                          <span className="buyer-wallet-stat__value buyer-wallet-stat__value--muted">
-                            {formatWalletCurrency(wallet.locked_balance ?? 0)}
-                          </span>
-                          <span className="buyer-wallet-stat__hint">Held on active bids</span>
-                        </div>
-                        <div className="buyer-wallet-stat">
-                          <span className="buyer-wallet-stat__label">Bidding power</span>
-                          <span className="buyer-wallet-stat__value">
-                            {formatWalletCurrency(wallet.bidding_power ?? 0)}
-                          </span>
-                          <span className="buyer-wallet-stat__hint">Total limit you can use</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="buyer-wallet-empty-overview">
-                        Wallet details could not be loaded. You can still add balance or view history
-                        below.
-                      </p>
-                    )}
-
-                    <div className="buyer-wallet-history">
-                      <div className="buyer-wallet-history__head">
-                        <h4 className="buyer-wallet-history__title">Payment history</h4>
-                        {paymentHistory.length > 0 && (
-                          <span className="buyer-wallet-history__count">
-                            {paymentHistory.length} record{paymentHistory.length === 1 ? "" : "s"}
-                          </span>
-                        )}
-                      </div>
-
-                      {paymentHistoryLoading && (
-                        <div className="buyer-wallet-history__state">
-                          <div className="buyer-profile-spinner buyer-wallet-history__spinner" />
-                          <span>Loading history…</span>
-                        </div>
-                      )}
-
-                      {!paymentHistoryLoading && paymentHistoryError && (
-                        <div className="buyer-wallet-history__state buyer-wallet-history__state--error">
-                          {paymentHistoryError}
-                        </div>
-                      )}
-
-                      {!paymentHistoryLoading && !paymentHistoryError && paymentHistory.length === 0 && (
-                        <div className="buyer-wallet-history__state buyer-wallet-history__state--empty">
-                          No payments yet. Use Add Balance to fund your wallet.
-                        </div>
-                      )}
-
-                      {!paymentHistoryLoading && !paymentHistoryError && paymentHistory.length > 0 && (
-                        <ul className="buyer-wallet-history__list" role="list">
-                          {paymentHistory.map((row) => (
-                            <li key={row.key} className="buyer-wallet-history__row">
-                              <div className="buyer-wallet-history__row-main">
-                                <span className="buyer-wallet-history__row-title">{row.title}</span>
-                                {row.status ? (
-                                  <span
-                                    className={`wallet-history-status ${paymentStatusClass(row.status)}`}
-                                  >
-                                    {row.status}
-                                  </span>
-                                ) : null}
-                              </div>
-                              <div className="buyer-wallet-history__row-meta">
-                                <span
-                                  className={
-                                    row.amount != null && row.amount < 0
-                                      ? "buyer-wallet-history__amount buyer-wallet-history__amount--out"
-                                      : "buyer-wallet-history__amount"
-                                  }
-                                >
-                                  {row.amount != null ? formatWalletCurrency(row.amount) : "—"}
-                                </span>
-                                <time
-                                  className="buyer-wallet-history__when"
-                                  dateTime={row.created ? String(row.created) : undefined}
-                                >
-                                  {formatPaymentWhen(row.created)}
-                                </time>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
                 {/* <div className="info-section">
                   <h3 className="section-title">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -1120,8 +669,6 @@ const BuyerProfile = () => {
         </div>
       </div>
     </div>
-
-    {paymentModalPortal}
     </>
   );
 };

@@ -9,6 +9,7 @@ import {
 } from "../store/actions/buyerActions";
 import { fetchCategories } from "../store/actions/AuctionsActions";
 import { auctionService } from "../services/interceptors/auction.service";
+import { profileService } from "../services/interceptors/profile.service";
 import { useAuctionWebSocket } from "../hooks/useAuctionWebSocket";
 import { getMediaUrl } from "../config/api.config";
 import "./BuyerAuctionDetails.css";
@@ -361,6 +362,12 @@ const BuyerAuctionDetails = () => {
     isFavorite: auctionObj?.is_favourite ?? false,
     customBidAmount: ""
   });
+  const [walletSummary, setWalletSummary] = useState({
+    availableBalance: null,
+    biddingPower: null,
+    lockedBalance: null,
+    loading: true
+  });
 
   // Use same categories API as Buy & Sell (GET /auctions/categories/) - not the detail endpoint which returns 403
   useEffect(() => {
@@ -510,6 +517,41 @@ const BuyerAuctionDetails = () => {
     },
     [auction?.currency]
   );
+  const formatWalletCurrency = useCallback(
+    (amount) =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: auction?.currency || "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(Number(amount || 0)),
+    [auction?.currency]
+  );
+
+  const loadWalletSummary = useCallback(async () => {
+    setWalletSummary((prev) => ({ ...prev, loading: true }));
+    try {
+      const wallet = await profileService.getWallet();
+      setWalletSummary({
+        availableBalance:
+          wallet?.available_balance ?? wallet?.availableBalance ?? 0,
+        biddingPower: wallet?.bidding_power ?? wallet?.biddingPower ?? 0,
+        lockedBalance: wallet?.locked_balance ?? wallet?.lockedBalance ?? 0,
+        loading: false
+      });
+    } catch {
+      setWalletSummary({
+        availableBalance: null,
+        biddingPower: null,
+        lockedBalance: null,
+        loading: false
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    loadWalletSummary();
+  }, [loadWalletSummary, id]);
 
   // Event handlers
   const handleSelectImage = useCallback((index) => {
@@ -548,9 +590,10 @@ const BuyerAuctionDetails = () => {
       if (result.type === "buyer/placeBid/fulfilled") {
         setState((prev) => ({ ...prev, customBidAmount: "" }));
         dispatch(fetchAuctionBids(id));
+        loadWalletSummary();
       }
     });
-  }, [auction, effectiveBidAmount, isPlacingBid, dispatch, id]);
+  }, [auction, effectiveBidAmount, isPlacingBid, dispatch, id, loadWalletSummary]);
 
   const handleQuickBidAdd = useCallback(
     (addAmount) => {
@@ -804,6 +847,37 @@ const BuyerAuctionDetails = () => {
 
             {isEventLive && !fromBuyAndSell && (
               <div className="buyer-details-bidding-form">
+                <div className="buyer-details-wallet-summary">
+                  <div className="buyer-details-wallet-summary__head">Wallet snapshot</div>
+                  {walletSummary.loading ? (
+                    <p className="buyer-details-wallet-summary__loading">Loading wallet...</p>
+                  ) : walletSummary.availableBalance == null ? (
+                    <p className="buyer-details-wallet-summary__loading">
+                      Wallet info unavailable right now.
+                    </p>
+                  ) : (
+                    <div className="buyer-details-wallet-summary__grid">
+                      <div className="buyer-details-wallet-summary__item">
+                        <span className="buyer-details-wallet-summary__label">Available</span>
+                        <span className="buyer-details-wallet-summary__value">
+                          {formatWalletCurrency(walletSummary.availableBalance)}
+                        </span>
+                      </div>
+                      <div className="buyer-details-wallet-summary__item">
+                        <span className="buyer-details-wallet-summary__label">Bidding power</span>
+                        <span className="buyer-details-wallet-summary__value">
+                          {formatWalletCurrency(walletSummary.biddingPower)}
+                        </span>
+                      </div>
+                      <div className="buyer-details-wallet-summary__item">
+                        <span className="buyer-details-wallet-summary__label">Locked</span>
+                        <span className="buyer-details-wallet-summary__value">
+                          {formatWalletCurrency(walletSummary.lockedBalance)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <p className="buyer-details-increment-hint">
                   Bid increment:{" "}
                   {formatCurrency(incrementRules?.increment ?? 1)}

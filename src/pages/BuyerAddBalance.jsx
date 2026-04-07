@@ -29,7 +29,7 @@ const BuyerAddBalance = () => {
       setSubmitting(true);
       const response = await profileService.deposit({
         amount: parsedAmount,
-        cell_number: cellNumber.trim(),
+        cell_number: cellNumber.trim()
       });
       console.log("Deposit init response:", response);
       const redirectUrl =
@@ -46,7 +46,7 @@ const BuyerAddBalance = () => {
       }
 
       toast.success("Payment initialized successfully");
-      navigate("/buyer/profile");
+      navigate("/buyer/wallet");
     } catch (error) {
       const message =
         error?.response?.data?.detail ||
@@ -141,7 +141,7 @@ const BuyerAddBalance = () => {
         <aside className="buyer-add-balance-info">
           <h3>Before you continue</h3>
           <ul>
-            <li>Enter the same cell number linked to your payment account.</li>
+            <li>Enter the cell number.</li>
             <li>Use the exact amount you want to deposit.</li>
             <li>You will be redirected/processed after initialization.</li>
           </ul>

@@ -192,6 +192,10 @@ export const API_ROUTES = {
 
   // Buyer Routes
   PLACE_BID: '/auctions/bid/',
+  /** GET list of current user's auto-bids */
+  AUTO_BIDS_MY: '/auctions/auto-bids/my/',
+  /** POST start/update: use AUCTIONS_LOTS + lotId + /auto-bid/ (not AUTO_BIDS + id) */
+  AUTO_BIDS: '/auctions/auto-bids/',
   GET_AUCTION_BIDS: '/auctions/listings/', // + auction_id + /bids/
 
   AUCTION_BID_HISTORY: '/auctions/listings/', // + auction_id + /bid-history/
