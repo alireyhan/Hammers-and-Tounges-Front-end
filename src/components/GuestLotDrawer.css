@@ -595,6 +595,30 @@ html[data-theme="light"] .guest-lot-drawer__autobid-loading {
   color: var(--color-text-muted);
 }
 
+.guest-lot-drawer__wallet-unavailable {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.guest-lot-drawer__wallet-retry {
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-input-bg);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.guest-lot-drawer__wallet-retry:hover {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-accent);
+}
+
 @media (max-width: 640px) {
   .guest-lot-drawer__wallet-top {
     margin: 0.75rem 1rem 0;

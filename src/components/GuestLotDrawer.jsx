@@ -10,6 +10,7 @@ import BuyerLotAutoBidPanel from './BuyerLotAutoBidPanel';
 import { placeBid } from '../store/actions/buyerActions';
 import { fetchCategories } from '../store/actions/AuctionsActions';
 import { toast } from 'react-toastify';
+import InsufficientBalanceBidModal from './InsufficientBalanceBidModal';
 import './GuestLotDrawer.css';
 
 const formatPrice = (price) => {
@@ -40,8 +41,11 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     availableBalance: null,
     biddingPower: null,
     lockedBalance: null,
-    loading: false,
+    /** true for buyers until first fetch settles — avoids flashing "unavailable" before the request */
+    loading: !!isBuyer,
   });
+  /** null | 'low_balance' | 'wallet_unavailable' */
+  const [insufficientBalanceModalKind, setInsufficientBalanceModalKind] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [activating, setActivating] = useState(false);
   const [autoBidSyncTick, setAutoBidSyncTick] = useState(0);
@@ -201,7 +205,15 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
   }, [lot?.id]);
 
   const loadWalletSummary = useCallback(async () => {
-    if (!isBuyer) return;
+    if (!isBuyer) {
+      setWalletSummary({
+        availableBalance: null,
+        biddingPower: null,
+        lockedBalance: null,
+        loading: false,
+      });
+      return;
+    }
     setWalletSummary((prev) => ({ ...prev, loading: true }));
     try {
       const wallet = await profileService.getWallet();
@@ -238,6 +250,23 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     const amount = effectiveBidAmount;
     const lotId = effectiveLot?.id;
     if (!lotId || amount == null || isPlacingBid) return;
+
+    if (isBuyer) {
+      const availableBalance = Number(walletSummary.availableBalance ?? 0);
+      if (
+        !walletSummary.loading &&
+        walletSummary.availableBalance != null &&
+        availableBalance < amount
+      ) {
+        setInsufficientBalanceModalKind('low_balance');
+        return;
+      }
+      if (!walletSummary.loading && walletSummary.availableBalance == null) {
+        setInsufficientBalanceModalKind('wallet_unavailable');
+        return;
+      }
+    }
+
     dispatch(
       placeBid({
         lot_id: lotId,
@@ -254,7 +283,21 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
         if (isBuyer) setAutoBidSyncTick((t) => t + 1);
       }
     });
-  }, [effectiveLot?.id, effectiveBidAmount, isPlacingBid, dispatch, loadWalletSummary, isBuyer]);
+  }, [
+    effectiveLot?.id,
+    effectiveBidAmount,
+    isPlacingBid,
+    dispatch,
+    loadWalletSummary,
+    isBuyer,
+    walletSummary.availableBalance,
+    walletSummary.loading,
+  ]);
+
+  const handleInsufficientModalAddBalance = useCallback(() => {
+    setInsufficientBalanceModalKind(null);
+    navigate('/buyer/add-balance');
+  }, [navigate]);
 
   useEffect(() => {
     if (!initialLot?.id) return;
@@ -452,7 +495,18 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
                   {walletSummary.loading ? (
                     <p className="guest-lot-drawer__wallet-summary-state">Loading wallet...</p>
                   ) : walletSummary.availableBalance == null ? (
-                    <p className="guest-lot-drawer__wallet-summary-state">Wallet info unavailable.</p>
+                    <div className="guest-lot-drawer__wallet-unavailable">
+                      <p className="guest-lot-drawer__wallet-summary-state">
+                        Wallet info unavailable.
+                      </p>
+                      <button
+                        type="button"
+                        className="guest-lot-drawer__wallet-retry"
+                        onClick={() => loadWalletSummary()}
+                      >
+                        Retry
+                      </button>
+                    </div>
                   ) : (
                     <div className="guest-lot-drawer__wallet-top-grid">
                       <div className="guest-lot-drawer__wallet-top-item">
@@ -675,6 +729,18 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
           )}
         </div>
       </aside>
+      <InsufficientBalanceBidModal
+        open={insufficientBalanceModalKind != null}
+        variant={
+          insufficientBalanceModalKind === 'wallet_unavailable'
+            ? 'wallet_unavailable'
+            : 'insufficient'
+        }
+        onClose={() => setInsufficientBalanceModalKind(null)}
+        walletSummary={walletSummary}
+        formatWalletCurrency={formatWalletCurrency}
+        onAddBalance={handleInsufficientModalAddBalance}
+      />
     </>
   );
 };

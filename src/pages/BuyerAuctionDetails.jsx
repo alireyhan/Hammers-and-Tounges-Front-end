@@ -13,6 +13,7 @@ import { profileService } from "../services/interceptors/profile.service";
 import { useAuctionWebSocket } from "../hooks/useAuctionWebSocket";
 import { useBuyerLotAutoBid } from "../hooks/useBuyerLotAutoBid";
 import { getMediaUrl } from "../config/api.config";
+import InsufficientBalanceBidModal from "../components/InsufficientBalanceBidModal";
 import "./BuyerAuctionDetails.css";
 import { toast } from "react-toastify";
 
@@ -369,6 +370,9 @@ const BuyerAuctionDetails = () => {
     lockedBalance: null,
     loading: true
   });
+  /** null | 'low_balance' | 'wallet_unavailable' */
+  const [insufficientBalanceModalKind, setInsufficientBalanceModalKind] =
+    useState(null);
 
   // Use same categories API as Buy & Sell (GET /auctions/categories/) - not the detail endpoint which returns 403
   useEffect(() => {
@@ -605,6 +609,21 @@ const BuyerAuctionDetails = () => {
   const handlePlaceBid = useCallback(() => {
     const amount = effectiveBidAmount;
     if (!auction || amount == null || isPlacingBid) return;
+
+    const availableBalance = Number(walletSummary.availableBalance ?? 0);
+    if (
+      !walletSummary.loading &&
+      walletSummary.availableBalance != null &&
+      availableBalance < amount
+    ) {
+      setInsufficientBalanceModalKind("low_balance");
+      return;
+    }
+    if (!walletSummary.loading && walletSummary.availableBalance == null) {
+      setInsufficientBalanceModalKind("wallet_unavailable");
+      return;
+    }
+
     dispatch(
       placeBid({
         lot_id: auction.id,
@@ -625,8 +644,15 @@ const BuyerAuctionDetails = () => {
     dispatch,
     id,
     loadWalletSummary,
-    refreshAutoBidForLot
+    refreshAutoBidForLot,
+    walletSummary.availableBalance,
+    walletSummary.loading
   ]);
+
+  const handleInsufficientModalAddBalance = useCallback(() => {
+    setInsufficientBalanceModalKind(null);
+    navigate("/buyer/add-balance");
+  }, [navigate]);
 
   const handleQuickBidAdd = useCallback(
     (addAmount) => {
@@ -683,6 +709,7 @@ const BuyerAuctionDetails = () => {
 
   // Render based on auction status
   return (
+    <>
     <div
       className={`buyer-details-page ${
         isLive ? "buyer-details-live-page" : ""
@@ -1107,6 +1134,19 @@ const BuyerAuctionDetails = () => {
         </div>
       </div>
     </div>
+    <InsufficientBalanceBidModal
+      open={insufficientBalanceModalKind != null}
+      variant={
+        insufficientBalanceModalKind === "wallet_unavailable"
+          ? "wallet_unavailable"
+          : "insufficient"
+      }
+      onClose={() => setInsufficientBalanceModalKind(null)}
+      walletSummary={walletSummary}
+      formatWalletCurrency={formatWalletCurrency}
+      onAddBalance={handleInsufficientModalAddBalance}
+    />
+    </>
   );
 };
 

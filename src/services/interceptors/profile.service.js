@@ -37,6 +37,28 @@ function normalizeProfileResponse(raw) {
   return raw;
 }
 
+/** Unwrap nested wallet shapes from the API (same as mobile buyerService.getWallet). */
+function normalizeWalletPayload(raw) {
+  if (raw == null || typeof raw !== "object") return null;
+  const hasBalances =
+    raw.available_balance != null ||
+    raw.availableBalance != null ||
+    raw.bidding_power != null ||
+    raw.biddingPower != null ||
+    raw.locked_balance != null ||
+    raw.lockedBalance != null;
+  if (hasBalances) return raw;
+  if (raw.wallet && typeof raw.wallet === "object") {
+    const inner = normalizeWalletPayload(raw.wallet);
+    if (inner) return inner;
+  }
+  if (raw.data && typeof raw.data === "object") {
+    const inner = normalizeWalletPayload(raw.data);
+    if (inner) return inner;
+  }
+  return raw;
+}
+
 function appendFormData(formData, data, parentKey = null) {
   Object.keys(data).forEach(key => {
     const value = data[key];
@@ -98,7 +120,7 @@ export const profileService = {
 
   getWallet: async () => {
     const { data } = await apiClient.get(API_ROUTES.WALLET);
-    return data;
+    return normalizeWalletPayload(data) ?? data;
   },
 
   /** GET /payments/history/ — list shape may be array, { results }, { data }, etc. */
