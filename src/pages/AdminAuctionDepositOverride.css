@@ -1,0 +1,198 @@
+.ado-page {
+  padding: 1.5rem;
+  color: var(--color-text);
+}
+
+.ado-header {
+  margin-bottom: 1rem;
+}
+
+.ado-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.65rem;
+  font-weight: 700;
+}
+
+.ado-subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.ado-default-note {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.ado-toolbar {
+  margin-bottom: 1rem;
+}
+
+.ado-search--full {
+  margin: 0;
+  width: 100%;
+  max-width: 420px;
+}
+
+.ado-event-cell-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.ado-event-cell-meta {
+  margin-top: 0.2rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.ado-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.ado-events-pane,
+.ado-lots-pane {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: 12px;
+  min-height: 60vh;
+}
+
+.ado-pane-head {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ado-pane-head h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.ado-search {
+  margin: 0.8rem;
+  width: calc(100% - 1.6rem);
+  min-height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  padding: 0 0.75rem;
+}
+
+.ado-search:focus,
+.ado-input:focus {
+  outline: none;
+  border-color: #8cc63f;
+}
+
+.ado-state {
+  padding: 1rem;
+  color: var(--color-text-muted);
+}
+
+.ado-events-list {
+  padding: 0.25rem 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ado-event-item {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ado-event-item.active {
+  border-color: #8cc63f;
+  box-shadow: 0 0 0 1px rgba(140, 198, 63, 0.25) inset;
+}
+
+.ado-event-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.ado-event-meta {
+  margin-top: 0.2rem;
+  display: flex;
+  gap: 0.65rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.ado-table-wrap {
+  overflow: auto;
+}
+
+.ado-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.ado-table th,
+.ado-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ado-table th {
+  color: var(--color-text-muted);
+  text-align: left;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ado-lot-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ado-lot-meta {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.ado-input {
+  width: 170px;
+  min-height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  padding: 0 0.65rem;
+}
+
+.ado-save-btn {
+  min-width: 92px;
+  min-height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: #8cc63f;
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ado-save-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1024px) {
+  .ado-layout {
+    grid-template-columns: 1fr;
+  }
+  .ado-events-pane,
+  .ado-lots-pane {
+    min-height: auto;
+  }
+}
