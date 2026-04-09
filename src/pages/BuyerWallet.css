@@ -357,5 +357,71 @@
   }
 }
 
+/* Theme-safe overrides (wallet was dark-hardcoded) */
+.wallet-page {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.breadcrumbs {
+  color: var(--color-text-muted);
+}
+
+.breadcrumbs a {
+  color: var(--color-text-secondary);
+}
+
+.breadcrumbs span {
+  color: var(--color-text-muted);
+}
+
+.page-title,
+.transactions-title,
+.transaction-description {
+  color: var(--color-text);
+}
+
+.balance-card,
+.transactions-card {
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+}
+
+.balance-label,
+.reserved-header span,
+.reserved-description,
+.transaction-date {
+  color: var(--color-text-muted);
+}
+
+.available-balance-card {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 193, 7, 0.05) 100%);
+  border-color: rgba(255, 215, 0, 0.24);
+}
+
+.reserved-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-color: rgba(59, 130, 246, 0.24);
+}
+
+.transaction-item {
+  background-color: var(--color-surface-elevated);
+  border-color: var(--color-border);
+}
+
+.transaction-item:hover {
+  background-color: var(--color-card-bg);
+  border-color: var(--color-border-strong);
+}
+
+/* Ensure Wallet heading remains readable in both themes */
+html[data-theme="light"] .wallet-page .page-title {
+  color: #111111 !important;
+}
+
+html[data-theme="dark"] .wallet-page .page-title {
+  color: #ffffff !important;
+}
+
 
 

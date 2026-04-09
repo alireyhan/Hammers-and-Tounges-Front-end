@@ -7,7 +7,7 @@ import { fetchUserPermissions } from "../../store/actions/permissionsActions";
 import "./AdminRoleManagement.css";
 
 /** Read is always true (not shown as a toggle). */
-const TOGGLE_PERMISSION_KEYS = ["create", "update", "delete"];
+const DEFAULT_TOGGLE_PERMISSION_KEYS = ["create", "update", "delete"];
 
 const makeDefaultFeaturePermissions = () => ({
   read: true,
@@ -21,6 +21,14 @@ const withReadAlwaysTrue = (perms) => ({
   read: true
 });
 
+const normalizeFeaturePermissions = (featureKey, src) => ({
+  // GRV read must remain true even if backend returns false.
+  read: featureKey === "manage_grv" ? true : true,
+  create: !!src.create,
+  update: !!src.update,
+  delete: !!src.delete
+});
+
 const makeReadOnlyFeaturePermissions = () => ({
   read: true,
   create: false,
@@ -31,7 +39,17 @@ const makeReadOnlyFeaturePermissions = () => ({
 const FEATURE_LABELS = {
   manage_users: "User management",
   manage_events: "Event management",
-  manage_categories: "Category management"
+  manage_categories: "Category management",
+  manage_grv: "GRV management",
+  deposit_exempt: "Deposit exempt"
+};
+
+const FEATURE_PERMISSION_KEYS = {
+  manage_users: DEFAULT_TOGGLE_PERMISSION_KEYS,
+  manage_events: DEFAULT_TOGGLE_PERMISSION_KEYS,
+  manage_categories: DEFAULT_TOGGLE_PERMISSION_KEYS,
+  manage_grv: DEFAULT_TOGGLE_PERMISSION_KEYS,
+  deposit_exempt: ["create"]
 };
 
 const PERMISSION_DESCRIPTIONS = {
@@ -72,8 +90,14 @@ const AdminRoleManagement = () => {
   const [featurePermissions, setFeaturePermissions] = useState({});
 
   const featuresToShow = useMemo(() => {
-    if (roleType === "clerk") return ["manage_events"];
-    return ["manage_users", "manage_events", "manage_categories"];
+    if (roleType === "clerk") return ["manage_events", "manage_grv", "deposit_exempt"];
+    return [
+      "manage_users",
+      "manage_events",
+      "manage_categories",
+      "manage_grv",
+      "deposit_exempt"
+    ];
   }, [roleType]);
 
   useEffect(() => {
@@ -87,19 +111,16 @@ const AdminRoleManagement = () => {
         const normalized = {};
         for (const featureKey of Object.keys(incoming)) {
           const src = incoming?.[featureKey] || {};
-          normalized[featureKey] = {
-            read: true,
-            create: !!src.create,
-            update: !!src.update,
-            delete: !!src.delete
-          };
+          normalized[featureKey] = normalizeFeaturePermissions(featureKey, src);
         }
 
         // Ensure expected keys exist (important for UI toggles).
         for (const featureKey of [
           "manage_users",
           "manage_events",
-          "manage_categories"
+          "manage_categories",
+          "manage_grv",
+          "deposit_exempt"
         ]) {
           if (!normalized[featureKey])
             normalized[featureKey] = makeDefaultFeaturePermissions();
@@ -110,6 +131,10 @@ const AdminRoleManagement = () => {
             };
           }
         }
+
+        // Product rule: GRV read is always true in admin flow,
+        // regardless of what backend returns.
+        normalized.manage_grv = withReadAlwaysTrue(normalized.manage_grv);
 
         setFeaturePermissions(normalized);
       } catch (err) {
@@ -164,7 +189,14 @@ const AdminRoleManagement = () => {
                 ),
                 // Keep users/categories read-only for clerk users.
                 manage_users: makeReadOnlyFeaturePermissions(),
-                manage_categories: makeReadOnlyFeaturePermissions()
+                manage_categories: makeReadOnlyFeaturePermissions(),
+                manage_grv: {
+                  ...withReadAlwaysTrue(featurePermissions.manage_grv),
+                  read: true
+                },
+                deposit_exempt: withReadAlwaysTrue(
+                  featurePermissions.deposit_exempt
+                )
               }
             }
           : {
@@ -177,6 +209,13 @@ const AdminRoleManagement = () => {
                 ),
                 manage_categories: withReadAlwaysTrue(
                   featurePermissions.manage_categories
+                ),
+                manage_grv: {
+                  ...withReadAlwaysTrue(featurePermissions.manage_grv),
+                  read: true
+                },
+                deposit_exempt: withReadAlwaysTrue(
+                  featurePermissions.deposit_exempt
                 )
               }
             };
@@ -257,7 +296,9 @@ const AdminRoleManagement = () => {
                   {FEATURE_LABELS[featureKey] || featureKey}
                 </div>
                 <div className="rm-permission-list">
-                  {TOGGLE_PERMISSION_KEYS.map((permissionKey) => (
+                  {(FEATURE_PERMISSION_KEYS[featureKey] ||
+                    DEFAULT_TOGGLE_PERMISSION_KEYS
+                  ).map((permissionKey) => (
                     <div key={permissionKey} className="rm-permission-row">
                       <div className="rm-permission-meta">
                         <div className="rm-permission-name">

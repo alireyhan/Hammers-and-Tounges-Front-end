@@ -258,6 +258,7 @@ function App() {
                     <ManagerProductFields />
                   </>
                 } />
+                <Route path="/manager/unsold-inventory" element={<AdminUnsoldInventory />} />
                 <Route path="/manager/role-management/:id" element={
                   <>
                     <AdminRoleManagement />

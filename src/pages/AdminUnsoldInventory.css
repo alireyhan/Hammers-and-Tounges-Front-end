@@ -47,6 +47,89 @@
   margin-bottom: 2rem;
 }
 
+.unsold-inventory-chart-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.unsold-inventory-chart {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.unsold-inventory-chart-svg {
+  width: 100%;
+  min-width: 0;
+  display: block;
+}
+
+.unsold-inventory-axis {
+  stroke: var(--color-text-muted);
+  stroke-opacity: 0.55;
+  stroke-width: 1.2;
+}
+
+.unsold-inventory-grid-line {
+  stroke: var(--color-border);
+  stroke-opacity: 0.75;
+  stroke-width: 1;
+}
+
+.unsold-inventory-line {
+  stroke: #8cc63f;
+  stroke-width: 2.5;
+}
+
+.unsold-inventory-point {
+  fill: #8cc63f;
+}
+
+.unsold-inventory-tick-label,
+.unsold-inventory-x-label {
+  font-size: 10px;
+  fill: var(--color-text-muted);
+}
+
+.unsold-inventory-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 0.875rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  border-radius: 12px;
+}
+
+.unsold-inventory-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.unsold-inventory-filter-item span {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.unsold-inventory-filter-item select {
+  border: 1px solid var(--color-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border-radius: 8px;
+  min-height: 38px;
+  padding: 0 0.75rem;
+  outline: none;
+}
+
+.unsold-inventory-filter-item select:focus {
+  border-color: #8cc63f;
+}
+
 .unsold-inventory-age-grid {
   display: flex;
   flex-direction: column;
@@ -98,10 +181,28 @@
   transition: width 0.35s ease;
 }
 
+.unsold-inventory-age-bar-fill-count {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.35), #60a5fa);
+}
+
 .unsold-inventory-tables {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+.unsold-inventory-lots-scroll {
+  max-height: 540px;
+  overflow: auto;
+}
+
+.unsold-inventory-lots-table {
+  min-width: 1400px;
+}
+
+.unsold-inventory-lots-table th,
+.unsold-inventory-lots-table td {
+  white-space: nowrap;
 }
 
 .unsold-inventory-table th:first-child,
@@ -122,7 +223,15 @@
 }
 
 @media (max-width: 768px) {
+  .unsold-inventory-chart-row {
+    grid-template-columns: 1fr;
+  }
+
   .unsold-inventory-header {
     align-items: flex-start;
+  }
+
+  .unsold-inventory-filters {
+    grid-template-columns: 1fr;
   }
 }
