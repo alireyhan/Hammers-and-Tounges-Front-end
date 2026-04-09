@@ -19,6 +19,7 @@ const ManagerSideDrawer = ({ isOpen, onClose }) => {
   const authUserId = useSelector((state) => state.auth?.user?.id)
   const manageUsers = features?.manage_users || {}
   const manageCategories = features?.manage_categories || {}
+  const depositExemptPerm = features?.deposit_exempt || {}
 
   // Show tabs only when the user can read AND has at least one write permission.
   const canShowManageUsersTab =
@@ -38,6 +39,13 @@ const ManagerSideDrawer = ({ isOpen, onClose }) => {
     (manageCategories?.create === true ||
       manageCategories?.update === true ||
       manageCategories?.delete === true)
+
+  // Deposit Exemption feature has create toggle only in role management.
+  const canShowDepositExemptionTab =
+    !permissionsLoading &&
+    lastFetchedUserId != null &&
+    String(lastFetchedUserId) === String(authUserId) &&
+    depositExemptPerm?.create === true
 
   // Buy/Sell tabs commented out
   // const [buyExpanded, setBuyExpanded] = useState(false)
@@ -67,6 +75,7 @@ const ManagerSideDrawer = ({ isOpen, onClose }) => {
     { path: '/manager/users', label: 'User Management', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a3.5 3.5 0 01-5.5 2.696' },
     { path: '/manager/category', label: 'Category Management', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
     { path: '/manager/unsold-inventory', label: 'Unsold Inventory', icon: 'M3 3h18v18H3V3zm4 12h10M7 7h10m-10 4h6' },
+    { path: '/manager/deposit-exemption', label: 'Deposit Exemption', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6' },
     // { path: '/manager/buy', label: 'Buy', icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' },
     // { path: '/manager/sell', label: 'Sell', icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z' },
     { path: '/manager/live-auctions', label: 'Completed Auctions', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
@@ -165,6 +174,38 @@ const ManagerSideDrawer = ({ isOpen, onClose }) => {
               }
 
               if (!canShowManageCategoriesTab) return null;
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`manager-side-drawer__link ${isActive(item.path) ? 'active' : ''}`}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {item.label}
+                </Link>
+              );
+            }
+
+            if (item.path === '/manager/deposit-exemption') {
+              if (permissionsLoading || !features) {
+                return (
+                  <div
+                    key={item.path}
+                    className="manager-side-drawer__link"
+                    style={{ opacity: 0.65, pointerEvents: 'none' }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {item.label}
+                  </div>
+                );
+              }
+
+              if (!canShowDepositExemptionTab) return null;
 
               return (
                 <Link
