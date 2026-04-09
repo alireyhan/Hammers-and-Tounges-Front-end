@@ -38,7 +38,7 @@ const makeReadOnlyFeaturePermissions = () => ({
 
 const FEATURE_LABELS = {
   manage_users: "User management",
-  manage_events: "Event management",
+  manage_events: "Event management + Auction Control",
   manage_categories: "Category management",
   manage_grv: "GRV management",
   deposit_exempt: "Deposit exempt"
@@ -90,7 +90,8 @@ const AdminRoleManagement = () => {
   const [featurePermissions, setFeaturePermissions] = useState({});
 
   const featuresToShow = useMemo(() => {
-    if (roleType === "clerk") return ["manage_events", "manage_grv", "deposit_exempt"];
+    if (roleType === "clerk")
+      return ["manage_events", "manage_grv", "deposit_exempt"];
     return [
       "manage_users",
       "manage_events",
@@ -296,7 +297,8 @@ const AdminRoleManagement = () => {
                   {FEATURE_LABELS[featureKey] || featureKey}
                 </div>
                 <div className="rm-permission-list">
-                  {(FEATURE_PERMISSION_KEYS[featureKey] ||
+                  {(
+                    FEATURE_PERMISSION_KEYS[featureKey] ||
                     DEFAULT_TOGGLE_PERMISSION_KEYS
                   ).map((permissionKey) => (
                     <div key={permissionKey} className="rm-permission-row">
