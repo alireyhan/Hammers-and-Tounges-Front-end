@@ -23,6 +23,12 @@ const parseDate = (value) => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
+const formatListingStatusLabel = (raw) => {
+  const u = String(raw || '').toUpperCase();
+  if (!u) return '—';
+  return u.charAt(0) + u.slice(1).toLowerCase();
+};
+
 const LotRow = ({
   lot,
   eventStartTime,
@@ -33,7 +39,9 @@ const LotRow = ({
   showFavorite = false,
   isFavorite = false,
   onFavoriteToggle,
-  statusOnly = false
+  statusOnly = false,
+  /** When true, right column shows lot listing status (e.g. Draft) instead of event timer / Live–Closed. */
+  showListingStatus = false,
 }) => {
   const dispatch = useDispatch();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -60,7 +68,13 @@ const LotRow = ({
   const currentBid = lot.current_price ?? lot.highest_bid ?? lot.initial_price;
   const currency = lot.currency || 'USD';
 
+  const listingStatusRaw = String(lot?.status || lot?.listing_status || '').toUpperCase();
+
   const timeLeftDisplay = (() => {
+    if (showListingStatus) {
+      return formatListingStatusLabel(listingStatusRaw);
+    }
+
     if (statusOnly) {
       return isEventLive ? 'Live' : 'Closed';
     }
@@ -79,7 +93,11 @@ const LotRow = ({
     return 'Scheduled';
   })();
 
-  const isClosed = timeLeftDisplay === 'Closed' || timeLeftDisplay === 'Ended';
+  const isClosed = showListingStatus
+    ? ['CLOSED', 'COMPLETED', 'REJECTED', 'ENDED'].includes(listingStatusRaw)
+    : timeLeftDisplay === 'Closed' || timeLeftDisplay === 'Ended';
+
+  const isDraftListing = showListingStatus && listingStatusRaw === 'DRAFT';
 
   const handleFavoriteClick = useCallback(
     async (e) => {
@@ -160,8 +178,14 @@ const LotRow = ({
           </button>
         )}
         <div className="lot-row__time">
-          {!statusOnly && <span className="lot-row__time-label">{timeLabel}</span>}
-          <span className={`lot-row__time-value ${isClosed ? 'ended' : ''}`}>{timeLeftDisplay}</span>
+          {(showListingStatus || !statusOnly) && (
+            <span className="lot-row__time-label">{showListingStatus ? 'Lot status' : timeLabel}</span>
+          )}
+          <span
+            className={`lot-row__time-value ${isClosed ? 'ended' : ''} ${isDraftListing ? 'lot-row__time-value--draft' : ''}`}
+          >
+            {timeLeftDisplay}
+          </span>
         </div>
       </div>
     </article>

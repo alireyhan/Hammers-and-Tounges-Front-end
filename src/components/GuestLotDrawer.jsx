@@ -21,6 +21,35 @@ const formatPrice = (price) => {
 const formatSpecificKey = (key) =>
   String(key).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
+/** Shown when activate fails (e.g. backend 500) because GRV is not satisfied. */
+const ACTIVATE_REQUIRES_GRV_TOAST =
+  'Lot cannot be activated. Please complete GRV first.';
+
+const normalizeApiDetail = (data) => {
+  const d = data?.detail;
+  if (typeof d === 'string') return d;
+  if (Array.isArray(d)) {
+    return d
+      .map((item) => (typeof item === 'string' ? item : item?.msg || String(item)))
+      .filter(Boolean)
+      .join(' ');
+  }
+  return '';
+};
+
+const shouldTreatActivateErrorAsGrv = (status, err) => {
+  if (status === 500) return true;
+  const blob = [
+    normalizeApiDetail(err?.response?.data),
+    err?.response?.data?.message,
+    err?.message,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return /grv|goods received|verification required|checklist|sign.?off|must .*verif/i.test(blob);
+};
+
 const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, eventStatus, onClose, isBuyer = false, isAdmin = false, isManager = false, isClerk = false, event, onLotUpdated }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -398,7 +427,18 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
       onClose?.();
       onLotUpdated?.();
     } catch (err) {
-      toast.error(err?.message || err?.response?.data?.detail || 'Failed to set lot active');
+      const status = err?.response?.status;
+      if (shouldTreatActivateErrorAsGrv(status, err)) {
+        toast.error(ACTIVATE_REQUIRES_GRV_TOAST);
+      } else {
+        const detail = normalizeApiDetail(err?.response?.data);
+        const msg =
+          detail ||
+          (typeof err?.response?.data?.message === 'string' ? err.response.data.message : '') ||
+          err?.message ||
+          'Failed to set lot active';
+        toast.error(typeof msg === 'string' ? msg : 'Failed to set lot active');
+      }
     } finally {
       setActivating(false);
     }

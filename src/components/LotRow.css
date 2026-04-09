@@ -156,6 +156,10 @@
   color: var(--color-text-muted);
 }
 
+.lot-row__time-value--draft {
+  color: #f59e0b;
+}
+
 @media (max-width: 768px) {
   .lot-row {
     flex-wrap: wrap;

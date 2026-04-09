@@ -1,0 +1,114 @@
+.grv-panel {
+  margin: 1.25rem 1.25rem 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  background: var(--color-surface-elevated);
+}
+
+.grv-panel__badge {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: rgba(140, 198, 63, 0.12);
+  border: 1px solid rgba(140, 198, 63, 0.35);
+  color: var(--color-text-secondary);
+}
+
+.grv-panel__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.grv-panel__meta strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.grv-panel__check {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.grv-panel__check input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: #8cc63f;
+}
+
+.grv-panel__notes-label {
+  display: block;
+  margin: 1rem 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.grv-panel__notes {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 88px;
+}
+
+.grv-panel__notes:focus {
+  outline: none;
+  border-color: rgba(140, 198, 63, 0.5);
+}
+
+.grv-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.grv-panel__btn {
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+}
+
+.grv-panel__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.grv-panel__btn--primary {
+  background: #8cc63f;
+  color: #111;
+}
+
+.grv-panel__btn--primary:hover:not(:disabled) {
+  background: #7ab32e;
+}
+
+.grv-panel__btn--danger {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+.grv-panel__btn--danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+}

@@ -31,6 +31,28 @@ export const auctionService = {
       throw error;
     }
   },
+  /** Every page of lots (for admin GRV and similar). */
+  fetchAllLots: async (extraParams = {}) => {
+    try {
+      let results = [];
+      let nextPage = 1;
+      let hasMore = true;
+      while (hasMore) {
+        const { data } = await apiClient.get(API_ROUTES.AUCTIONS_LOTS, {
+          params: { page_size: 100, ...extraParams, page: nextPage },
+        });
+        results = [...results, ...(data?.results || [])];
+        hasMore = !!data?.next;
+        nextPage += 1;
+      }
+      return results;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
   // Get all auction events (single page — see fetchAllEvents for full list)
   getEvents: async (params) => {
     try {

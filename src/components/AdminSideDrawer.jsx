@@ -24,6 +24,7 @@ const AdminSideDrawer = ({ isOpen, onClose }) => {
     { path: '/admin/unsold-inventory', label: 'Unsold Inventory', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
     { path: '/admin/auction-deposit-override', label: 'Auction Control: Deposit Multiplier Override', icon: 'M3 3h18v18H3V3zm4 13h3v-3H7v3zm7 0h3V8h-3v8zm-3 0h2V5h-2v11z' },
     { path: '/admin/deposit-exemption', label: 'Deposit Exemption', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6' },
+    { path: '/admin/goods-received-verification', label: 'Goods Received Verification', icon: 'M9 12l2 2 4-4m5 2a9 9 0 11-18 0 9 9 0 0118 0z' },
     { path: '/admin/finance', label: 'Finance', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
   ]
 
