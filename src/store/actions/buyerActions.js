@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { buyerService } from '../../services/interceptors/buyer.service';
 import { toast } from 'react-toastify';
+import { messageFromBuyerPlaceBidError } from '../../utils/apiErrorMessage';
 
 // Async Thunks
 export const browseAuctions = createAsyncThunk(
@@ -31,15 +32,7 @@ export const placeBid = createAsyncThunk(
       return response;
     } catch (error) {
       const res = error.response?.data;
-      const message =
-        (typeof res?.detail === 'string' ? res.detail : null) ||
-        res?.message ||
-        res?.error ||
-        (Array.isArray(res?.non_field_errors) ? res.non_field_errors.join('. ') : null) ||
-        (res?.amount && Array.isArray(res.amount) ? res.amount.join('. ') : null) ||
-        (res?.lot_id && Array.isArray(res.lot_id) ? res.lot_id.join('. ') : null) ||
-        (typeof res === 'object' ? JSON.stringify(res) : null) ||
-        'Failed to place bid';
+      const message = messageFromBuyerPlaceBidError(res);
       toast.error(message);
       return rejectWithValue(error.response?.data || { message });
     }

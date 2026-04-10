@@ -11,6 +11,7 @@ import { placeBid } from '../store/actions/buyerActions';
 import { fetchCategories } from '../store/actions/AuctionsActions';
 import { toast } from 'react-toastify';
 import InsufficientBalanceBidModal from './InsufficientBalanceBidModal';
+import { flattenApiDetail, humanizeErrorDetailString } from '../utils/apiErrorMessage';
 import './GuestLotDrawer.css';
 
 const formatPrice = (price) => {
@@ -25,23 +26,13 @@ const formatSpecificKey = (key) =>
 const ACTIVATE_REQUIRES_GRV_TOAST =
   'Lot cannot be activated. Please complete GRV first.';
 
-const normalizeApiDetail = (data) => {
-  const d = data?.detail;
-  if (typeof d === 'string') return d;
-  if (Array.isArray(d)) {
-    return d
-      .map((item) => (typeof item === 'string' ? item : item?.msg || String(item)))
-      .filter(Boolean)
-      .join(' ');
-  }
-  return '';
-};
+const normalizeApiDetail = (data) => flattenApiDetail(data?.detail);
 
 const shouldTreatActivateErrorAsGrv = (status, err) => {
   if (status === 500) return true;
   const blob = [
     normalizeApiDetail(err?.response?.data),
-    err?.response?.data?.message,
+    humanizeErrorDetailString(err?.response?.data?.message || ''),
     err?.message,
   ]
     .filter(Boolean)
