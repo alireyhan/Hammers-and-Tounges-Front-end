@@ -128,15 +128,21 @@ function AdminHeader() {
           </Link>
 
           <nav className="admin-header__nav">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`admin-header__nav-link ${location.pathname === item.path ? 'active' : ''}`}
-              >
-                {item.desktopLabel}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const financeActive =
+                item.path === '/admin/finance' && location.pathname.startsWith('/admin/finance')
+              const exactActive = location.pathname === item.path
+              const isActive = financeActive || (item.path !== '/admin/finance' && exactActive)
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`admin-header__nav-link ${isActive ? 'active' : ''}`}
+                >
+                  {item.desktopLabel}
+                </Link>
+              )
+            })}
           </nav>
 
           <div className="admin-header__right">

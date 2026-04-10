@@ -2,6 +2,14 @@
 import apiClient from '../api.service';
 import { API_ROUTES } from '../../config/api.config';
 
+function listManualDepositsPayload(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw.results)) return raw.results;
+  if (Array.isArray(raw.data)) return raw.data;
+  return [];
+}
+
 /**
  * Normalize profile API response - handles different backend response structures.
  * Backend may return: { first_name, ... } | { data: { ... } } | { user: {...}, profile: {...} }
@@ -129,6 +137,38 @@ export const profileService = {
       cell_number: String(cell_number),
     };
     const { data } = await apiClient.post(API_ROUTES.DEPOSIT, payload);
+    return data;
+  },
+
+  /** GET /payments/manual-deposit/ — manual bank transfer requests */
+  getManualDeposits: async () => {
+    const { data } = await apiClient.get(API_ROUTES.MANUAL_DEPOSIT, { skipDedupe: true });
+    return listManualDepositsPayload(data);
+  },
+
+  /**
+   * POST /payments/manual-deposit/ — multipart.
+   * New request: amount + proof_of_payment only.
+   * Resubmit: also send deposit_id (prior manual deposit id) and optionally reference_number.
+   */
+  submitManualDeposit: async ({ amount, proofFile, reference_number, deposit_id }) => {
+    const formData = new FormData();
+    formData.append("amount", String(amount));
+    formData.append("proof_of_payment", proofFile);
+    const isResubmit = deposit_id != null && String(deposit_id).trim() !== "";
+    if (isResubmit) {
+      formData.append("deposit_id", String(deposit_id).trim());
+      if (reference_number != null && String(reference_number).trim() !== "") {
+        formData.append("reference_number", String(reference_number).trim());
+      }
+    }
+    const { data } = await apiClient.post(API_ROUTES.MANUAL_DEPOSIT, formData);
+    return data;
+  },
+
+  /** DELETE /payments/manual-deposits/{id}/ — allowed when status is PENDING */
+  deleteManualDeposit: async (id) => {
+    const { data } = await apiClient.delete(API_ROUTES.MANUAL_DEPOSIT_ITEM(id));
     return data;
   },
 };

@@ -69,6 +69,7 @@ import AdminAuctionDetails from "./pages/adminDashboard/AdminAuctionDetails";
 import AdminProfile from "./pages/adminProfile/AdminProfile";
 import AdminSell from "./pages/AdminSell";
 import AdminFinance from './pages/AdminFinance'
+import ManualDepositDetail from './pages/ManualDepositDetail'
 import AdminUnsoldInventory from './pages/AdminUnsoldInventory'
 import AdminDepositExemption from './pages/AdminDepositExemption'
 import AdminAuctionDepositOverride from './pages/AdminAuctionDepositOverride'
@@ -265,6 +266,8 @@ function App() {
                 <Route path="/manager/deposit-exemption" element={<AdminDepositExemption />} />
                 <Route path="/manager/auction-deposit-override" element={<AdminAuctionDepositOverride />} />
                 <Route path="/manager/goods-received-verification" element={<AdminGoodsReceivedVerification />} />
+                <Route path="/manager/finance/manual-deposits/:depositId" element={<ManualDepositDetail />} />
+                <Route path="/manager/finance" element={<AdminFinance />} />
                 <Route path="/manager/role-management/:id" element={
                   <>
                     <AdminRoleManagement />
@@ -329,6 +332,7 @@ function App() {
                 <Route path="/admin/deposit-exemption" element={<AdminDepositExemption />} />
                 <Route path="/admin/goods-received-verification" element={<AdminGoodsReceivedVerification />} />
                 <Route path="/admin/auction-deposit-override" element={<AdminAuctionDepositOverride />} />
+                <Route path="/admin/finance/manual-deposits/:depositId" element={<ManualDepositDetail />} />
                 <Route path="/admin/finance" element={<AdminFinance />} />
                 <Route path="/admin/finance/manual-payments" element={
                   <>

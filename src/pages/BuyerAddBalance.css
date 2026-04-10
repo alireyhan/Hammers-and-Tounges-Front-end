@@ -187,3 +187,392 @@
     width: 100%;
   }
 }
+
+/* Tabs */
+.buyer-add-balance-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.buyer-add-balance-tab {
+  border: 1px solid var(--color-card-border);
+  background: var(--color-surface-elevated);
+  color: var(--color-text-muted);
+  border-radius: 10px;
+  padding: 0.55rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.buyer-add-balance-tab:hover {
+  border-color: rgba(140, 198, 63, 0.45);
+  color: var(--color-text);
+}
+
+.buyer-add-balance-tab.is-active {
+  border-color: #8cc63f;
+  color: #9ed95b;
+  background: rgba(140, 198, 63, 0.1);
+}
+
+/* Manual payment list */
+.buyer-manual-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.buyer-manual-toolbar-title {
+  margin: 0;
+}
+
+.buyer-manual-new-btn {
+  white-space: nowrap;
+}
+
+.buyer-manual-muted {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.buyer-manual-list {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.buyer-manual-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-card-border);
+  border-radius: 12px;
+  background: var(--color-surface-elevated);
+}
+
+.buyer-manual-row-main {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.buyer-manual-thumb-wrap {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-card-border);
+  padding: 0;
+  cursor: pointer;
+  background: var(--color-input-bg);
+}
+
+.buyer-manual-thumb-wrap--doc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buyer-manual-doc-label {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 0.25rem;
+  line-height: 1.2;
+}
+
+.buyer-manual-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.buyer-manual-thumb-placeholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: var(--color-input-bg);
+  border: 1px dashed var(--color-card-border);
+  flex-shrink: 0;
+}
+
+.buyer-manual-row-text {
+  min-width: 0;
+}
+
+.buyer-manual-row-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.buyer-manual-amount {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.buyer-manual-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+}
+
+.buyer-manual-ref {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
+.buyer-manual-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+}
+
+.buyer-manual-status--pending {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fbbf24;
+}
+
+.buyer-manual-status--approved {
+  background: rgba(140, 198, 63, 0.18);
+  color: #9ed95b;
+}
+
+.buyer-manual-status--rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.buyer-manual-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.buyer-manual-row-btn {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.buyer-manual-row-btn--danger {
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+}
+
+.buyer-manual-row-btn--danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.buyer-manual-modal-delete {
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  margin-right: auto;
+}
+
+.buyer-manual-modal-delete:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Manual form */
+.buyer-manual-form {
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-card-border);
+  display: grid;
+  gap: 0.85rem;
+}
+
+.buyer-manual-form-title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.buyer-manual-form-hint {
+  margin: -0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.buyer-manual-form .buyer-add-balance-field input[type="file"] {
+  padding: 0.45rem 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.buyer-manual-proof-preview {
+  margin-top: 0.65rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.buyer-manual-proof-preview-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-input-bg);
+}
+
+.buyer-manual-proof-preview-caption {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.buyer-manual-proof-preview-doc {
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.buyer-manual-form-actions {
+  margin-top: 0.25rem;
+}
+
+/* Detail modal */
+/* Dims the page behind the dialog (intentional). */
+.buyer-manual-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Stacked above detail modal when opening resubmit from view (brief overlap) */
+.buyer-manual-modal-overlay--form {
+  z-index: 1210;
+}
+
+.buyer-manual-modal--form {
+  max-width: 440px;
+}
+
+.buyer-manual-form--in-modal {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/*
+ * Use an opaque surface — not --color-card-bg — because in dark theme card-bg is
+ * rgba(255,255,255,0.03) and the Add Balance page shows through (e.g. “Request new transfer”).
+ */
+.buyer-manual-modal {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  max-height: min(90vh, 640px);
+  overflow: auto;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-card-border);
+  border-radius: 16px;
+  padding: 1.25rem 1.25rem 1rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.buyer-manual-modal-close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.buyer-manual-modal-close:hover {
+  color: var(--color-text);
+}
+
+.buyer-manual-modal-title {
+  margin: 0 2rem 0.75rem 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.buyer-manual-modal-body {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.buyer-manual-modal-line {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.buyer-manual-modal-line strong {
+  color: var(--color-text);
+}
+
+.buyer-manual-modal-reject {
+  color: #f87171;
+}
+
+.buyer-manual-modal-proof {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.buyer-manual-modal-proof-link {
+  color: #9ed95b;
+  font-size: 0.85rem;
+}
+
+.buyer-manual-modal-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-input-bg);
+}
+
+.buyer-manual-modal-footer {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: center;
+}

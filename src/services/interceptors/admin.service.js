@@ -406,4 +406,37 @@ export const adminService = {
       throw error;
     }
   },
+
+  /** GET — manual deposit requests (Admin/Manager). Pass `{ status: 'PENDING' }` etc. */
+  getAdminManualDeposits: async (params = {}) => {
+    try {
+      const query = {};
+      if (params.status) query.status = params.status;
+      const { data } = await apiClient.get(API_ROUTES.ADMIN_MANUAL_DEPOSITS, {
+        params: query,
+      });
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
+  /** POST — approve or reject a manual deposit */
+  reviewAdminManualDeposit: async (id, body) => {
+    try {
+      const { data } = await apiClient.post(
+        API_ROUTES.ADMIN_MANUAL_DEPOSIT_REVIEW(id),
+        body
+      );
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
 };
