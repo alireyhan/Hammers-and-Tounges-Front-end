@@ -62,3 +62,16 @@ export function getAutoBidSaveErrorMessage(err, fallback = 'Could not save auto-
   }
   return fallback;
 }
+
+/**
+ * Message for failed stop auto-bid (no balance-specific 400 mapping).
+ */
+export function getAutoBidStopErrorMessage(err, fallback = 'Could not stop auto-bid') {
+  const fromApi = collectApiErrorStrings(err?.response?.data);
+  if (fromApi) return fromApi;
+  const axiosMsg = err?.message;
+  if (typeof axiosMsg === 'string' && axiosMsg && !GENERIC_AXIOS_STATUS.test(axiosMsg)) {
+    return axiosMsg;
+  }
+  return fallback;
+}
