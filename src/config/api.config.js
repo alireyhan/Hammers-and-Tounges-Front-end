@@ -143,7 +143,6 @@ export const API_ROUTES = {
   PROFILE_UPDATE: '/users/profile/',
   WALLET: '/users/wallet/',
   DEPOSIT: '/payments/deposit/',
-  PAYMENTS_HISTORY: '/payments/history/',
 
   // Admin Routes
   ADMIN_DASHBOARD: '/inspections/admin/dashboard/',

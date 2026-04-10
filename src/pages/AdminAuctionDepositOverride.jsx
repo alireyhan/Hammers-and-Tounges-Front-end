@@ -47,14 +47,8 @@ const getEventOverrideDisplay = (event) => {
   return formatOverrideForField(parsed);
 };
 
-const getLotAnchorName = (lot) => {
-  const t = String(lot?.title || lot?.name || lot?.lot_name || "").trim();
-  return t || "";
-};
-
 /**
  * Row: LIVE/SCHEDULED event that has at least one lot.
- * anchorLotTitle: any lot title — required by API when PATCHing deposit_multiplier_override.
  */
 const AdminAuctionDepositOverride = () => {
   const location = useLocation();
@@ -104,10 +98,6 @@ const AdminAuctionDepositOverride = () => {
         const firstPage = Array.isArray(lotsRes?.results) ? lotsRes.results : [];
         if (count === 0 && firstPage.length === 0) continue;
 
-        const anchorLotTitle =
-          firstPage.map(getLotAnchorName).find(Boolean) || "";
-        if (!anchorLotTitle) continue;
-
         let detail = ev;
         try {
           detail = await auctionService.getEvent(eventId);
@@ -120,7 +110,6 @@ const AdminAuctionDepositOverride = () => {
           title: detail?.title ?? ev?.title,
           status: detail?.status ?? ev?.status,
           event_code: detail?.event_code ?? ev?.event_code,
-          anchorLotTitle,
           lotCount: count || firstPage.length,
           deposit_multiplier_override: detail?.deposit_multiplier_override,
         });
@@ -163,11 +152,6 @@ const AdminAuctionDepositOverride = () => {
     }
     const eventId = row?.id;
     if (eventId == null) return;
-    const lotName = String(row?.anchorLotTitle || "").trim();
-    if (!lotName) {
-      toast.error("Could not resolve a lot name for this event.");
-      return;
-    }
 
     const raw = draftMap[eventId];
     const parsed = parseOverrideValue(raw);
@@ -178,8 +162,8 @@ const AdminAuctionDepositOverride = () => {
 
     setSavingMap((prev) => ({ ...prev, [eventId]: true }));
     try {
+      // Auction event PATCH for this screen: only override field (never send title).
       await auctionService.updateEvent(eventId, {
-        title: lotName,
         deposit_multiplier_override: parsed === "" ? null : parsed,
       });
       toast.success(`Updated deposit multiplier for ${row.title || `Event #${eventId}`}.`);

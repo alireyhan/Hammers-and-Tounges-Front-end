@@ -8,6 +8,7 @@ import "./BuyerWallet.css";
 function listFromPaymentsHistoryPayload(raw) {
   if (!raw) return [];
   if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw.transactions)) return raw.transactions;
   if (Array.isArray(raw.results)) return raw.results;
   if (Array.isArray(raw.data)) return raw.data;
   if (Array.isArray(raw.history)) return raw.history;
@@ -26,7 +27,21 @@ function pickPaymentRow(item, index) {
     item.total ??
     item.payment_amount ??
     item.paid_amount;
-  const status = (item.status ?? item.state ?? item.payment_status ?? "").toString();
+  const amtNum = amount != null && !Number.isNaN(Number(amount)) ? Number(amount) : null;
+  const tt = String(item.transaction_type ?? item.type ?? "").toUpperCase();
+  const isWithdrawal =
+    tt.includes("LOCK") ||
+    tt.includes("WITHDRAW") ||
+    tt.includes("DEBIT") ||
+    tt.includes("BID") ||
+    (amtNum != null && amtNum < 0);
+  const status = (
+    item.status ??
+    item.state ??
+    item.payment_status ??
+    item.transaction_type ??
+    ""
+  ).toString();
   const created =
     item.created_at ??
     item.created ??
@@ -34,6 +49,7 @@ function pickPaymentRow(item, index) {
     item.timestamp ??
     item.updated_at;
   const title =
+    item.transaction_type_display ??
     item.description ??
     item.type ??
     item.payment_type ??
@@ -43,7 +59,8 @@ function pickPaymentRow(item, index) {
   return {
     key: String(item.id ?? item.uuid ?? item.reference ?? `row-${index}`),
     title: String(title),
-    amount: amount != null && !Number.isNaN(Number(amount)) ? Number(amount) : null,
+    amount: amtNum != null ? Math.abs(amtNum) : null,
+    displayKind: isWithdrawal ? "withdrawal" : "deposit",
     status,
     created,
   };
@@ -112,12 +129,9 @@ const BuyerWallet = () => {
     setPaymentHistoryLoading(true);
     setPaymentHistoryError(null);
     try {
-      const [walletResp, historyRaw] = await Promise.all([
-        profileService.getWallet().catch(() => null),
-        profileService.getPaymentsHistory(),
-      ]);
+      const walletResp = await profileService.getWallet();
       setWallet(walletResp);
-      const rows = listFromPaymentsHistoryPayload(historyRaw)
+      const rows = listFromPaymentsHistoryPayload(walletResp)
         .map((item, i) => pickPaymentRow(item, i))
         .filter(Boolean);
       setPaymentHistory(rows);
@@ -128,7 +142,7 @@ const BuyerWallet = () => {
         err?.response?.data?.detail ||
           err?.response?.data?.message ||
           err?.message ||
-          "Could not load payment history."
+          "Could not load wallet."
       );
     } finally {
       setPaymentHistoryLoading(false);
@@ -378,7 +392,7 @@ const BuyerWallet = () => {
                   {!paymentHistoryLoading && !paymentHistoryError && paymentHistory.length > 0 && (
                     <div className="transactions-list">
                       {paymentHistory.map((row) => {
-                        const type = row.amount != null && row.amount >= 0 ? "deposit" : "withdrawal";
+                        const type = row.displayKind ?? (row.amount != null && row.amount >= 0 ? "deposit" : "withdrawal");
                         return (
                           <div key={row.key} className="transaction-item">
                             <div className="transaction-icon-wrapper">
