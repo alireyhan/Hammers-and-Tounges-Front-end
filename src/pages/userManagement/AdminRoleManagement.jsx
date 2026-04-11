@@ -36,12 +36,29 @@ const makeReadOnlyFeaturePermissions = () => ({
   delete: false
 });
 
+/** Clerks must not have GRV or deposit exemption; manager-only features. */
+const clerkDeniedFeaturePermissions = () => ({
+  read: false,
+  create: false,
+  update: false,
+  delete: false
+});
+
 const FEATURE_LABELS = {
   manage_users: "User management",
   manage_events: "Event management + Auction Control",
   manage_categories: "Category management",
   manage_grv: "GRV management",
   deposit_exempt: "Deposit exempt"
+};
+
+/** Clerks only work events here; do not imply auction-control scope in the heading. */
+const featureSectionTitle = (featureKey, roleType) => {
+  const rt = String(roleType || "").toLowerCase();
+  if (featureKey === "manage_events" && rt === "clerk") {
+    return "Event management";
+  }
+  return FEATURE_LABELS[featureKey] || featureKey;
 };
 
 const FEATURE_PERMISSION_KEYS = {
@@ -78,7 +95,8 @@ const AdminRoleManagement = () => {
   const dispatch = useDispatch();
   const authUserId = useSelector((state) => state.auth?.user?.id);
 
-  const roleType = location.state?.role || "manager"; // "manager" | "clerk"
+  // API may return "Clerk" / "Manager"; normalize so clerk never sees the manager feature set.
+  const roleType = String(location.state?.role ?? "manager").toLowerCase(); // "manager" | "clerk"
   const user = location.state?.user;
   const basePath = location.pathname.startsWith("/manager")
     ? "/manager"
@@ -90,8 +108,9 @@ const AdminRoleManagement = () => {
   const [featurePermissions, setFeaturePermissions] = useState({});
 
   const featuresToShow = useMemo(() => {
-    if (roleType === "clerk")
-      return ["manage_events", "manage_grv", "deposit_exempt"];
+    if (roleType === "clerk") {
+      return ["manage_events"];
+    }
     return [
       "manage_users",
       "manage_events",
@@ -108,34 +127,21 @@ const AdminRoleManagement = () => {
         const data = await adminService.getUserPermissions(targetUserId);
         const incoming = data?.feature_permissions || {};
 
-        // Normalize per feature; read is always true (not user-toggleable).
+        // Only load keys this role is allowed to edit in UI (avoid merging extra manager features for clerks).
         const normalized = {};
-        for (const featureKey of Object.keys(incoming)) {
+        for (const featureKey of featuresToShow) {
           const src = incoming?.[featureKey] || {};
-          normalized[featureKey] = normalizeFeaturePermissions(featureKey, src);
-        }
-
-        // Ensure expected keys exist (important for UI toggles).
-        for (const featureKey of [
-          "manage_users",
-          "manage_events",
-          "manage_categories",
-          "manage_grv",
-          "deposit_exempt"
-        ]) {
-          if (!normalized[featureKey])
-            normalized[featureKey] = makeDefaultFeaturePermissions();
-          else {
-            normalized[featureKey] = {
-              ...makeDefaultFeaturePermissions(),
-              ...normalized[featureKey]
-            };
-          }
+          normalized[featureKey] = {
+            ...makeDefaultFeaturePermissions(),
+            ...normalizeFeaturePermissions(featureKey, src)
+          };
         }
 
         // Product rule: GRV read is always true in admin flow,
         // regardless of what backend returns.
-        normalized.manage_grv = withReadAlwaysTrue(normalized.manage_grv);
+        if (normalized.manage_grv) {
+          normalized.manage_grv = withReadAlwaysTrue(normalized.manage_grv);
+        }
 
         setFeaturePermissions(normalized);
       } catch (err) {
@@ -151,7 +157,7 @@ const AdminRoleManagement = () => {
     };
 
     if (targetUserId != null) fetchPermissions();
-  }, [targetUserId]);
+  }, [targetUserId, featuresToShow]);
 
   const headerSubtitle = useMemo(() => {
     const name =
@@ -191,13 +197,9 @@ const AdminRoleManagement = () => {
                 // Keep users/categories read-only for clerk users.
                 manage_users: makeReadOnlyFeaturePermissions(),
                 manage_categories: makeReadOnlyFeaturePermissions(),
-                manage_grv: {
-                  ...withReadAlwaysTrue(featurePermissions.manage_grv),
-                  read: true
-                },
-                deposit_exempt: withReadAlwaysTrue(
-                  featurePermissions.deposit_exempt
-                )
+                // GRV and deposit exemption are manager-only (not configurable for clerks).
+                manage_grv: clerkDeniedFeaturePermissions(),
+                deposit_exempt: clerkDeniedFeaturePermissions()
               }
             }
           : {
@@ -294,7 +296,7 @@ const AdminRoleManagement = () => {
             return (
               <section key={featureKey} className="rm-feature-card">
                 <div className="rm-feature-title">
-                  {FEATURE_LABELS[featureKey] || featureKey}
+                  {featureSectionTitle(featureKey, roleType)}
                 </div>
                 <div className="rm-permission-list">
                   {(
@@ -316,9 +318,7 @@ const AdminRoleManagement = () => {
                         onChange={(v) =>
                           handleToggle(featureKey, permissionKey, v)
                         }
-                        label={`${
-                          FEATURE_LABELS[featureKey] || featureKey
-                        } - ${permissionKey}`}
+                        label={`${featureSectionTitle(featureKey, roleType)} - ${permissionKey}`}
                       />
                     </div>
                   ))}
