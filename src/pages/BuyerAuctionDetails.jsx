@@ -305,6 +305,15 @@ const BuyerAuctionDetails = () => {
     if (id) dispatch(fetchAuctionBids(id));
   }, [id, dispatch]);
 
+  /** REST poll (not WebSocket): refresh bid list every 3s while this lot page is open. */
+  useEffect(() => {
+    if (!id) return undefined;
+    const interval = setInterval(() => {
+      dispatch(fetchAuctionBids({ lotId: id, silent: true }));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [id, dispatch]);
+
   // Fetch lot by id when no listing in state, or when listing is a bid object (from My Bids)
   useEffect(() => {
     if (!id) return;

@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useBuyerLotAutoBid } from '../hooks/useBuyerLotAutoBid';
 
 /**
- * Buyer-only: auto-bid UI + bid-history polling (every 3s while mounted). Mount only when `isBuyer`
+ * Buyer-only: auto-bid UI + REST bid-history poll every 3s while `lotId` is set. Mount only when `isBuyer`
  * (parent), so guest/staff/seller flows never run these hooks or API calls.
  */
 export default function BuyerLotAutoBidPanel({
@@ -13,6 +13,21 @@ export default function BuyerLotAutoBidPanel({
   /** Increment after a successful manual bid to resync auto-bid state */
   syncTick = 0,
 }) {
+  const refreshBidsRef = useRef(onRefreshBids);
+  refreshBidsRef.current = onRefreshBids;
+
+  useEffect(() => {
+    if (!lotId) return undefined;
+    const interval = setInterval(() => {
+      try {
+        refreshBidsRef.current?.();
+      } catch {
+        /* ignore */
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [lotId]);
+
   const {
     autoBidRecord,
     autoBidLoading,

@@ -6,12 +6,9 @@ import {
   getAutoBidStopErrorMessage,
 } from '../utils/autoBidErrorMessage';
 
-const POLL_MS = 3000;
-
 /**
- * Auto-bid state + API for a single lot. Polls bid history every POLL_MS whenever `lotId` is set
- * (via onRefreshBids), independent of auto-bid, ceiling, or `enabled`. `enabled` only gates auto-bid fetch/UI.
- * Intended for buyer-only surfaces: mount only when the current user is a buyer (see BuyerLotAutoBidPanel).
+ * Auto-bid state + API for a single lot. Does not poll bid history — parent surfaces run their own
+ * 3s interval (e.g. BuyerAuctionDetails, BuyerLotAutoBidPanel). `enabled` gates auto-bid fetch/UI only.
  */
 export function useBuyerLotAutoBid({
   lotId,
@@ -73,20 +70,6 @@ export function useBuyerLotAutoBid({
     }
     refreshAutoBidForLot(lotId);
   }, [enabled, lotId, refreshAutoBidForLot]);
-
-  useEffect(() => {
-    if (!lotId) return undefined;
-
-    const poll = () => {
-      try {
-        refreshRef.current?.();
-      } catch {
-        /* ignore */
-      }
-    };
-    const t = setInterval(poll, POLL_MS);
-    return () => clearInterval(t);
-  }, [lotId]);
 
   const handleAutobidToggle = useCallback(
     async (nextOn) => {
