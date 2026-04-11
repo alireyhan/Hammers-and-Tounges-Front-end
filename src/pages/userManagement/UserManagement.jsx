@@ -253,7 +253,7 @@ const filteredUsers = useMemo(() => {
     if (targetUserId == null) return;
 
     navigate(`${basePath}/role-management/${targetUserId}`, {
-      state: { role: user.role, user },
+      state: { role: String(user.role || '').toLowerCase(), user },
     });
   };
 
