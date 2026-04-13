@@ -181,6 +181,8 @@
   border-radius: 8px;
   padding: 0.75rem 1rem;
   color: var(--color-text);
+  -webkit-text-fill-color: var(--color-text);
+  caret-color: var(--color-text);
   font-size: 0.875rem;
   font-family: inherit;
   outline: none;
@@ -790,6 +792,8 @@ html[data-theme="light"] .mpn-container .mpn-select,
 html[data-theme="light"] .mpn-container .mpn-image-label {
   border-color: #d1d5db !important;
   color: #1a1a1a !important;
+  -webkit-text-fill-color: #1a1a1a !important;
+  caret-color: #1a1a1a !important;
 }
 html[data-theme="light"] .mpn-container .mpn-input::placeholder,
 html[data-theme="light"] .mpn-container .mpn-textarea::placeholder,
