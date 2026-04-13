@@ -577,6 +577,7 @@ const ManagerPublishNew = () => {
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
+                spellCheck={false}
                 required
               />
               <div className="mpn-textarea-counter">{formData.description.length}/2000</div>
