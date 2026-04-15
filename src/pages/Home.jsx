@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { fetchEvents } from '../store/actions/AuctionsActions'
 import Hero from '../components/Hero'
 import EventListingRow from '../components/EventListingRow'
+import { normalizeEventStatusForFilter } from '../utils/eventStatus'
 import './Home.css'
 
 const TAB_UPCOMING = 'upcoming'
@@ -48,14 +49,14 @@ const Home = () => {
     if (activeTab === TAB_UPCOMING) {
       return events.filter((e) => {
         const end = e.end_time ? new Date(e.end_time) : null
-        const status = (e.status || '').toUpperCase()
+        const status = normalizeEventStatusForFilter(e)
         if (status === 'CLOSED' || status === 'CLOSING') return false
         return !end || end > now
       })
     }
     return events.filter((e) => {
       const end = e.end_time ? new Date(e.end_time) : null
-      const status = (e.status || '').toUpperCase()
+      const status = normalizeEventStatusForFilter(e)
       if (status === 'CLOSED' || status === 'CLOSING') return true
       return end && end <= now
     })

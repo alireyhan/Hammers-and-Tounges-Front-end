@@ -6,6 +6,7 @@ import { getMediaUrl } from '../../config/api.config';
 import { toast } from 'react-toastify';
 import { formatBidDateTime } from '../../utils/formatBidDateTime';
 import { maskBidderName } from '../../utils/maskBidderName';
+import { logLotMediaFromApi } from '../../utils/logLotMediaDebug';
 import './AdminLotDetail.css';
 
 const formatPrice = (price) => {
@@ -48,6 +49,7 @@ const AdminLotDetail = () => {
       setLoading(true);
       try {
         const data = await auctionService.getLot(lotId);
+        logLotMediaFromApi('AdminLotDetail getLot()', data);
         if (!cancelled) setLot(data);
       } catch (err) {
         if (!cancelled) {
@@ -60,6 +62,12 @@ const AdminLotDetail = () => {
     })();
     return () => { cancelled = true; };
   }, [lotId, lotFromState, eventId, navigate]);
+
+  useEffect(() => {
+    if (lotFromState?.id) {
+      logLotMediaFromApi('AdminLotDetail navigation state (no refetch)', lotFromState);
+    }
+  }, [lotFromState?.id]);
 
   useEffect(() => {
     if (eventFromState || !eventId) return;

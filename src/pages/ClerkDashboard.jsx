@@ -5,6 +5,7 @@ import { auctionService } from "../services/interceptors/auction.service";
 import { toast } from "react-toastify";
 import EventListingRow from "../components/EventListingRow";
 import { fetchEvents } from "../store/actions/AuctionsActions";
+import { normalizeEventStatusForFilter } from "../utils/eventStatus";
 import "./ManagerDashboard.css";
 
 const TAB_UPCOMING = "upcoming";
@@ -77,10 +78,10 @@ export default function ClerkDashboard() {
 
     const run = async () => {
       const nonCompletedEvents = (events || []).filter((e) => {
-        const s = (e.status || '').toUpperCase();
+        const s = normalizeEventStatusForFilter(e);
         return s !== 'CLOSED' && s !== 'CLOSING';
       });
-      const scheduled = nonCompletedEvents.filter((e) => (e.status || '').toUpperCase() === 'SCHEDULED');
+      const scheduled = nonCompletedEvents.filter((e) => normalizeEventStatusForFilter(e) === 'SCHEDULED');
       const checks = await Promise.all(
         scheduled.map(async (e) => [String(e.id), await canDeleteEventByLots(e.id)])
       );
@@ -125,24 +126,25 @@ export default function ClerkDashboard() {
     [canDeleteEvents, dispatch]
   );
 
-  const filteredEvents = useMemo(() => {
+  const getFilteredEvents = () => {
     if (!events?.length) return [];
     const now = new Date();
     if (activeTab === TAB_UPCOMING) {
       return events.filter((e) => {
         const end = e.end_time ? new Date(e.end_time) : null;
-        const status = (e.status || "").toUpperCase();
+        const status = normalizeEventStatusForFilter(e);
         if (status === "CLOSED" || status === "CLOSING") return false;
         return !end || end > now;
       });
     }
     return events.filter((e) => {
       const end = e.end_time ? new Date(e.end_time) : null;
-      const status = (e.status || "").toUpperCase();
+      const status = normalizeEventStatusForFilter(e);
       if (status === "CLOSED" || status === "CLOSING") return true;
       return end && end <= now;
     });
-  }, [events, activeTab]);
+  };
+  const filteredEvents = getFilteredEvents();
 
   const totalPages = Math.max(1, Math.ceil(filteredEvents.length / ITEMS_PER_PAGE));
   const paginatedEvents = filteredEvents.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -234,7 +236,7 @@ export default function ClerkDashboard() {
                           View
                         </button>
                         {canDeleteEvents &&
-                          (ev.status || '').toUpperCase() === 'SCHEDULED' &&
+                          normalizeEventStatusForFilter(ev) === 'SCHEDULED' &&
                           deletableEventIds[String(ev.id)] === true && (
                             <button
                               type="button"

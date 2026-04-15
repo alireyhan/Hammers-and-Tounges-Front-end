@@ -6,6 +6,7 @@ import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
 import { formatBidDateTime } from '../utils/formatBidDateTime';
 import { maskBidderName } from '../utils/maskBidderName';
+import { logLotMediaFromApi } from '../utils/logLotMediaDebug';
 import './ManagerLotDetail.css';
 
 const formatPrice = (price) => {
@@ -42,6 +43,7 @@ const SellerLotDetail = () => {
       setLoading(true);
       try {
         const data = await auctionService.getLot(lotId);
+        logLotMediaFromApi('SellerLotDetail getLot()', data);
         if (!cancelled) setLot(data);
       } catch (err) {
         if (!cancelled) {

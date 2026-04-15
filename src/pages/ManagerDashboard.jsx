@@ -5,6 +5,7 @@ import { auctionService } from '../services/interceptors/auction.service';
 import { toast } from 'react-toastify';
 import EventListingRow from '../components/EventListingRow';
 import { fetchEvents } from '../store/actions/AuctionsActions';
+import { normalizeEventStatusForFilter } from '../utils/eventStatus';
 import './ManagerDashboard.css';
 
 const canDeleteEventByLots = async (eventId) => {
@@ -38,13 +39,6 @@ const formatEventDate = (isoStr) => {
   } catch {
     return '-----';
   }
-};
-
-const normalizeEventStatus = (status) => {
-  const raw = String(status || '').toUpperCase();
-  if (raw === 'APPROVED' || raw === 'UPCOMING') return 'SCHEDULED';
-  if (raw === 'COMPLETED') return 'CLOSING';
-  return raw;
 };
 
 const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
@@ -106,7 +100,7 @@ function ManagerDashboard() {
         return;
       }
       try {
-        const scheduled = events.filter((e) => normalizeEventStatus(e?.status) === 'SCHEDULED');
+        const scheduled = events.filter((e) => normalizeEventStatusForFilter(e) === 'SCHEDULED');
         const checks = await Promise.all(
           scheduled.map(async (e) => [String(e.id), await canDeleteEventByLots(e.id)])
         );
@@ -120,17 +114,18 @@ function ManagerDashboard() {
     hydrateDeleteEligibility();
   }, [events]);
 
-  const filteredEvents = useMemo(() => {
+  const getFilteredEvents = () => {
     if (!events || events.length === 0) return [];
     if (filterStatus === 'ALL') return events;
     return events.filter((event) => {
-      const status = normalizeEventStatus(event.status);
+      const status = normalizeEventStatusForFilter(event);
       if (filterStatus === 'COMPLETED') {
         return status === 'CLOSING' || status === 'CLOSED' || status === 'COMPLETED';
       }
       return status === filterStatus;
     });
-  }, [events, filterStatus]);
+  };
+  const filteredEvents = getFilteredEvents();
 
   const handleViewDetails = useCallback(
     (eventId, event) => {
@@ -268,7 +263,7 @@ function ManagerDashboard() {
                           View
                         </button>
                         {canDeleteEvents &&
-                          normalizeEventStatus(ev.status) === 'SCHEDULED' &&
+                          normalizeEventStatusForFilter(ev) === 'SCHEDULED' &&
                           deletableEventIds[String(ev.id)] === true && (
                           <button
                             type="button"

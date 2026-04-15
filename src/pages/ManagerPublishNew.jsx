@@ -349,7 +349,7 @@ const ManagerPublishNew = () => {
       }
       images.forEach((img, idx) => {
         if (img.file instanceof File) {
-          fd.append(`image_${idx + 1}`, img.file);
+          fd.append('media', img.file);
           fd.append('media_labels', img.label || `Image ${idx + 1}`);
         }
       });
@@ -424,7 +424,18 @@ const ManagerPublishNew = () => {
           toast.success('Lot updated successfully.');
         } else {
           const fd = buildFormData(effectiveStatus);
+          console.log('[HT LotCreate][web] submitting lot images', {
+            selectedImagesCount: images.length,
+            selectedImageNames: images.map((img) =>
+              img.file instanceof File ? img.file.name : String(img.file || '')
+            ),
+          });
           const createdLot = await auctionService.createLot(fd);
+          console.log('[HT LotCreate][web] create response media', {
+            lotId: createdLot?.id,
+            mediaArrayLength: Array.isArray(createdLot?.media) ? createdLot.media.length : 0,
+            media: createdLot?.media,
+          });
           toast.success('Lot created successfully.');
           // Pass created lot back so clerk can see it even if list API omits drafts
           if (fromAdmin) {
@@ -693,7 +704,9 @@ const ManagerPublishNew = () => {
                 </svg>
                 <div className="mpn-drop-area-text">
                   <p className="mpn-drop-area-title">Drop images here or click to upload</p>
-                  <p className="mpn-drop-area-subtitle">JPG, PNG, GIF up to 5MB each (max {MAX_IMAGES})</p>
+                  <p className="mpn-drop-area-subtitle">
+                    JPG, PNG, GIF up to 5MB each (max {MAX_IMAGES}) - multi-select supported
+                  </p>
                 </div>
               </div>
               <input

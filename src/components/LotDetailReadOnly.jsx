@@ -6,6 +6,7 @@ import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
 import { formatBidDateTime } from '../utils/formatBidDateTime';
 import { maskBidderName } from '../utils/maskBidderName';
+import { logLotMediaFromApi } from '../utils/logLotMediaDebug';
 import './LotDetailReadOnly.css';
 
 const formatPrice = (price) => {
@@ -46,6 +47,7 @@ const LotDetailReadOnly = ({ backPath }) => {
       setLoading(true);
       try {
         const data = await auctionService.getLot(lotId);
+        logLotMediaFromApi('LotDetailReadOnly getLot()', data);
         if (!cancelled) setLot(data);
       } catch (err) {
         if (!cancelled) {
@@ -58,6 +60,12 @@ const LotDetailReadOnly = ({ backPath }) => {
     })();
     return () => { cancelled = true; };
   }, [lotId, lotFromState, backPath, navigate]);
+
+  useEffect(() => {
+    if (lotFromState?.id) {
+      logLotMediaFromApi('LotDetailReadOnly navigation state (no refetch)', lotFromState);
+    }
+  }, [lotFromState?.id]);
 
   // Fetch bid history when lot is available
   const effectiveLotId = lot?.id ?? lotId;

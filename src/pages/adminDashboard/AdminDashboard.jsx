@@ -14,6 +14,7 @@ import { fetchEvents } from "../../store/actions/AuctionsActions";
 import { toast } from "react-toastify";
 import { API_CONFIG } from "../../config/api.config";
 import EventListingRow from "../../components/EventListingRow";
+import { normalizeEventStatusForFilter } from "../../utils/eventStatus";
 
 // Lazy load images for better performance
 // const Car1 = lazy(() => import('../../assets/admin-assests/1.png'));
@@ -136,13 +137,6 @@ const formatEventDate = (isoStr) => {
   }
 };
 
-const normalizeEventStatus = (status) => {
-  const raw = String(status || "").toUpperCase();
-  if (raw === "APPROVED" || raw === "UPCOMING") return "SCHEDULED";
-  if (raw === "COMPLETED") return "CLOSING";
-  return raw;
-};
-
 const EventsSkeleton = ({ rows = 10 }) => (
   <div className="events-skeleton-list" aria-hidden="true">
     {Array.from({ length: rows }).map((_, idx) => (
@@ -227,17 +221,57 @@ const AdminDashboard = () => {
     []
   );
 
-  // Filter events based on selected status (ALL, SCHEDULED, LIVE, CLOSING, CLOSED)
-  const filteredEvents = useMemo(() => {
+  // Keep this non-memoized so status changes never get stuck.
+  const getFilteredEvents = () => {
     if (!events || events.length === 0) return [];
 
     if (filterStatus === "ALL") return events;
 
     return events.filter((event) => {
-      const status = normalizeEventStatus(event.status);
+      const status = normalizeEventStatusForFilter(event);
       return status === filterStatus;
     });
+  };
+  const filteredEvents = getFilteredEvents();
+
+  useEffect(() => {
+    const rows = (events || []).map((ev) => ({
+      id: ev?.id,
+      title: ev?.title,
+      status: ev?.status,
+      event_status: ev?.event_status,
+      normalized: normalizeEventStatusForFilter(ev),
+      start_time: ev?.start_time,
+      end_time: ev?.end_time,
+    }));
+    console.log('[HT AdminDashboard] events status snapshot', {
+      total: rows.length,
+      filterStatus,
+      rows,
+    });
   }, [events, filterStatus]);
+
+  useEffect(() => {
+    const normalizedRows = (events || []).map((ev) => ({
+      id: ev?.id,
+      title: ev?.title,
+      status: ev?.status,
+      event_status: ev?.event_status,
+      normalized: normalizeEventStatusForFilter(ev),
+    }));
+    const byStatus = normalizedRows.reduce((acc, row) => {
+      const key = row.normalized || 'UNKNOWN';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    console.log('[HT AdminDashboard] all events (no filter)', {
+      total: normalizedRows.length,
+      byStatus,
+      selectedFilter: filterStatus,
+      renderedCount: filteredEvents.length,
+      rows: normalizedRows,
+    });
+  }, [events, filterStatus, filteredEvents.length]);
 
   const handleViewDetails = useCallback(
     (eventId, event) => {

@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { formatBidDateTime } from '../utils/formatBidDateTime';
 import { maskBidderName } from '../utils/maskBidderName';
+import { logLotMediaFromApi } from '../utils/logLotMediaDebug';
 import './ManagerLotDetail.css';
 
 const formatPrice = (price) => {
@@ -74,6 +75,7 @@ const ManagerLotDetail = () => {
       setLoading(true);
       try {
         const data = await auctionService.getLot(lotId);
+        logLotMediaFromApi('ManagerLotDetail getLot()', data);
         if (!cancelled) setLot(data);
       } catch (err) {
         if (!cancelled) {
@@ -86,6 +88,12 @@ const ManagerLotDetail = () => {
     })();
     return () => { cancelled = true; };
   }, [lotId, lotFromState, eventId, navigate]);
+
+  useEffect(() => {
+    if (lotFromState?.id) {
+      logLotMediaFromApi('ManagerLotDetail navigation state (no refetch)', lotFromState);
+    }
+  }, [lotFromState?.id]);
 
   // Fetch event when visiting via direct URL (no event in state)
   useEffect(() => {

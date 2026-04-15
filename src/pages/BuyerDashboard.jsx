@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchEvents } from '../store/actions/AuctionsActions';
 import { clearBuyerError } from '../store/slices/buyerSlice';
 import EventListingRow from '../components/EventListingRow';
+import { normalizeEventStatusForFilter } from '../utils/eventStatus';
 import './BuyerDashboard.css';
 
 const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
@@ -65,14 +66,14 @@ const BuyerDashboard = () => {
     if (activeTab === TAB_UPCOMING) {
       return events.filter((e) => {
         const end = e.end_time ? new Date(e.end_time) : null;
-        const status = (e.status || '').toUpperCase();
+        const status = normalizeEventStatusForFilter(e);
         if (status === 'CLOSED' || status === 'CLOSING') return false;
         return !end || end > now;
       });
     }
     return events.filter((e) => {
       const end = e.end_time ? new Date(e.end_time) : null;
-      const status = (e.status || '').toUpperCase();
+      const status = normalizeEventStatusForFilter(e);
       if (status === 'CLOSED' || status === 'CLOSING') return true;
       return end && end <= now;
     });

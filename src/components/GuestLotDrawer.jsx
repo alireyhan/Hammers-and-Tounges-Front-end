@@ -14,6 +14,7 @@ import InsufficientBalanceBidModal from './InsufficientBalanceBidModal';
 import { flattenApiDetail, humanizeErrorDetailString } from '../utils/apiErrorMessage';
 import { formatBidDateTime } from '../utils/formatBidDateTime';
 import { maskBidderName } from '../utils/maskBidderName';
+import { logLotMediaFromApi } from '../utils/logLotMediaDebug';
 import './GuestLotDrawer.css';
 
 const formatPrice = (price) => {
@@ -328,6 +329,7 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
       setLoading(true);
       try {
         const data = await auctionService.getLot(initialLot.id);
+        logLotMediaFromApi('GuestLotDrawer getLot()', data);
         if (!cancelled) setLot(data);
       } catch {
         if (!cancelled) setLot(initialLot);
