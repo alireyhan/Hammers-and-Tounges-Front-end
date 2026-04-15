@@ -38,7 +38,7 @@
 .finance-uc-subtitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
   margin: 0 0 0.75rem;
 }
 
@@ -84,7 +84,7 @@
 
 .finance-primary-btn {
   padding: 0.75rem 1.5rem;
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000000;
   border: none;
   border-radius: 8px;
@@ -100,7 +100,7 @@
 }
 
 .finance-primary-btn:hover {
-  background-color: #7BB337;
+  background-color: #39AE47;
   box-shadow: 0 6px 16px rgba(140, 198, 63, 0.3);
 }
 
@@ -152,7 +152,7 @@
 }
 
 .finance-summary-card.trend-up:hover {
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .finance-summary-card.trend-down:hover {
@@ -199,7 +199,7 @@
 .finance-summary-card.trend-up .finance-card-icon {
   background-color: rgba(140, 198, 63, 0.15);
   border: 1px solid rgba(140, 198, 63, 0.4);
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .finance-summary-card.trend-down .finance-card-icon {
@@ -253,7 +253,7 @@
 
 .finance-card-change.positive {
   background-color: rgba(140, 198, 63, 0.15);
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .finance-card-change.negative {
@@ -330,7 +330,7 @@
 
 .finance-search-input:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.1);
 }
 
@@ -396,7 +396,7 @@
 
 .finance-filter-select:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .finance-logs-section {
@@ -489,7 +489,7 @@
 
 .finance-action-badge.action-payment {
   background-color: rgba(140, 198, 63, 0.15);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.4);
 }
 
@@ -707,7 +707,7 @@
 .finance-pagination-page.active {
   background-color: rgba(140, 198, 63, 0.2);
   border-color: rgba(140, 198, 63);
-  color: #8CC63F;
+  color: #39AE47;
   font-weight: 600;
 }
 
@@ -1062,7 +1062,7 @@
 }
 
 .finance-md-proof-btn:hover {
-  border-color: #8cc63f;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.15);
 }
 
@@ -1085,7 +1085,7 @@
 
 .finance-md-status--approved {
   background-color: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.4);
 }
 
@@ -1154,7 +1154,7 @@
 
 .finance-md-btn--approve {
   background: rgba(140, 198, 63, 0.2);
-  color: #8cc63f;
+  color: #39AE47;
   border-color: rgba(140, 198, 63, 0.45);
 }
 
@@ -1418,7 +1418,7 @@ html[data-theme="light"] .finance-md-detail-link {
 
 .finance-md-textarea:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.12);
 }
 

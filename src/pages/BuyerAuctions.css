@@ -43,7 +43,7 @@
 }
 
 .mobile-filter-toggle:hover:not(:disabled) {
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background: rgba(140, 198, 63, 0.1);
 }
 
@@ -53,7 +53,7 @@
 }
 
 .filter-badge {
-  background: #8CC63F;
+  background: #39AE47;
   color: #000;
   border-radius: 50%;
   width: 20px;
@@ -84,7 +84,7 @@
 
 .filter-search-input:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -127,12 +127,12 @@
 }
 
 .filter-dropdown-trigger:hover:not(:disabled) {
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background: rgba(140, 198, 63, 0.05);
 }
 
 .filter-dropdown-trigger.active {
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background: rgba(140, 198, 63, 0.1);
 }
 
@@ -172,7 +172,7 @@
 
 .filter-dropdown-item input {
   margin-right: 0.75rem;
-  accent-color: #8CC63F;
+  accent-color: #39AE47;
 }
 
 .filter-dropdown-item span {
@@ -214,7 +214,7 @@
 
 .price-input:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .price-range-separator {
@@ -336,7 +336,7 @@
   width: 48px;
   height: 48px;
   border: 3px solid rgba(140, 198, 63, 0.2);
-  border-top: 3px solid #8CC63F;
+  border-top: 3px solid #39AE47;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
@@ -535,7 +535,7 @@
 
 .loading-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #8CC63F, #7BB235);
+  background: linear-gradient(90deg, #39AE47, #7BB235);
   animation: progress 2s ease-in-out infinite;
   border-radius: 2px;
 }
@@ -610,7 +610,7 @@
 }
 
 .auctions-pagination-btn:hover:not(:disabled) {
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background: rgba(140, 198, 63, 0.1);
 }
 
@@ -621,8 +621,8 @@
 
 .auctions-pagination-btn.active,
 .auctions-page-number.active {
-  background: #8CC63F;
-  border-color: #8CC63F;
+  background: #39AE47;
+  border-color: #39AE47;
   color: #000;
 }
 

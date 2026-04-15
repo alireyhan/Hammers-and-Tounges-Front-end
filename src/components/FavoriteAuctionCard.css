@@ -175,7 +175,7 @@
 }
 
 .auction-card:hover .auction-card-title {
-    color: #8CC63F;
+    color: #39AE47;
 }
 
 .auction-price-display {
@@ -244,7 +244,7 @@
     color: var(--color-text);
 }
 .auctions-view-btn:hover {
-    background: #8CC63F;
+    background: #39AE47;
     color: #000;
     border-color: rgba(140, 198, 63, 0.4);
     box-shadow:

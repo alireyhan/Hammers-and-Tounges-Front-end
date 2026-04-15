@@ -49,7 +49,7 @@
 }
 
 .home-events__tab.active {
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
 }
 
@@ -79,7 +79,7 @@
   width: 32px;
   height: 32px;
   border: 3px solid var(--color-border);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1rem;
@@ -93,7 +93,7 @@
 .home-empty a {
   margin-top: 0.75rem;
   padding: 0.4rem 0.75rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 4px;
@@ -113,9 +113,9 @@
 
 .home-pagination__btn {
   padding: 0.4rem 0.75rem;
-  border: 1px solid #8cc63f;
+  border: 1px solid #39AE47;
   background: transparent;
-  color: #8cc63f;
+  color: #39AE47;
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -124,7 +124,7 @@
 }
 
 .home-pagination__btn:hover:not(:disabled) {
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
 }
 

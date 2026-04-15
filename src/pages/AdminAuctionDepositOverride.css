@@ -89,7 +89,7 @@
 .ado-search:focus,
 .ado-input:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .ado-state {
@@ -115,7 +115,7 @@
 }
 
 .ado-event-item.active {
-  border-color: #8cc63f;
+  border-color: #39AE47;
   box-shadow: 0 0 0 1px rgba(140, 198, 63, 0.25) inset;
 }
 
@@ -181,7 +181,7 @@
   min-height: 36px;
   border: none;
   border-radius: 8px;
-  background: #8cc63f;
+  background: #39AE47;
   color: #111;
   font-weight: 600;
   cursor: pointer;

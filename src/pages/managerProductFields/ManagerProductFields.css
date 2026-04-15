@@ -50,7 +50,7 @@
 
 .primary-action-btn {
   padding: 0.375rem 0.75rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 6px;
@@ -68,7 +68,7 @@
 }
 
 .primary-action-btn:hover {
-  background: #7bb337;
+  background: #39AE47;
 }
 .field-primary {
   transform: translateY(0) !important;
@@ -85,7 +85,7 @@
 }
 
 .field-primary-btn {
-  background: #8cc63f;
+  background: #39AE47;
   border: none;
   color: #000;
 }
@@ -97,8 +97,8 @@
 }
 
 .field-secondary-btn:hover {
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .fields-management-section {
@@ -275,7 +275,7 @@
 
 .option-tag {
   font-size: 0.75rem;
-  color: #8CC63F;
+  color: #39AE47;
   background-color: rgba(140, 198, 63, 0.1);
   padding: 0.125rem 0.5rem;
   border-radius: 12px;
@@ -371,7 +371,7 @@
 .add-field-btn {
   padding: 0.375rem 0.75rem;
   background: rgba(140, 198, 63, 0.1);
-  color: #8cc63f;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.3);
   border-radius: 6px;
   font-size: 0.75rem;
@@ -390,7 +390,7 @@
 
 .add-field-btn:hover {
   background-color: rgba(140, 198, 63, 0.2);
-  border-color: #8CC63F;
+  border-color: #39AE47;
   transform: translateY(-1px);
 }
 
@@ -427,7 +427,7 @@
 
 .field-type-item.selected {
   background-color: rgba(140, 198, 63, 0.15);
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .type-icon {
@@ -471,8 +471,8 @@
 }
 
 .checkbox-input:checked+.checkbox-custom {
-  background-color: #8CC63F;
-  border-color: #8CC63F;
+  background-color: #39AE47;
+  border-color: #39AE47;
 }
 
 .checkbox-input:checked+.checkbox-custom::after {
@@ -775,7 +775,7 @@ html[data-theme="dark"] .dashboard-page .increment-rule-arrow {
 .form-input:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background-color: var(--color-border);
 }
 

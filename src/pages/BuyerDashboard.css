@@ -165,7 +165,7 @@
 }
 
 .buyer-dashboard-tab.active {
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
 }
 
@@ -226,7 +226,7 @@
 .buyer-dashboard-search-clear:hover {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .buyer-dashboard-search::placeholder {
@@ -254,7 +254,7 @@
   background: rgba(140, 198, 63, 0.15);
   border: 1px solid rgba(140, 198, 63, 0.4);
   border-radius: 8px;
-  color: #8cc63f;
+  color: #39AE47;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
@@ -264,7 +264,7 @@
 
 .buyer-dashboard-search-clear:hover {
   background: rgba(140, 198, 63, 0.25);
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 /* Events list - row design (guest flow style) */
@@ -347,7 +347,7 @@
 
 .buyer-dashboard-status-badge--live {
   background: rgba(34, 197, 94, 0.2);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .buyer-dashboard-event-cell--action {
@@ -366,7 +366,7 @@
 }
 
 .buyer-dashboard-event-arrow {
-  color: #8cc63f;
+  color: #39AE47;
   font-weight: 500;
   font-size: 0.8125rem;
 }
@@ -397,7 +397,7 @@
 .buyer-dashboard-pagination button:hover:not(:disabled) {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .buyer-dashboard-pagination button:disabled {
@@ -439,7 +439,7 @@
   height: 2.5rem;
   border-radius: 8px;
   background: rgba(140, 198, 63, 0.2);
-  color: #8cc63f;
+  color: #39AE47;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -507,7 +507,7 @@
   height: 2.5rem;
   border-radius: 8px;
   background: rgba(140, 198, 63, 0.2);
-  color: #8cc63f;
+  color: #39AE47;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -598,7 +598,7 @@
   width: 48px;
   height: 48px;
   border: 3px solid rgba(140, 198, 63, 0.2);
-  border-top: 3px solid #8CC63F;
+  border-top: 3px solid #39AE47;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
@@ -695,12 +695,12 @@
 }
 
 .action-button.primary {
-  background-color: #8CC63F !important;
+  background-color: #39AE47 !important;
   color: #000000 !important;
 }
 
 .action-button.primary:hover {
-  background-color: #7BB337 !important;
+  background-color: #39AE47 !important;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
   
 }
@@ -713,8 +713,8 @@
 
 .action-button.secondary:hover {
   background-color: rgba(255, 255, 255, 0.05) !important;
-  border-color: #8CC63F !important;
-  color: #8CC63F !important;
+  border-color: #39AE47 !important;
+  color: #39AE47 !important;
 }
 
 .summary-cards {
@@ -854,8 +854,8 @@
 
 .view-all-link:hover {
    background-color: rgba(255, 255, 255, 0.05) !important;
-  border-color: #8CC63F !important;
-  color: #8CC63F !important;
+  border-color: #39AE47 !important;
+  color: #39AE47 !important;
 }
 
 .active-bids-grid {
@@ -982,7 +982,7 @@
 }
 
 .bid-info-value.leading {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .bid-info-value.outbid {
@@ -1002,7 +1002,7 @@
 }
 
 .bid-card-time svg {
-  color: #8CC63F;
+  color: #39AE47;
   width: 14px;
   height: 14px;
   flex-shrink: 0;

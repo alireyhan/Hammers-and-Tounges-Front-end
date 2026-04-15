@@ -27,7 +27,7 @@
 }
 
 .breadcrumbs a:hover {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .breadcrumbs span {
@@ -81,7 +81,7 @@
 }
 
 .thumbnail.active {
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .thumbnail img {
@@ -160,8 +160,8 @@
 }
 
 .tab.active {
-  color: #8CC63F;
-  border-bottom-color: #8CC63F;
+  color: #39AE47;
+  border-bottom-color: #39AE47;
 }
 
 .tab-content {

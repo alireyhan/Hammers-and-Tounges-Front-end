@@ -234,9 +234,9 @@
 }
 
 .status-badge.active {
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000;
-  border: 1px solid #8CC63F;
+  border: 1px solid #39AE47;
 }
 
 .status-badge.closed {
@@ -375,7 +375,7 @@
 
 .active-banner {
   background-color: rgba(140, 198, 63, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.3);
 }
 
@@ -443,7 +443,7 @@
 }
 
 .bids-action-btn.primary:hover {
-  background-color: #7bb337;
+  background-color: #39AE47;
   box-shadow: 0 4px 12px rgba(140, 198, 63, 0.3);
 }
 
@@ -550,7 +550,7 @@
 }
 
 .retry-btn:hover {
-  background-color: #7bb337;
+  background-color: #39AE47;
 }
 
 .empty-state svg {

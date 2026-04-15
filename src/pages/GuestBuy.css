@@ -72,7 +72,7 @@
   width: 32px;
   height: 32px;
   border: 2px solid var(--color-border);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: guest-buy-spin 0.8s linear infinite;
   margin-bottom: 1rem;
@@ -86,7 +86,7 @@
 .guest-buy__empty button {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 6px;
@@ -191,7 +191,7 @@
 }
 
 .guest-buy__card-dot.active {
-  background: #8cc63f;
+  background: #39AE47;
 }
 
 .guest-buy__card-body {
@@ -237,7 +237,7 @@
 .guest-buy__card-price {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .guest-buy__card-footer {
@@ -274,7 +274,7 @@
 .guest-buy__pagination button:hover:not(:disabled) {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .guest-buy__pagination button:disabled {
@@ -352,17 +352,17 @@
 
 .guest-buy__modal-btn--outline:hover {
   background: rgba(140, 198, 63, 0.1);
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .guest-buy__modal-btn--primary {
-  background: #8cc63f;
-  border: 1px solid #8cc63f;
+  background: #39AE47;
+  border: 1px solid #39AE47;
   color: #000;
 }
 
 .guest-buy__modal-btn--primary:hover {
-  background: #7bb337;
-  border-color: #7bb337;
+  background: #39AE47;
+  border-color: #39AE47;
 }

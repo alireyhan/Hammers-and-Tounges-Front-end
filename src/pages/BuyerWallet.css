@@ -32,7 +32,7 @@
 }
 
 .breadcrumbs a:hover {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .breadcrumbs span {
@@ -259,7 +259,7 @@
 
 .deposit-icon-bg {
   background-color: rgba(140, 198, 63, 0.2);
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .withdrawal-icon-bg {
@@ -297,7 +297,7 @@
 }
 
 .deposit-amount {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .withdrawal-amount {

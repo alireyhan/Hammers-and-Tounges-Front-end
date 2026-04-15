@@ -76,7 +76,7 @@ body {
 
 .live-auction-export-btn {
   padding: 0.75rem 1.5rem;
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000000;
   border: none;
   border-radius: 8px;
@@ -93,7 +93,7 @@ body {
 }
 
 .live-auction-export-btn:hover {
-  background-color: #7BB337;
+  background-color: #39AE47;
   box-shadow: 0 6px 16px rgba(140, 198, 63, 0.3);
 }
 
@@ -157,7 +157,7 @@ body {
 
 .live-auction-search-input:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.2);
   background-color: rgba(255, 255, 255, 0.08);
 }
@@ -200,7 +200,7 @@ body {
 
 .live-auction-date-input:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.2);
   background-color: rgba(255, 255, 255, 0.08);
 }
@@ -343,7 +343,7 @@ body {
 
 .live-auction-amount {
   font-weight: 600;
-  color: #8CC63F;
+  color: #39AE47;
   font-size: 0.9375rem;
 }
 
@@ -375,7 +375,7 @@ body {
 
 .live-auction-status-badge.badge-winning {
   background-color: rgba(140, 198, 63, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.2);
 }
 
@@ -496,7 +496,7 @@ body {
 .live-auction-page-number.active {
   background-color: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8CC63F;
+  color: #39AE47;
   font-weight: 700;
 }
 

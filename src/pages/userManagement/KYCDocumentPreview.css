@@ -150,7 +150,7 @@
 }
 
 .kyc-document-action-btn:hover {
-  background: #8cc63f;
+  background: #39AE47;
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(140, 198, 63, 0.4);
 }
@@ -170,7 +170,7 @@
 }
 
 .kyc-document-download-btn:hover {
-  background: #22c55e;
+  background: #39AE47;
 }
 
 .kyc-document-label {

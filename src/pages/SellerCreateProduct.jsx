@@ -874,7 +874,7 @@ const SellerCreateProduct = () => {
           <div className="create-auction-container">
             <div className="kyc-verification-required">
               <div className="kyc-verification-icon">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#8CC63F" strokeWidth="2">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#39AE47" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="M12 16V12M12 8H12.01" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

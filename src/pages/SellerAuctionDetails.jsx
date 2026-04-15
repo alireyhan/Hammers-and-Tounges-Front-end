@@ -385,7 +385,7 @@ const SellerAuctionDetails = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'ACTIVE':
-        return { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', color: '#22c55e' };
+        return { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', color: '#39AE47' };
       case 'APPROVED':
         return { bg: 'rgba(59, 130, 246, 0.2)', border: 'rgba(59, 130, 246, 0.5)', color: '#3b82f6' };
       case 'PENDING':

@@ -61,7 +61,7 @@ const SellerAnalytics = () => {
     }
 
     const getGrowthColor = (value) => {
-        return value >= 0 ? '#8CC63F' : '#EF4444'
+        return value >= 0 ? '#39AE47' : '#EF4444'
     }
 
     const renderRevenueChart = () => {
@@ -108,7 +108,7 @@ const SellerAnalytics = () => {
                                 style={{
                                     width: `${category.percentage}%`,
                                     backgroundColor: index === 0 ? '#3B82F6' :
-                                        index === 1 ? '#8CC63F' :
+                                        index === 1 ? '#39AE47' :
                                             index === 2 ? '#FFC107' : '#8B5CF6'
                                 }}
                             ></div>
@@ -191,7 +191,7 @@ const SellerAnalytics = () => {
                                                 className="legend-color"
                                                 style={{
                                                     backgroundColor: index === 0 ? '#3B82F6' :
-                                                        index === 1 ? '#8CC63F' :
+                                                        index === 1 ? '#39AE47' :
                                                             index === 2 ? '#FFC107' : '#8B5CF6'
                                                 }}
                                             ></div>
@@ -298,7 +298,7 @@ const SellerAnalytics = () => {
                                     </div>
                                     <div className="insight-stat">
                                         <span className="stat-label">Price Premium</span>
-                                        <span className="stat-value" style={{ color: '#8CC63F' }}>+338%</span>
+                                        <span className="stat-value" style={{ color: '#39AE47' }}>+338%</span>
                                     </div>
                                 </div>
                             </div>

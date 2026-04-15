@@ -52,13 +52,13 @@
 }
 
 .sales-tab.active {
-  color: #8cc63f;
-  border-bottom-color: #8cc63f;
+  color: #39AE47;
+  border-bottom-color: #39AE47;
 }
 
 .tab-count {
   background-color: rgba(140, 198, 63, 0.2);
-  color: #8cc63f;
+  color: #39AE47;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -109,7 +109,7 @@
 
 .sales-card:hover {
   transform: translateY(-4px);
-  border-color: #8cc63f;
+  border-color: #39AE47;
   box-shadow: 0 8px 24px rgba(140, 198, 63, 0.15);
 }
 
@@ -299,7 +299,7 @@
   align-items: center;
   justify-content: center;
   padding: 0.625rem 1.5rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000000;
   border-radius: 8px;
   font-size: 0.875rem;

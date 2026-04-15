@@ -45,8 +45,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #8cc63f;
-  border: 1px solid #8cc63f;
+  background: #39AE47;
+  border: 1px solid #39AE47;
   border-radius: 8px;
   color: #000;
   font-size: 0.875rem;
@@ -57,8 +57,8 @@
 }
 
 .admin-dashboard-create-btn:hover {
-  background: #7bb337;
-  border-color: #7bb337;
+  background: #39AE47;
+  border-color: #39AE47;
   color: #000;
   box-shadow: 0 4px 12px rgba(140, 198, 63, 0.3);
 }
@@ -77,7 +77,7 @@
 }
 
 .admin-dashboard-btn-primary {
-background-color: #8CC63F;
+background-color: #39AE47;
   color: black;
 }
 
@@ -87,8 +87,8 @@ background-color: #8CC63F;
   color: var(--color-text-secondary);
 }
 .admin-dashboard-btn-outline:hover {
-  border-color: #8CC63F;
-  color: #8CC63F;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 /* Stats Overview - small sections */
@@ -220,7 +220,7 @@ background-color: #8CC63F;
 .admin-dashboard-card-action {
   background: none;
   border: none;
-  color: #8CC63F;
+  color: #39AE47;
   background-color: #8bc63f20;
   font-size: 0.875rem;
   cursor: pointer;
@@ -279,7 +279,7 @@ background-color: #8CC63F;
 }
 
 .admin-dashboard-activity-amount {
-  color: #10b981;
+  color: #39AE47;
   font-weight: 600;
 }
 
@@ -560,7 +560,7 @@ background-color: #8CC63F;
 
 .admin-dashboard-status-success {
   background: rgba(34, 197, 94, 0.2);
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .admin-dashboard-status-warning {
@@ -630,7 +630,7 @@ background-color: #8CC63F;
 
 .admin-dashboard-icon-btn:hover {
   background: #8bc63f29;
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .admin-dashboard-actions-grid {
@@ -918,7 +918,7 @@ html[data-theme="dark"] .admin-dashboard-filter-select {
 
 .admin-dashboard-modal-select:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .admin-dashboard-modal-select:disabled {
@@ -978,7 +978,7 @@ html[data-theme="dark"] .admin-dashboard-modal-select {
 }
 
 .admin-dashboard-modal-btn-primary {
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: black;
 }
 

@@ -28,7 +28,7 @@
 }
 
 .bid-details-breadcrumbs a:hover {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .bid-details-breadcrumbs span {
@@ -175,8 +175,8 @@
 }
 
 .bid-details-thumbnail.active {
-  border-color: #8CC63F;
-  box-shadow: 0 0 0 1px #8CC63F;
+  border-color: #39AE47;
+  box-shadow: 0 0 0 1px #39AE47;
 }
 
 .bid-details-thumbnail img {
@@ -206,7 +206,7 @@
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #8CC63F;
+  color: #39AE47;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -242,7 +242,7 @@
 .bid-summary-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #8CC63F;
+  color: #39AE47;
   line-height: 1;
 }
 
@@ -311,7 +311,7 @@
 }
 
 .bid-action-btn.primary {
-  background: linear-gradient(135deg, #8CC63F 0%, #7AB32E 100%);
+  background: linear-gradient(135deg, #39AE47 0%, #7AB32E 100%);
   color: #ffffff;
 }
 
@@ -361,12 +361,12 @@
 }
 
 .bid-details-tab.active {
-  color: #8CC63F;
-  border-bottom-color: #8CC63F;
+  color: #39AE47;
+  border-bottom-color: #39AE47;
 }
 
 .bid-details-tab.active svg {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .bid-details-tab-content {
@@ -391,7 +391,7 @@
   margin: 0 0 1.5rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #8CC63F;
+  color: #39AE47;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -434,7 +434,7 @@
 }
 
 .bid-info-value.highlight {
-  color: #8CC63F;
+  color: #39AE47;
   font-size: 1.125rem;
 }
 
@@ -510,7 +510,7 @@
   margin: 0 0 1.5rem 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #8CC63F;
+  color: #39AE47;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -554,7 +554,7 @@
 .rank-number {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .bid-history-content {
@@ -590,7 +590,7 @@
 .bid-history-amount {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #8CC63F;
+  color: #39AE47;
   white-space: nowrap;
   margin-left: auto;
 }
@@ -603,7 +603,7 @@
   align-items: center;
   gap: 0.375rem;
   padding: 0.25rem 0.75rem;
-  background: linear-gradient(135deg, #8CC63F 0%, #7AB32E 100%);
+  background: linear-gradient(135deg, #39AE47 0%, #7AB32E 100%);
   color: #ffffff;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -676,7 +676,7 @@
 .bid-details-back-btn {
   display: inline-block;
   padding: 0.875rem 1.75rem;
-  background: linear-gradient(135deg, #8CC63F 0%, #7AB32E 100%);
+  background: linear-gradient(135deg, #39AE47 0%, #7AB32E 100%);
   color: #ffffff;
   text-decoration: none;
   border-radius: 8px;

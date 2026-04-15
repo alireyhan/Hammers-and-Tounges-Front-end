@@ -243,7 +243,7 @@ const AdminAuctionDetails = () => {
                   {auction.seller_details?.name || auction.seller_name || 'N/A'}
                   {auction.seller_details?.business_name && ` (${auction.seller_details.business_name})`}
                   {auction.seller_details?.is_verified !== undefined && (
-                    <span style={{ marginLeft: '0.5rem', color: auction.seller_details.is_verified ? '#8CC63F' : '#f87171' }}>
+                    <span style={{ marginLeft: '0.5rem', color: auction.seller_details.is_verified ? '#39AE47' : '#f87171' }}>
                       {auction.seller_details.is_verified ? '✓ Verified' : '✗ Not Verified'}
                     </span>
                   )}

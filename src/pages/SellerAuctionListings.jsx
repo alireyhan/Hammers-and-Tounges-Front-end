@@ -90,10 +90,10 @@ const SellerAuctionListings = () => {
   const getStatusBadge = useCallback((status) => {
     const statusConfig = {
       DRAFT: { text: 'DRAFT', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' },
-      ACTIVE: { text: 'ACTIVE', color: '#63a808ff', bg: 'rgba(140, 198, 63, 0.15)' },
+      ACTIVE: { text: 'ACTIVE', color: '#39AE47', bg: 'rgba(140, 198, 63, 0.15)' },
       AWAITING_PAYMENT: { text: 'Awaiting Payment', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' },
       PENDING: { text: 'PENDING', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
-      APPROVED: { text: 'APPROVED', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)' },
+      APPROVED: { text: 'APPROVED', color: '#39AE47', bg: 'rgba(16, 185, 129, 0.15)' },
       CLOSED: { text: 'CLOSED', color: '#6B7280', bg: 'rgba(107, 114, 128, 0.15)' },
       REJECTED: { text: 'REJECTED', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' },
     }
@@ -349,17 +349,17 @@ const SellerAuctionListings = () => {
                   <button
                     onClick={handlePrevious}
                     disabled={!hasPrevPage}
-                    className={`px-4 py-2 rounded border-[1px] ${hasPrevPage ? 'text-[#8cc63f] border-[#8cc63f] hover:bg-[#8cc63f] hover:text-black cursor-pointer transition-all duration-200' : 'border-white/20 bg-black text-white/40 cursor-not-allowed'}`}
+                    className={`px-4 py-2 rounded border-[1px] ${hasPrevPage ? 'text-[#39AE47] border-[#39AE47] hover:bg-[#39AE47] hover:text-black cursor-pointer transition-all duration-200' : 'border-white/20 bg-black text-white/40 cursor-not-allowed'}`}
                   >
                     Previous
                   </button>
-                  <button disabled className="px-4 py-2 rounded-sm border-[1px] border-[#8cc63f] text-[#8cc63f] bg-black">
+                  <button disabled className="px-4 py-2 rounded-sm border-[1px] border-[#39AE47] text-[#39AE47] bg-black">
                     <strong className="text-sm">{page} of {totalPages}</strong>
                   </button>
                   <button
                     onClick={handleNext}
                     disabled={!hasNextPage}
-                    className={`px-4 py-2 rounded border-[1px] ${hasNextPage ? 'text-[#8cc63f] border-[#8cc63f] hover:bg-[#8cc63f] hover:text-black cursor-pointer transition-all duration-200' : 'border-white/20 bg-black text-white/40 cursor-not-allowed'}`}
+                    className={`px-4 py-2 rounded border-[1px] ${hasNextPage ? 'text-[#39AE47] border-[#39AE47] hover:bg-[#39AE47] hover:text-black cursor-pointer transition-all duration-200' : 'border-white/20 bg-black text-white/40 cursor-not-allowed'}`}
                   >
                     Next
                   </button>

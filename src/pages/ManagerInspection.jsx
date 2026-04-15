@@ -404,7 +404,7 @@ const ManagerInspection = () => {
                       </div>
 
                       {loadingChecklist ? (
-                        <div style={{ padding: '2rem', textAlign: 'center', color: '#8CC63F' }}>
+                        <div style={{ padding: '2rem', textAlign: 'center', color: '#39AE47' }}>
                           Loading checklist...
                         </div>
                       ) : checklistCategories.length > 0 ? (
@@ -603,7 +603,7 @@ const ManagerInspection = () => {
                           </div>
                         </div>
                       ) : (
-                        <div style={{ padding: '2rem', textAlign: 'center', color: '#8CC63F' }}>
+                        <div style={{ padding: '2rem', textAlign: 'center', color: '#39AE47' }}>
                           No checklist available for this category.
                         </div>
                       )}

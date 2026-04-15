@@ -51,8 +51,8 @@
 }
 
 .add-category-secondary-btn:hover {
-  border-color: #8CC63F;
-  color: #8CC63F;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .category-form-section {
@@ -175,7 +175,7 @@ html[data-theme="light"] .form-input::placeholder {
 
 .form-input:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .form-input.error {
@@ -198,7 +198,7 @@ html[data-theme="light"] .form-input::placeholder {
 
 .primary-action-btn {
   padding: 0.5rem 1rem;
-  background: #8CC63F;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 6px;
@@ -212,7 +212,7 @@ html[data-theme="light"] .form-input::placeholder {
 }
 
 .primary-action-btn:hover:not(:disabled) {
-  background: #7BB337;
+  background: #39AE47;
 }
 
 .primary-action-btn:disabled {

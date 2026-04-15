@@ -124,7 +124,7 @@
 }
 
 .lot-row__star:hover {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .lot-row__star .lot-row__heart-icon {
@@ -149,7 +149,7 @@
 .lot-row__time-value {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .lot-row__time-value.ended {

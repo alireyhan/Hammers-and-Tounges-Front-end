@@ -116,7 +116,7 @@ const SellerProfile = () => {
         sublabel: "Successfully sold",
         value: soldVehicles.toString(),
         icon: "sold",
-        color: "#8CC63F",
+        color: "#39AE47",
         gradient: "linear-gradient(135deg, rgba(140, 198, 63, 0.4) 50%, rgba(140, 198, 63, 0.05) 100%)",
         iconBg: "rgba(140, 198, 63, 0.2)",
         iconBorder: "rgba(140, 198, 63, 0.4)"

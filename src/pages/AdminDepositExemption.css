@@ -37,7 +37,7 @@
 
 .dep-search:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .dep-loading {
@@ -54,7 +54,7 @@
   width: 36px;
   height: 36px;
   border: 3px solid var(--color-border);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: dep-spin 0.85s linear infinite;
 }
@@ -136,7 +136,7 @@
 }
 
 .dep-switch input:checked + .dep-slider {
-  background: #8cc63f;
+  background: #39AE47;
 }
 
 .dep-switch input:checked + .dep-slider::before {

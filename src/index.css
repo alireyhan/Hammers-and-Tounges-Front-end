@@ -13,7 +13,7 @@
   --color-surface-elevated: rgba(255, 255, 255, 0.03);
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.12);
-  --color-accent: #8cc63f;
+  --color-accent: #39AE47;
   --color-toggle-bg: rgba(0, 0, 0, 0.9);
   --color-toggle-border: rgba(255, 255, 255, 0.1);
   --color-toggle-text: rgba(255, 255, 255, 0.9);
@@ -312,7 +312,7 @@ html[data-theme="light"] .home-events__tab:hover {
 }
 
 html[data-theme="light"] .home-events__tab.active {
-  background: #8cc63f !important;
+  background: #39AE47 !important;
   color: #000 !important;
 }
 
@@ -415,7 +415,7 @@ html[data-theme="dark"] {
   --color-surface-elevated: rgba(255, 255, 255, 0.03);
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.12);
-  --color-accent: #8cc63f;
+  --color-accent: #39AE47;
   --color-toggle-bg: rgba(0, 0, 0, 0.9);
   --color-toggle-border: rgba(255, 255, 255, 0.1);
   --color-toggle-text: rgba(255, 255, 255, 0.9);

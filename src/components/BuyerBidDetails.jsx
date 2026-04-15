@@ -67,11 +67,11 @@ const BuyerBidDetails = () => {
       case 'AWAITING_PAYMENT':
         return { bg: 'rgba(251, 146, 60, 0.2)', border: 'rgba(251, 146, 60, 0.5)', color: '#fb923c' };
       case 'WON':
-        return { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', color: '#22c55e' };
+        return { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', color: '#39AE47' };
       case 'LOST':
         return { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 0.5)', color: '#ef4444' };
       case 'ACTIVE':
-        return { bg: 'rgba(140, 198, 63, 0.4)', border: 'rgba(140, 198, 63, 0.7)', color: '#8CC63F' };
+        return { bg: 'rgba(140, 198, 63, 0.4)', border: 'rgba(140, 198, 63, 0.7)', color: '#39AE47' };
       default:
         return { bg: 'rgba(107, 114, 128, 0.2)', border: 'rgba(107, 114, 128, 0.5)', color: '#9ca3af' };
     }

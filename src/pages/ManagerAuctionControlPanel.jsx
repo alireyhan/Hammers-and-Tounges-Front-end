@@ -304,7 +304,7 @@ export default function ManagerAuctionControlPanel() {
                         <div key={i} className="control-bid-row">
                           <div className="control-bid-info">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="control-bid-icon">
-                              <polyline points="18 15 12 9 6 15" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <polyline points="18 15 12 9 6 15" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <span className="control-bid-user">{bid.user || bid.bidder_name || 'Anonymous'}</span>
                             <span className="control-bid-text">placed a bid</span>
