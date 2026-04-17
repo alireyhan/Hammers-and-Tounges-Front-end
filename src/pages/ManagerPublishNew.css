@@ -62,12 +62,12 @@
 }
 
 .mpn-btn-primary {
-  background: #8CC63F;
+  background: #39AE47;
   color: #000;
 }
 
 .mpn-btn-primary:hover {
-  background-color: #7BB337;
+  background-color: #39AE47;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
 }
 
@@ -78,8 +78,8 @@
 }
 
 .mpn-btn-outline:hover {
-  border-color: #8CC63F;
-  color: #8CC63F;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .mpn-btn-publish {
@@ -181,6 +181,8 @@
   border-radius: 8px;
   padding: 0.75rem 1rem;
   color: var(--color-text);
+  -webkit-text-fill-color: var(--color-text);
+  caret-color: var(--color-text);
   font-size: 0.875rem;
   font-family: inherit;
   outline: none;
@@ -191,7 +193,7 @@
 .mpn-textarea:focus,
 .mpn-select:focus {
     outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
@@ -264,7 +266,7 @@
   height: 18px;
   margin: 0;
   cursor: pointer;
-  accent-color: #8CC63F;
+  accent-color: #39AE47;
   flex-shrink: 0;
 }
 
@@ -354,7 +356,7 @@ html[data-theme="light"] .mpn-slider:before {
 }
 
 input:checked + .mpn-slider {
-  background-color: #8CC63F;
+  background-color: #39AE47;
 }
 
 input:checked + .mpn-slider:before {
@@ -674,7 +676,7 @@ input:checked + .mpn-slider:before {
 
 /* Drag Active State */
 .mpn-drop-area.mpn-drag-active {
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background: rgba(59, 130, 246, 0.1);
   transform: scale(1.02);
 }
@@ -692,7 +694,7 @@ input:checked + .mpn-slider:before {
 .mpn-textarea:focus-visible,
 .mpn-select:focus-visible,
 .mpn-btn:focus-visible {
-  outline: 2px solid #8CC63F;
+  outline: 2px solid #39AE47;
   outline-offset: 2px;
 }
 
@@ -722,7 +724,7 @@ input:checked + .mpn-slider:before {
   width: 32px;
   height: 32px;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #8CC63F;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: mpn-spin 0.8s linear infinite;
 }
@@ -737,7 +739,7 @@ input:checked + .mpn-slider:before {
 .mpn-btn-back:hover {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .mpn-image-label {
@@ -790,6 +792,8 @@ html[data-theme="light"] .mpn-container .mpn-select,
 html[data-theme="light"] .mpn-container .mpn-image-label {
   border-color: #d1d5db !important;
   color: #1a1a1a !important;
+  -webkit-text-fill-color: #1a1a1a !important;
+  caret-color: #1a1a1a !important;
 }
 html[data-theme="light"] .mpn-container .mpn-input::placeholder,
 html[data-theme="light"] .mpn-container .mpn-textarea::placeholder,
@@ -835,7 +839,7 @@ html[data-theme="light"] .mpn-container .mpn-input-hint {
   }
   .mpn-container .mpn-spinner {
     border-color: rgba(0, 0, 0, 0.15);
-    border-top-color: #8cc63f;
+    border-top-color: #39AE47;
   }
 }
 html[data-theme="light"] .mpn-container .mpn-card {
@@ -860,7 +864,7 @@ html[data-theme="light"] .mpn-container .mpn-form-label {
 }
 html[data-theme="light"] .mpn-container .mpn-spinner {
   border-color: rgba(0, 0, 0, 0.15);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
 }
 
 /* Force dark theme colors on Create/Edit Lot when OS is light */
@@ -902,7 +906,7 @@ html[data-theme="dark"] .mpn-container .mpn-input-prefix {
   }
   .mpn-container .mpn-spinner {
     border-color: rgba(0, 0, 0, 0.1);
-    border-top-color: #8cc63f;
+    border-top-color: #39AE47;
   }
 }
 html[data-theme="light"] .mpn-container .mpn-card {
@@ -927,7 +931,7 @@ html[data-theme="light"] .mpn-container .mpn-form-label {
 }
 html[data-theme="light"] .mpn-container .mpn-spinner {
   border-color: rgba(0, 0, 0, 0.1);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
 }
 
 /* Edit Lot - Light mode: borders, placeholders, headings */
@@ -1035,7 +1039,7 @@ html[data-theme="light"] .mpn-container .mpn-card-title {
 
 /* Success States */
 .mpn-success {
-  color: #10b981;
+  color: #39AE47;
   font-size: 0.75rem;
   margin-top: 0.375rem;
 }
@@ -1064,7 +1068,7 @@ html[data-theme="light"] .mpn-container .mpn-card-title {
   }
   .mpn-container .mpn-spinner {
     border-color: rgba(0, 0, 0, 0.15);
-    border-top-color: #8cc63f;
+    border-top-color: #39AE47;
   }
 }
 html[data-theme="light"] .mpn-container .mpn-card {
@@ -1089,7 +1093,7 @@ html[data-theme="light"] .mpn-container .mpn-form-label {
 }
 html[data-theme="light"] .mpn-container .mpn-spinner {
   border-color: rgba(0, 0, 0, 0.15);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
 }
 
 /* Print Styles */

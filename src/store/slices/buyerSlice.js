@@ -11,6 +11,8 @@ const initialState = {
   events: [],
   eventsLoading: false,
   eventsError: null,
+  eventsLoaded: false,
+  eventsLastFetched: null,
   isLoading: false,
   isPlacingBid: false,
   error: null,
@@ -102,16 +104,31 @@ const buyerSlice = createSlice({
 
     // Fetch Auction Bids
     builder
-      .addCase(fetchAuctionBids.pending, (state) => {
+      .addCase(fetchAuctionBids.pending, (state, action) => {
+        const silent =
+          typeof action.meta.arg === 'object' &&
+          action.meta.arg !== null &&
+          action.meta.arg.silent === true;
+        if (silent) return;
         state.isLoading = true;
         state.error = null;
       })
       .addCase(fetchAuctionBids.fulfilled, (state, action) => {
-        state.isLoading = false;
+        const silent =
+          typeof action.meta.arg === 'object' &&
+          action.meta.arg !== null &&
+          action.meta.arg.silent === true;
+        if (!silent) {
+          state.isLoading = false;
+        }
         state.auctionBids = action.payload;
-
       })
       .addCase(fetchAuctionBids.rejected, (state, action) => {
+        const silent =
+          typeof action.meta.arg === 'object' &&
+          action.meta.arg !== null &&
+          action.meta.arg.silent === true;
+        if (silent) return;
         state.isLoading = false;
         state.error = action.payload;
       });
@@ -159,6 +176,8 @@ const buyerSlice = createSlice({
       .addCase(fetchEvents.fulfilled, (state, action) => {
         state.eventsLoading = false;
         state.events = action.payload?.results || [];
+        state.eventsLoaded = true;
+        state.eventsLastFetched = action.payload?.fetchedAt || Date.now();
       })
       .addCase(fetchEvents.rejected, (state, action) => {
         state.eventsLoading = false;

@@ -68,7 +68,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background-color: #8CC63F;
+  background-color: #39AE47;
   transition: width 0.3s;
 }
 
@@ -114,7 +114,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000000;
   font-size: 0.625rem;
   font-weight: 700;
@@ -136,7 +136,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 /* Invoices Content */
@@ -166,7 +166,7 @@
 }
 
 .breadcrumbs a:hover {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .breadcrumbs span {
@@ -207,7 +207,7 @@
 
 .export-button:hover {
   background-color: rgba(255, 255, 255, 0.08);
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 /* Section Styles */
@@ -293,7 +293,7 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -333,7 +333,7 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #8CC63F;
+  accent-color: #39AE47;
 }
 
 .invoice-info {
@@ -398,7 +398,7 @@
 
 .invoice-status.paid {
   background-color: rgba(140, 198, 63, 0.2);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.3);
 }
 
@@ -517,7 +517,7 @@
 
 .status-badge.completed {
   background-color: rgba(140, 198, 63, 0.2);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.3);
 }
 
@@ -556,7 +556,7 @@
 
 .pagination-btn:hover:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.08);
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .pagination-btn:disabled {

@@ -68,7 +68,7 @@
 .guest-lot-drawer__close:hover {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .guest-lot-drawer__lot-no {
@@ -143,7 +143,7 @@
   width: 32px;
   height: 32px;
   border: 2px solid var(--color-border);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: guest-lot-drawer-spin 0.8s linear infinite;
   margin-bottom: 1rem;
@@ -156,6 +156,50 @@
 .guest-lot-drawer__scroll {
   flex: 1;
   overflow-y: auto;
+}
+
+.guest-lot-drawer__wallet-top {
+  margin: 1rem 1.25rem 0;
+  border: 1px solid rgba(140, 198, 63, 0.3);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.guest-lot-drawer__wallet-top-head {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.55rem;
+}
+
+.guest-lot-drawer__wallet-top-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.guest-lot-drawer__wallet-top-item {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface-elevated);
+  padding: 0.55rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.guest-lot-drawer__wallet-top-label {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.guest-lot-drawer__wallet-top-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #39AE47;
 }
 
 .guest-lot-drawer__main {
@@ -219,7 +263,7 @@
 
 .guest-lot-drawer__thumb:hover,
 .guest-lot-drawer__thumb.active {
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .guest-lot-drawer__thumb img {
@@ -317,7 +361,7 @@
 .guest-lot-drawer__bid-amt {
   margin-left: auto;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .guest-lot-drawer__muted {
@@ -356,7 +400,7 @@
 .guest-lot-drawer__time-value {
   font-size: 1rem;
   font-weight: 700;
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .guest-lot-drawer__time-value.ended {
@@ -406,7 +450,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 8px;
@@ -431,6 +475,158 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.guest-lot-drawer__autobid {
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 0.65rem;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.guest-lot-drawer__autobid-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.guest-lot-drawer__autobid-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.guest-lot-drawer__autobid-checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #39AE47;
+  cursor: pointer;
+}
+
+.guest-lot-drawer__autobid-toggle-text {
+  user-select: none;
+}
+
+.guest-lot-drawer__autobid-loading {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.guest-lot-drawer__autobid-ceiling {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #f97316;
+}
+
+.guest-lot-drawer__autobid-save {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid rgba(140, 198, 63, 0.45);
+  background: rgba(140, 198, 63, 0.2);
+  color: #39AE47;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.guest-lot-drawer__autobid-save:hover:not(:disabled) {
+  background: rgba(140, 198, 63, 0.3);
+}
+
+.guest-lot-drawer__autobid-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Improve contrast in light theme for auto-bid block */
+html[data-theme="light"] .guest-lot-drawer__autobid {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+html[data-theme="light"] .guest-lot-drawer__autobid-toggle,
+html[data-theme="light"] .guest-lot-drawer__autobid-toggle-text {
+  color: #1f2937;
+}
+
+html[data-theme="light"] .guest-lot-drawer__custom-bid-label {
+  color: #374151;
+}
+
+html[data-theme="light"] .guest-lot-drawer__bid-input {
+  background: #ffffff;
+  border-color: #6b7280;
+  color: #111827;
+}
+
+html[data-theme="light"] .guest-lot-drawer__bid-input:focus {
+  border-color: #65a30d;
+  box-shadow: 0 0 0 2px rgba(101, 163, 13, 0.22);
+}
+
+html[data-theme="light"] .guest-lot-drawer__autobid-save {
+  background: #84cc16;
+  border-color: #65a30d;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .guest-lot-drawer__autobid-save:hover:not(:disabled) {
+  background: #65a30d;
+  color: #ffffff;
+}
+
+html[data-theme="light"] .guest-lot-drawer__autobid-loading {
+  color: #4b5563;
+}
+
+.guest-lot-drawer__wallet-summary-state {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.guest-lot-drawer__wallet-unavailable {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.guest-lot-drawer__wallet-retry {
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-input-bg);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.guest-lot-drawer__wallet-retry:hover {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .guest-lot-drawer__wallet-top {
+    margin: 0.75rem 1rem 0;
+  }
+
+  .guest-lot-drawer__wallet-top-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .guest-lot-drawer__increment-hint {
@@ -465,7 +661,7 @@
 
 .guest-lot-drawer__bid-input:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.2);
 }
 
@@ -490,7 +686,7 @@
 .guest-lot-drawer__quick-bid-btn:hover {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .guest-lot-drawer__quick-bid-max {

@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_CONFIG, getMediaUrl } from '../config/api.config';
+import { formatBidDateTime } from '../utils/formatBidDateTime';
+import { maskBidderName } from '../utils/maskBidderName';
 import './ManagerAuctionDetails.css';
 
 const ManagerAuctionDetails = () => {
@@ -289,11 +291,11 @@ const ManagerAuctionDetails = () => {
               <div className="manager-auction-details-bids">
                 {auctionData.bids && auctionData.bids.length > 0 ? (
                   <div className="manager-auction-details-bids-list">
-                    {auctionData.bids.map((bid, index) => (
+                    {auctionData.bids.slice(0, 15).map((bid, index) => (
                       <div key={index} className="manager-auction-details-bid-item">
                         <span className="manager-auction-details-bid-amount">{formatPrice(bid.amount)}</span>
-                        <span className="manager-auction-details-bid-user">{bid.user || 'Anonymous'}</span>
-                        <span className="manager-auction-details-bid-time">{formatDate(bid.created_at)}</span>
+                        <span className="manager-auction-details-bid-user">{maskBidderName(bid.user || 'Anonymous')}</span>
+                        <span className="manager-auction-details-bid-time">{formatBidDateTime(bid.created_at)}</span>
                       </div>
                     ))}
                   </div>

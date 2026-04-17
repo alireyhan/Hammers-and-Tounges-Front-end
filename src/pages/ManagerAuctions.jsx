@@ -174,9 +174,9 @@ export default function ManagerAuctions() {
             <div className="auction-card-icon-container">
               <div className="auction-card-icon" style={{ backgroundColor: 'rgba(140, 198, 63, 0.15)' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M2 17L12 22L22 17" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M2 12L12 17L22 12" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 17L12 22L22 17" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 12L12 17L22 12" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
             </div>

@@ -16,6 +16,30 @@ export const adminService = {
     }
   },
 
+  /** GET — unsold inventory / long-stay aging breakdown (Admin/Manager/Clerk on backend; exposed in admin app only) */
+  getAgingDashboard: async (options = {}) => {
+    try {
+      const forceRefresh = !!options.forceRefresh;
+      const requestConfig = forceRefresh
+        ? {
+            params: { _ts: Date.now() },
+            skipDedupe: true,
+            headers: {
+              'Cache-Control': 'no-cache',
+              Pragma: 'no-cache',
+            },
+          }
+        : undefined;
+      const { data } = await apiClient.get(API_ROUTES.ADMIN_AGING_DASHBOARD, requestConfig);
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
   // User Actions (Verify Seller, Promote to Manager, etc.)
   performUserAction: async (actionData) => {
     try {
@@ -373,6 +397,39 @@ export const adminService = {
       const { data } = await apiClient.post(
         `${API_ROUTES.TOGGLE_CATEGORY}${categoryId}/toggle/`,
         categoryData
+      );
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
+  /** GET — manual deposit requests (Admin/Manager). Pass `{ status: 'PENDING' }` etc. */
+  getAdminManualDeposits: async (params = {}) => {
+    try {
+      const query = {};
+      if (params.status) query.status = params.status;
+      const { data } = await apiClient.get(API_ROUTES.ADMIN_MANUAL_DEPOSITS, {
+        params: query,
+      });
+      return data;
+    } catch (error) {
+      if (error.isNetworkError) {
+        throw new Error('Unable to connect to server. Please try again later.');
+      }
+      throw error;
+    }
+  },
+
+  /** POST — approve or reject a manual deposit */
+  reviewAdminManualDeposit: async (id, body) => {
+    try {
+      const { data } = await apiClient.post(
+        API_ROUTES.ADMIN_MANUAL_DEPOSIT_REVIEW(id),
+        body
       );
       return data;
     } catch (error) {

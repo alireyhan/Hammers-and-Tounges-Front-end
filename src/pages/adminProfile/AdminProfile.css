@@ -67,18 +67,18 @@
 }
 
 .admin-action-btn.admin-primary {
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
 }
 
 .admin-action-btn.admin-primary:hover {
-  background-color: #7bb337;
+  background-color: #39AE47;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
 }
 
 .admin-action-btn.admin-secondary {
-  border: 1px solid #8cc63f;
-  color: #8cc63f;
+  border: 1px solid #39AE47;
+  color: #39AE47;
 }
 
 .admin-action-btn.admin-outline {
@@ -88,8 +88,8 @@
 }
 
 .admin-action-btn.admin-outline:hover {
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .admin-action-btn.admin-small {
@@ -148,7 +148,7 @@
   height: clamp(70px, 8vw, 80px);
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid #8cc63f;
+  border: 3px solid #39AE47;
 }
 
 .admin-avatar img {
@@ -163,7 +163,7 @@
   right: 5px;
   width: clamp(12px, 1.5vw, 14px);
   height: clamp(12px, 1.5vw, 14px);
-  background: #8cc63f;
+  background: #39AE47;
   border: 2px solid #1e293b;
   border-radius: 50%;
 }
@@ -174,7 +174,7 @@
   right: -5px;
   width: clamp(24px, 3vw, 28px);
   height: clamp(24px, 3vw, 28px);
-  background: #8cc63f;
+  background: #39AE47;
   border: 2px solid #1e293b;
   border-radius: 50%;
   display: flex;
@@ -186,7 +186,7 @@
 }
 
 .admin-avatar-upload:hover {
-  background: #7bb335;
+  background: #39AE47;
   transform: scale(1.1);
 }
 
@@ -278,14 +278,14 @@
 
 .admin-stat-icon.admin-revenue {
   background: rgba(34, 197, 94, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .admin-stat-icon.admin-orders {
   background: rgba(59, 130, 246, 0.15);
-  color: #8cc63f;
-  border: 1px solid #8cc63f;
+  color: #39AE47;
+  border: 1px solid #39AE47;
 }
 
 .admin-stat-icon.admin-rating {
@@ -365,11 +365,11 @@
 }
 
 .admin-stat-value.admin-primary {
-  color: #8cc63f !important;
+  color: #39AE47 !important;
 }
 
 .admin-stat-value.admin-success {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .admin-stat-value.admin-warning {
@@ -433,8 +433,8 @@
 
 .admin-tab-btn.admin-active {
   background: #000;
-  color: #8cc63f;
-  border: 1px solid #8cc63f;
+  color: #39AE47;
+  border: 1px solid #39AE47;
 }
 
 /* Admin Tab Content */
@@ -599,13 +599,13 @@ select.admin-edit-input {
 
 .admin-icon-circle.admin-completed {
   background: rgba(34, 197, 94, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .admin-icon-circle.admin-success {
   background: rgba(59, 130, 246, 0.15);
-  color: #8cc63f;
-  border: 1px solid #8cc63f;
+  color: #39AE47;
+  border: 1px solid #39AE47;
 }
 
 .admin-icon-circle.admin-processing {
@@ -688,7 +688,7 @@ select.admin-edit-input {
 }
 
 .admin-alert-item.admin-success {
-  border-left: 3px solid #10b981;
+  border-left: 3px solid #39AE47;
 }
 
 .admin-alert-icon {
@@ -844,7 +844,7 @@ select.admin-edit-input {
 
 .admin-status-badge.admin-active {
   background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  color: #39AE47;
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
@@ -965,7 +965,7 @@ select.admin-edit-input {
 
 .admin-role-badge.admin-seller {
   background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  color: #39AE47;
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
@@ -1096,7 +1096,7 @@ select.admin-edit-input {
 }
 
 input:checked + .admin-slider {
-  background-color: #8cc63f;
+  background-color: #39AE47;
 }
 
 input:checked + .admin-slider:before {

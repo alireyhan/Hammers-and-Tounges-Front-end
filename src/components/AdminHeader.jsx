@@ -86,6 +86,26 @@ function AdminHeader() {
       )
     },
     {
+      path: '/admin/unsold-inventory',
+      label: 'Unsold Inventory',
+      desktopLabel: 'Unsold Inventory',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      )
+    },
+    {
+      path: '/admin/goods-received-verification',
+      label: 'GRV',
+      desktopLabel: 'Goods Received Verification',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )
+    },
+    {
       path: '/admin/finance',
       label: 'Finance',
       desktopLabel: 'Finance',
@@ -108,15 +128,21 @@ function AdminHeader() {
           </Link>
 
           <nav className="admin-header__nav">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`admin-header__nav-link ${location.pathname === item.path ? 'active' : ''}`}
-              >
-                {item.desktopLabel}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const financeActive =
+                item.path === '/admin/finance' && location.pathname.startsWith('/admin/finance')
+              const exactActive = location.pathname === item.path
+              const isActive = financeActive || (item.path !== '/admin/finance' && exactActive)
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`admin-header__nav-link ${isActive ? 'active' : ''}`}
+                >
+                  {item.desktopLabel}
+                </Link>
+              )
+            })}
           </nav>
 
           <div className="admin-header__right">

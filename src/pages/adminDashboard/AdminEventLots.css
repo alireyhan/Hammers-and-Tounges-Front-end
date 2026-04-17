@@ -38,7 +38,7 @@
 .admin-event-lots__back:hover {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .admin-event-lots__header-content {
@@ -68,7 +68,7 @@
 
 .admin-event-lots__header-status--active {
   background: rgba(34, 197, 94, 0.2);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .admin-event-lots__header-status--closed {
@@ -109,9 +109,9 @@
 .admin-event-lots__edit-event {
   padding: 0.5rem 1rem;
   background: transparent;
-  border: 1px solid #8cc63f;
+  border: 1px solid #39AE47;
   border-radius: 8px;
-  color: #8cc63f;
+  color: #39AE47;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -124,8 +124,8 @@
 
 .admin-event-lots__create-lot {
   padding: 0.5rem 1rem;
-  background: #8cc63f;
-  border: 1px solid #8cc63f;
+  background: #39AE47;
+  border: 1px solid #39AE47;
   border-radius: 8px;
   color: #000;
   font-size: 0.875rem;
@@ -135,8 +135,8 @@
 }
 
 .admin-event-lots__create-lot:hover {
-  background: #7bb337;
-  border-color: #7bb337;
+  background: #39AE47;
+  border-color: #39AE47;
   color: #000;
   box-shadow: 0 4px 12px rgba(140, 198, 63, 0.3);
 }
@@ -191,6 +191,29 @@
   min-height: 200px;
 }
 
+.admin-event-lots__sync-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(57, 174, 71, 0.45);
+  border-radius: 8px;
+  background: rgba(57, 174, 71, 0.12);
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.admin-event-lots__sync-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #39AE47;
+  box-shadow: 0 0 0 0 rgba(57, 174, 71, 0.55);
+  animation: admin-event-lots-sync-pulse 1.3s ease-in-out infinite;
+}
+
 .admin-event-lots__body {
   display: flex;
   gap: 1.5rem;
@@ -205,7 +228,7 @@
 .admin-event-lots__clear-filters {
   margin-top: 0.75rem;
   padding: 0.5rem 1rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 6px;
@@ -240,7 +263,7 @@
   width: 32px;
   height: 32px;
   border: 2px solid var(--color-border);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: admin-event-lots-spin 0.8s linear infinite;
   margin-bottom: 1rem;
@@ -250,11 +273,17 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes admin-event-lots-sync-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(57, 174, 71, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(57, 174, 71, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(57, 174, 71, 0); }
+}
+
 .admin-event-lots__error button,
 .admin-event-lots__empty button {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 6px;
@@ -336,7 +365,7 @@
 }
 
 .admin-event-lots__card-dot.active {
-  background: #8cc63f;
+  background: #39AE47;
 }
 
 .admin-event-lots__card-status {
@@ -384,7 +413,7 @@
 .admin-event-lots__card-lot-no {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
@@ -423,7 +452,7 @@
 
 .admin-event-lots__card-price {
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .admin-event-lots__card-footer {
@@ -437,7 +466,7 @@
 }
 
 .admin-event-lots__card-bids {
-  color: #8cc63f;
+  color: #39AE47;
   font-weight: 500;
 }
 
@@ -503,8 +532,8 @@
 
 .admin-event-lots__pagination button:hover:not(:disabled) {
   background: rgba(140, 198, 63, 0.2);
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .admin-event-lots__pagination button:disabled {

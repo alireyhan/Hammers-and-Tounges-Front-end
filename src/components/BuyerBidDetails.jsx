@@ -4,6 +4,8 @@ import './BuyerBidDetails.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchAuctionBids } from '../store/actions/buyerActions';
 import { getMediaUrl } from '../config/api.config';
+import { formatBidDateTime } from '../utils/formatBidDateTime';
+import { maskBidderName } from '../utils/maskBidderName';
 
 const BuyerBidDetails = () => {
   const { id } = useParams()
@@ -31,14 +33,7 @@ const BuyerBidDetails = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return formatBidDateTime(dateString);
   };
 
   useEffect(() => {
@@ -67,11 +62,11 @@ const BuyerBidDetails = () => {
       case 'AWAITING_PAYMENT':
         return { bg: 'rgba(251, 146, 60, 0.2)', border: 'rgba(251, 146, 60, 0.5)', color: '#fb923c' };
       case 'WON':
-        return { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', color: '#22c55e' };
+        return { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', color: '#39AE47' };
       case 'LOST':
         return { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 0.5)', color: '#ef4444' };
       case 'ACTIVE':
-        return { bg: 'rgba(140, 198, 63, 0.4)', border: 'rgba(140, 198, 63, 0.7)', color: '#8CC63F' };
+        return { bg: 'rgba(140, 198, 63, 0.4)', border: 'rgba(140, 198, 63, 0.7)', color: '#39AE47' };
       default:
         return { bg: 'rgba(107, 114, 128, 0.2)', border: 'rgba(107, 114, 128, 0.5)', color: '#9ca3af' };
     }
@@ -316,14 +311,14 @@ const BuyerBidDetails = () => {
                 <h3 className="bid-history-title">All Bids for This Auction</h3>
                 {bidHistory.length > 0 ? (
                   <div className="bid-history-list">
-                    {bidHistory.map((bid, index) => (
+                    {bidHistory.slice(0, 15).map((bid, index) => (
                       <div key={bid.id} className="bid-history-item">
                         <div className="bid-history-rank">
                           <span className="rank-number">#{index + 1}</span>
                         </div>
                         <div className="bid-history-content">
                           <div className="bid-history-info">
-                            <span className="bid-history-bidder">{bid.bidder_name || 'Anonymous'}</span>
+                            <span className="bid-history-bidder">{maskBidderName(bid.bidder_name || 'Anonymous')}</span>
                           </div>
                           {/* <span className="bid-history-relative">{formatRelativeTime(bid.created_at)}</span> */}
                           <span className="bid-history-time">{formatDate(bid.created_at)}</span>

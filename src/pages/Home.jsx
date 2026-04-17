@@ -4,62 +4,66 @@ import { useSelector, useDispatch } from 'react-redux'
 import { fetchEvents } from '../store/actions/AuctionsActions'
 import Hero from '../components/Hero'
 import EventListingRow from '../components/EventListingRow'
+import { normalizeEventStatusForFilter } from '../utils/eventStatus'
 import './Home.css'
 
 const TAB_UPCOMING = 'upcoming'
 const TAB_PAST = 'past'
 
+const EventsSkeleton = ({ rows = 10 }) => (
+  <div className="events-skeleton-list" aria-hidden="true">
+    {Array.from({ length: rows }).map((_, idx) => (
+      <div key={idx} className="events-skeleton-row">
+        <div className="events-skeleton-thumb">
+          <div className="events-skeleton-shimmer events-skeleton-shape-thumb" />
+          <div className="events-skeleton-shimmer events-skeleton-shape-badge" />
+        </div>
+        <div className="events-skeleton-dates">
+          <div className="events-skeleton-shimmer events-skeleton-shape-date" />
+          <div className="events-skeleton-shimmer events-skeleton-shape-date" />
+        </div>
+        <div className="events-skeleton-body">
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--title" />
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--chip" />
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--meta" />
+        </div>
+        <div className="events-skeleton-lots">
+          <div className="events-skeleton-shimmer events-skeleton-shape-lots" />
+        </div>
+      </div>
+    ))}
+  </div>
+)
+
 const Home = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { token } = useSelector(state => state.auth)
-  const { events, eventsLoading, eventsError } = useSelector(state => state.buyer)
+  const { events, eventsLoading, eventsError, eventsLoaded } = useSelector(state => state.buyer)
 
   const [page, setPage] = useState(1)
   const [activeTab, setActiveTab] = useState(TAB_UPCOMING)
-  const [allEvents, setAllEvents] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-
   const filteredEvents = useMemo(() => {
-    if (!allEvents.length) return []
+    if (!events.length) return []
     const now = new Date()
     if (activeTab === TAB_UPCOMING) {
-      return allEvents.filter((e) => {
+      return events.filter((e) => {
         const end = e.end_time ? new Date(e.end_time) : null
-        const status = (e.status || '').toUpperCase()
+        const status = normalizeEventStatusForFilter(e)
         if (status === 'CLOSED' || status === 'CLOSING') return false
         return !end || end > now
       })
     }
-    return allEvents.filter((e) => {
+    return events.filter((e) => {
       const end = e.end_time ? new Date(e.end_time) : null
-      const status = (e.status || '').toUpperCase()
+      const status = normalizeEventStatusForFilter(e)
       if (status === 'CLOSED' || status === 'CLOSING') return true
       return end && end <= now
     })
-  }, [allEvents, activeTab])
+  }, [events, activeTab])
 
   useEffect(() => {
-    const loadEvents = async () => {
-      setIsLoading(true)
-      try {
-        let results = []
-        let nextPage = 1
-        let hasMore = true
-        while (hasMore) {
-          const res = await dispatch(fetchEvents({ page: nextPage })).unwrap()
-          results = [...results, ...(res.results || [])]
-          hasMore = !!res.next
-          nextPage += 1
-        }
-        setAllEvents(results)
-      } catch (err) {
-        setAllEvents([])
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadEvents()
+    dispatch(fetchEvents({}))
   }, [dispatch])
 
   const itemsPerPage = 12
@@ -103,31 +107,30 @@ const Home = () => {
               </button>
             </div>
             <span className="home-events__count">
-              {isLoading && allEvents.length === 0 ? '...' : `${filteredEvents.length} events`}
+              {eventsLoading && !eventsLoaded ? '...' : `${filteredEvents.length} events`}
             </span>
           </div>
 
-          {isLoading && allEvents.length === 0 && (
+          {eventsLoading && !eventsLoaded && (
             <div className="home-loading">
-              <div className="home-spinner" />
-              <p>Loading events...</p>
+              <EventsSkeleton />
             </div>
           )}
 
-          {eventsError && !isLoading && allEvents.length === 0 && (
+          {eventsError && !eventsLoading && !events.length && (
             <div className="home-error">
               <p>Failed to load events</p>
-              <button onClick={() => window.location.reload()}>Retry</button>
+              <button onClick={() => dispatch(fetchEvents({ forceRefresh: true }))}>Retry</button>
             </div>
           )}
 
-          {!isLoading && !eventsError && paginatedEvents.length === 0 && (
+          {!eventsLoading && !eventsError && paginatedEvents.length === 0 && (
             <div className="home-empty">
               <p>{activeTab === TAB_UPCOMING ? 'No upcoming events.' : 'No past events.'}</p>
             </div>
           )}
 
-          {!isLoading && !eventsError && paginatedEvents.length > 0 && (
+          {!eventsLoading && !eventsError && paginatedEvents.length > 0 && (
             <>
               <div className="home-events-list">
                 {paginatedEvents.map((event) => (

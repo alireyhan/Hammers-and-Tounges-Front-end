@@ -47,7 +47,7 @@
 
 .category-primary-action-btn {
   padding: 0.5rem 1rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 6px;
@@ -62,7 +62,7 @@
 }
 
 .category-primary-action-btn:hover {
-  background: #7bb337;
+  background: #39AE47;
 }
 
 .category-primary-action-btn svg {
@@ -206,7 +206,7 @@
 
 .category-search-input:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .category-clear-search {
@@ -222,7 +222,7 @@
 }
 
 .category-clear-search:hover {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .category-table-info {
@@ -347,7 +347,7 @@
 
 .category-status-toggle.active .category-toggle-handle {
   transform: translateX(16px);
-  background: #8cc63f;
+  background: #39AE47;
 }
 
 .category-status-toggle.toggling {
@@ -366,7 +366,7 @@
 
 .category-status-label.active {
   background: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .category-status-label.inactive {
@@ -471,7 +471,7 @@
 .category-pagination-btn:hover:not(:disabled) {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .category-pagination-btn:disabled {
@@ -506,8 +506,8 @@
 
 .category-page-number.active {
   background: rgba(140, 198, 63, 0.2);
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .category-page-dots {
@@ -546,4 +546,14 @@
   .category-card-value {
     font-size: 1rem;
   }
+}
+
+/* Keep heading text readable in explicit dark theme */
+html[data-theme="dark"] .category-dashboard-page .category-page-title {
+  color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .category-dashboard-page .category-page-subtitle,
+html[data-theme="dark"] .category-dashboard-page .card-label {
+  color: var(--color-text-muted) !important;
 }

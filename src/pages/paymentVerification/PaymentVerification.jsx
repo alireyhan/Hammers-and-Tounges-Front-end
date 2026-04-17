@@ -141,7 +141,7 @@ const PaymentVerification = () => {
                                             <h4 className="deposit-name">Liam Johnson</h4>
                                             <span className="deposit-date">April 15, 2024</span>
                                         </div>
-                                        <p className="deposit-details">Invoice #INV-2024-001 • Bank Transfer</p>
+                                        <p className="deposit-details">Invoice #INV-2024-001 • Online Deposit</p>
                                         <div className="deposit-footer">
                                             <div className="deposit-status">
                                                 <span className="status-badge-1 unverified">Unverified</span>

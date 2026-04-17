@@ -188,7 +188,7 @@
 }
 
 .edit-seller-btn-primary:hover:not(:disabled) {
-  background-color: #7bb335;
+  background-color: #39AE47;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(140, 198, 63, 0.3);
 }

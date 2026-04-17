@@ -2,6 +2,14 @@
 import apiClient from '../api.service';
 import { API_ROUTES } from '../../config/api.config';
 
+function listManualDepositsPayload(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw.results)) return raw.results;
+  if (Array.isArray(raw.data)) return raw.data;
+  return [];
+}
+
 /**
  * Normalize profile API response - handles different backend response structures.
  * Backend may return: { first_name, ... } | { data: { ... } } | { user: {...}, profile: {...} }
@@ -33,6 +41,28 @@ function normalizeProfileResponse(raw) {
       first_name: parts[0] || '',
       last_name: parts.slice(1).join(' ') || '',
     };
+  }
+  return raw;
+}
+
+/** Unwrap nested wallet shapes from the API (same as mobile buyerService.getWallet). */
+function normalizeWalletPayload(raw) {
+  if (raw == null || typeof raw !== "object") return null;
+  const hasBalances =
+    raw.available_balance != null ||
+    raw.availableBalance != null ||
+    raw.bidding_power != null ||
+    raw.biddingPower != null ||
+    raw.locked_balance != null ||
+    raw.lockedBalance != null;
+  if (hasBalances) return raw;
+  if (raw.wallet && typeof raw.wallet === "object") {
+    const inner = normalizeWalletPayload(raw.wallet);
+    if (inner) return inner;
+  }
+  if (raw.data && typeof raw.data === "object") {
+    const inner = normalizeWalletPayload(raw.data);
+    if (inner) return inner;
   }
   return raw;
 }
@@ -98,6 +128,47 @@ export const profileService = {
 
   getWallet: async () => {
     const { data } = await apiClient.get(API_ROUTES.WALLET);
+    return normalizeWalletPayload(data) ?? data;
+  },
+
+  deposit: async ({ amount, cell_number }) => {
+    const payload = {
+      amount: String(amount),
+      cell_number: String(cell_number),
+    };
+    const { data } = await apiClient.post(API_ROUTES.DEPOSIT, payload);
+    return data;
+  },
+
+  /** GET /payments/manual-deposit/ — manual bank transfer requests */
+  getManualDeposits: async () => {
+    const { data } = await apiClient.get(API_ROUTES.MANUAL_DEPOSIT, { skipDedupe: true });
+    return listManualDepositsPayload(data);
+  },
+
+  /**
+   * POST /payments/manual-deposit/ — multipart.
+   * New request: amount + proof_of_payment only.
+   * Resubmit: also send deposit_id (prior manual deposit id) and optionally reference_number.
+   */
+  submitManualDeposit: async ({ amount, proofFile, reference_number, deposit_id }) => {
+    const formData = new FormData();
+    formData.append("amount", String(amount));
+    formData.append("proof_of_payment", proofFile);
+    const isResubmit = deposit_id != null && String(deposit_id).trim() !== "";
+    if (isResubmit) {
+      formData.append("deposit_id", String(deposit_id).trim());
+      if (reference_number != null && String(reference_number).trim() !== "") {
+        formData.append("reference_number", String(reference_number).trim());
+      }
+    }
+    const { data } = await apiClient.post(API_ROUTES.MANUAL_DEPOSIT, formData);
+    return data;
+  },
+
+  /** DELETE /payments/manual-deposits/{id}/ — allowed when status is PENDING */
+  deleteManualDeposit: async (id) => {
+    const { data } = await apiClient.delete(API_ROUTES.MANUAL_DEPOSIT_ITEM(id));
     return data;
   },
 };

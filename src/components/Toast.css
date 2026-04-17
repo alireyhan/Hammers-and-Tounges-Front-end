@@ -20,7 +20,7 @@
 .toast {
   background-color: rgba(0, 0, 0, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-left: 4px solid #8CC63F;
+  border-left: 4px solid #39AE47;
   border-radius: 8px;
   padding: 1rem 1.25rem;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
@@ -40,7 +40,7 @@
 
 .toast-content svg {
   flex-shrink: 0;
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 @media (max-width: 768px) {

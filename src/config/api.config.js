@@ -142,9 +142,19 @@ export const API_ROUTES = {
   PROFILE_DELETE: '/users/profile/delete/',
   PROFILE_UPDATE: '/users/profile/',
   WALLET: '/users/wallet/',
+  DEPOSIT: '/payments/deposit/',
+  MANUAL_DEPOSIT: '/payments/manual-deposit/',
+  /** DELETE — pending manual requests only; path uses plural `manual-deposits`. */
+  MANUAL_DEPOSIT_ITEM: (id) => `/payments/manual-deposits/${id}/`,
+  /** GET — Admin/Manager: list manual deposits; optional `?status=PENDING|APPROVED|REJECTED` */
+  ADMIN_MANUAL_DEPOSITS: '/payments/admin/manual-deposits/',
+  /** POST — Admin/Manager: body `{ decision: 'APPROVED' }` or `{ decision: 'REJECTED', rejection_reason }` */
+  ADMIN_MANUAL_DEPOSIT_REVIEW: (id) => `/payments/admin/manual-deposits/${id}/review/`,
 
   // Admin Routes
   ADMIN_DASHBOARD: '/inspections/admin/dashboard/',
+  /** GET — Admin aging / unsold inventory dashboard */
+  ADMIN_AGING_DASHBOARD: '/auctions/dashboard/aging/',
   ADMIN_USER_ACTION: '/inspections/admin/user-action/',
   ADMIN_ASSIGN_AUCTION: '/inspections/admin/assign/',
   ADMIN_USERS_LIST: '/inspections/admin/users/',
@@ -172,6 +182,8 @@ export const API_ROUTES = {
   //// Auction Routes (Common for all)
   AUCTIONS_EVENTS: '/auctions/events/',
   AUCTIONS_LOTS: '/auctions/lots/',
+  /** Goods Received Verification reports */
+  AUCTIONS_GRV: '/auctions/grv/',
   AUCTIONS_LOTS_FACETS: '/auctions/lots/facets/',
   AUCTIONS_LIST: '/auctions/listings/',
   // AUCTION_DETAIL: '/auctions/listings/', // + auction_id
@@ -188,6 +200,10 @@ export const API_ROUTES = {
 
   // Buyer Routes
   PLACE_BID: '/auctions/bid/',
+  /** GET list of current user's auto-bids */
+  AUTO_BIDS_MY: '/auctions/auto-bids/my/',
+  /** POST start/update: use AUCTIONS_LOTS + lotId + /auto-bid/ (not AUTO_BIDS + id) */
+  AUTO_BIDS: '/auctions/auto-bids/',
   GET_AUCTION_BIDS: '/auctions/listings/', // + auction_id + /bids/
 
   AUCTION_BID_HISTORY: '/auctions/listings/', // + auction_id + /bid-history/

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { auctionService } from '../services/interceptors/auction.service';
 import { toast } from 'react-toastify';
 import EventListingRow from '../components/EventListingRow';
+import { fetchEvents } from '../store/actions/AuctionsActions';
+import { normalizeEventStatusForFilter } from '../utils/eventStatus';
 import './ManagerDashboard.css';
 
 const canDeleteEventByLots = async (eventId) => {
@@ -51,59 +53,130 @@ const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
   </div>
 ));
 
+const EventsSkeleton = ({ rows = 10 }) => (
+  <div className="events-skeleton-list" aria-hidden="true">
+    {Array.from({ length: rows }).map((_, idx) => (
+      <div key={idx} className="events-skeleton-row">
+        <div className="events-skeleton-thumb">
+          <div className="events-skeleton-shimmer events-skeleton-shape-thumb" />
+          <div className="events-skeleton-shimmer events-skeleton-shape-badge" />
+        </div>
+        <div className="events-skeleton-dates">
+          <div className="events-skeleton-shimmer events-skeleton-shape-date" />
+          <div className="events-skeleton-shimmer events-skeleton-shape-date" />
+        </div>
+        <div className="events-skeleton-body">
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--title" />
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--chip" />
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--meta" />
+        </div>
+        <div className="events-skeleton-lots">
+          <div className="events-skeleton-shimmer events-skeleton-shape-lots" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 function ManagerDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
   const features = useSelector((state) => state.permissions?.features);
+  const { events, eventsLoading, eventsLoaded } = useSelector((state) => state.buyer);
   const manageEventsPerm = features?.manage_events || {};
   const canCreateEvents = manageEventsPerm?.create === true;
   const canDeleteEvents = manageEventsPerm?.delete === true;
-  const [events, setEvents] = useState([]);
   const [filterStatus, setFilterStatus] = useState('ALL');
-  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
-  const [eventCount, setEventCount] = useState(0);
   const [deletableEventIds, setDeletableEventIds] = useState({});
-
-  const fetchEventsData = useCallback(async () => {
-    setIsLoadingEvents(true);
-    try {
-      const allEvents = await auctionService.fetchAllEvents();
-      setEvents(allEvents);
-      setEventCount(allEvents.length);
-
-      // Precompute delete eligibility for scheduled events
-      const scheduled = allEvents.filter((e) => String(e?.status || '').toUpperCase() === 'SCHEDULED');
-      const checks = await Promise.all(
-        scheduled.map(async (e) => [String(e.id), await canDeleteEventByLots(e.id)])
-      );
-      const nextMap = {};
-      checks.forEach(([id, ok]) => { nextMap[id] = ok; });
-      setDeletableEventIds(nextMap);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      toast.error('Failed to load events. Please try again.');
-      setEvents([]);
-      setEventCount(0);
-      setDeletableEventIds({});
-    } finally {
-      setIsLoadingEvents(false);
-    }
-  }, []);
+  const [syncingCreatedEvent, setSyncingCreatedEvent] = useState(false);
+  const eventCreated = location.state?.eventCreated === true;
+  const createdEventId = location.state?.createdEventId ?? null;
+  const createdEventCode = location.state?.createdEventCode ?? null;
 
   useEffect(() => {
-    fetchEventsData();
-  }, [fetchEventsData]);
+    dispatch(fetchEvents({}));
+  }, [dispatch]);
 
-  const filteredEvents = useMemo(() => {
+  useEffect(() => {
+    if (!eventCreated) return;
+
+    let cancelled = false;
+    setSyncingCreatedEvent(true);
+
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const isCreatedEvent = (event) => {
+      if (!event || typeof event !== 'object') return false;
+      if (createdEventId != null && String(event.id) === String(createdEventId)) return true;
+      if (createdEventCode && String(event.event_id) === String(createdEventCode)) return true;
+      return false;
+    };
+
+    (async () => {
+      const maxAttempts = 8;
+      const pollDelayMs = 1200;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        try {
+          const payload = await dispatch(fetchEvents({ forceRefresh: true })).unwrap();
+          const list = payload?.results || [];
+          if ((!createdEventId && !createdEventCode) || list.some(isCreatedEvent)) {
+            break;
+          }
+        } catch {
+          // Continue polling on transient fetch failures.
+        }
+
+        if (attempt < maxAttempts) {
+          await wait(pollDelayMs);
+          if (cancelled) return;
+        }
+      }
+
+      if (!cancelled) {
+        setSyncingCreatedEvent(false);
+        navigate('/manager/dashboard', { replace: true });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventCreated, createdEventId, createdEventCode, dispatch, navigate]);
+
+  useEffect(() => {
+    const hydrateDeleteEligibility = async () => {
+      if (!events?.length) {
+        setDeletableEventIds({});
+        return;
+      }
+      try {
+        const scheduled = events.filter((e) => normalizeEventStatusForFilter(e) === 'SCHEDULED');
+        const checks = await Promise.all(
+          scheduled.map(async (e) => [String(e.id), await canDeleteEventByLots(e.id)])
+        );
+        const nextMap = {};
+        checks.forEach(([id, ok]) => { nextMap[id] = ok; });
+        setDeletableEventIds(nextMap);
+      } catch {
+        setDeletableEventIds({});
+      }
+    };
+    hydrateDeleteEligibility();
+  }, [events]);
+
+  const getFilteredEvents = () => {
     if (!events || events.length === 0) return [];
     if (filterStatus === 'ALL') return events;
     return events.filter((event) => {
-      const status = (event.status || '').toUpperCase();
+      const status = normalizeEventStatusForFilter(event);
       if (filterStatus === 'COMPLETED') {
         return status === 'CLOSING' || status === 'CLOSED' || status === 'COMPLETED';
       }
       return status === filterStatus;
     });
-  }, [events, filterStatus]);
+  };
+  const filteredEvents = getFilteredEvents();
 
   const handleViewDetails = useCallback(
     (eventId, event) => {
@@ -121,19 +194,19 @@ function ManagerDashboard() {
       const ok = await canDeleteEventByLots(eventId);
       if (!ok) {
         toast.error('Event cannot be deleted because it has active (or non-draft) lots.');
-        fetchEventsData();
+        dispatch(fetchEvents({ forceRefresh: true }));
         return;
       }
       if (!window.confirm(`Are you sure you want to delete "${event?.title || 'this event'}"? This will remove the event and all its lots.`)) return;
       try {
         await auctionService.deleteEvent(eventId);
         toast.success('Event deleted successfully.');
-        fetchEventsData();
+        dispatch(fetchEvents({ forceRefresh: true }));
       } catch (err) {
         toast.error(err?.message || 'Failed to delete event');
       }
     },
-    [fetchEventsData],
+    [canDeleteEvents, dispatch],
   );
 
   const statCards = useMemo(
@@ -148,12 +221,12 @@ function ManagerDashboard() {
             <polyline points="10 9 9 9 8 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         ),
-        value: eventCount.toLocaleString(),
+        value: events.length.toLocaleString(),
         label: 'Total Events',
         colorClass: 'manager-dashboard-icon-events',
       },
     ],
-    [eventCount],
+    [events.length],
   );
 
   return (
@@ -190,8 +263,8 @@ function ManagerDashboard() {
           <div className="manager-dashboard-card-header">
             <div className="manager-dashboard-card-title-wrapper">
               <h2 className="manager-dashboard-card-title">Recent Events</h2>
-              {eventCount > 0 && (
-                <span className="manager-dashboard-event-count">({eventCount})</span>
+              {events.length > 0 && (
+                <span className="manager-dashboard-event-count">({events.length})</span>
               )}
             </div>
             <div className="manager-dashboard-card-actions">
@@ -209,10 +282,17 @@ function ManagerDashboard() {
             </div>
           </div>
 
+          {syncingCreatedEvent && (
+            <div className="manager-dashboard-events-sync-banner" role="status" aria-live="polite">
+              <span className="manager-dashboard-events-sync-dot" />
+              Fetching newly created event...
+            </div>
+          )}
+
           <div className="manager-dashboard-events-list-wrapper">
-            {isLoadingEvents ? (
+            {eventsLoading && !eventsLoaded ? (
               <div className="manager-dashboard-loading">
-                Loading events...
+                <EventsSkeleton />
               </div>
             ) : filteredEvents.length === 0 ? (
               <div className="manager-dashboard-empty">
@@ -241,7 +321,7 @@ function ManagerDashboard() {
                           View
                         </button>
                         {canDeleteEvents &&
-                          (ev.status || '').toUpperCase() === 'SCHEDULED' &&
+                          normalizeEventStatusForFilter(ev) === 'SCHEDULED' &&
                           deletableEventIds[String(ev.id)] === true && (
                           <button
                             type="button"

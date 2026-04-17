@@ -25,13 +25,16 @@
 
 .admin-layout__toggle:hover {
   background: rgba(140, 198, 63, 0.2);
-  color: #8cc63f;
+  color: #39AE47;
   border-color: rgba(140, 198, 63, 0.3);
 }
 
 .admin-layout__main {
   flex: 1;
   min-height: 100vh;
+  /* Do not set width: 100% with margin-left (drawer): that sums past 100vw and overflows. */
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* When drawer closed: add left padding to clear the hamburger button */

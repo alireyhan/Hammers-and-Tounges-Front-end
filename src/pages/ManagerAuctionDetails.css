@@ -110,7 +110,7 @@
 }
 
 .manager-auction-details-thumbnail.active {
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .manager-auction-details-thumbnail img {
@@ -191,7 +191,7 @@
 
 .manager-auction-details-status-badge.status-approved {
   background: rgba(140, 198, 63, 0.15);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.3);
 }
 
@@ -218,7 +218,7 @@
 .manager-auction-details-bid-amount {
   font-size: 1rem;
   font-weight: 600;
-  color: #8CC63F;
+  color: #39AE47;
   min-width: 120px;
 }
 

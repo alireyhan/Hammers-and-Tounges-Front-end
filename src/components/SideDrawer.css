@@ -72,7 +72,7 @@
 
 .side-drawer__close:hover {
   background: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 /* Theme toggle */
@@ -168,16 +168,16 @@
 }
 
 .side-drawer__link:hover svg {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .side-drawer__link.active {
   background: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .side-drawer__link.active svg {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 /* Category sub-tabs under Buy */
@@ -203,12 +203,12 @@
 }
 
 .side-drawer__sub-tab:hover {
-  color: #8cc63f;
+  color: #39AE47;
   background: rgba(140, 198, 63, 0.08);
 }
 
 .side-drawer__sub-tab.active {
-  color: #8cc63f;
+  color: #39AE47;
   font-weight: 600;
   background: rgba(140, 198, 63, 0.12);
 }
@@ -248,9 +248,9 @@
 }
 
 .side-drawer__category-tag:hover {
-  border-color: #8cc63f;
+  border-color: #39AE47;
   background: rgba(140, 198, 63, 0.1);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 /* Actions (Sign In / Create Account) */
@@ -293,7 +293,7 @@
 }
 
 .side-drawer__btn--primary:hover {
-  background: #7bb337;
+  background: #39AE47;
   color: #000;
 }
 

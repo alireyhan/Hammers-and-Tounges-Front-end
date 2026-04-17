@@ -4,7 +4,7 @@ import './EventListingRow.css';
 
 
 const CATEGORY_CONFIG = [
-  { keywords: ['farm', 'agriculture', 'farming'], color: '#8cc63f', label: 'Farming & Agriculture' },
+  { keywords: ['farm', 'agriculture', 'farming'], color: '#39AE47', label: 'Farming & Agriculture' },
   { keywords: ['goods', 'harare'], color: '#eab308', label: 'Goods' },
   { keywords: ['machinery', 'tools'], color: '#f97316', label: 'Machinery & Tools' },
   { keywords: ['building', 'construction'], color: '#3b82f6', label: 'Building & Construction' },
@@ -19,7 +19,7 @@ const getCategoryFromEvent = (event) => {
   for (const cfg of CATEGORY_CONFIG) {
     if (cfg.keywords.some((k) => search.includes(k))) return cfg;
   }
-  return { color: '#8cc63f', label: event.category_name || 'Auction' };
+  return { color: '#39AE47', label: event.category_name || 'Auction' };
 };
 
 const getDisplayStatus = (status) => {

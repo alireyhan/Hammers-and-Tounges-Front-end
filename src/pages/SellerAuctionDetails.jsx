@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchAuctionBids } from '../store/actions/buyerActions';
 import { deleteAuction, fetchMyAuctions, updateAuction } from '../store/actions/sellerActions';
 import { getMediaUrl } from '../config/api.config';
+import { formatBidDateTime } from '../utils/formatBidDateTime';
+import { maskBidderName } from '../utils/maskBidderName';
 import './SellerAuctionDetails.css'
 
 // Helper function to format field names
@@ -385,7 +387,7 @@ const SellerAuctionDetails = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'ACTIVE':
-        return { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', color: '#22c55e' };
+        return { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', color: '#39AE47' };
       case 'APPROVED':
         return { bg: 'rgba(59, 130, 246, 0.2)', border: 'rgba(59, 130, 246, 0.5)', color: '#3b82f6' };
       case 'PENDING':
@@ -950,12 +952,12 @@ const SellerAuctionDetails = () => {
                 {auctionBids && auctionBids.length > 0 && (
                   <div className="seller-details-bid-list">
                     <h3>All Bids</h3>
-                    {auctionBids.map((bid, index) => (
+                    {auctionBids.slice(0, 15).map((bid, index) => (
                       <div key={bid.id} className="seller-details-bid-item">
                         <div className="seller-details-bid-rank">#{index + 1}</div>
                         <div className="seller-details-bid-info">
-                          <div className="seller-details-bid-name">{bid.bidder_name || 'Anonymous'}</div>
-                          <div className="seller-details-bid-time">{formatDate(bid.created_at)}</div>
+                          <div className="seller-details-bid-name">{maskBidderName(bid.bidder_name || 'Anonymous')}</div>
+                          <div className="seller-details-bid-time">{formatBidDateTime(bid.created_at)}</div>
                         </div>
                         <div className="seller-details-bid-amount">
                           {formatCurrency(parseFloat(bid.amount))}

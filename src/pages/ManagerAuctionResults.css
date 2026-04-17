@@ -63,7 +63,7 @@ body {
 
 .results-export-btn {
   padding: 0.75rem 1.5rem;
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000000;
   border: none;
   border-radius: 8px;
@@ -80,7 +80,7 @@ body {
 }
 
 .results-export-btn:hover {
-  background-color: #7BB337;
+  background-color: #39AE47;
   box-shadow: 0 6px 16px rgba(140, 198, 63, 0.3);
 }
 
@@ -106,7 +106,7 @@ body {
 
 .results-stat-card:hover {
   transform: translateY(-2px);
-  border-color: #8CC63F;
+  border-color: #39AE47;
   box-shadow: 0 8px 24px rgba(140, 198, 63, 0.15);
 }
 
@@ -218,7 +218,7 @@ body {
 
 .results-search-input:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.2);
   background-color: rgba(255, 255, 255, 0.08);
 }
@@ -270,7 +270,7 @@ body {
 .results-filter-btn.active {
   background-color: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8CC63F;
+  color: #39AE47;
   font-weight: 600;
 }
 
@@ -339,7 +339,7 @@ body {
 
 .results-bid-amount {
   font-weight: 600;
-  color: #8CC63F;
+  color: #39AE47;
   font-size: 0.9375rem;
 }
 
@@ -373,7 +373,7 @@ body {
 
 .results-status-badge.badge-met {
   background-color: rgba(140, 198, 63, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.2);
 }
 
@@ -385,7 +385,7 @@ body {
 
 .results-status-badge.badge-received {
   background-color: rgba(140, 198, 63, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.2);
 }
 
@@ -431,7 +431,7 @@ body {
 
 .results-action-btn:hover {
   background-color: rgba(140, 198, 63, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .results-action-btn svg {
@@ -545,7 +545,7 @@ body {
 .results-page-number.active {
   background-color: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8CC63F;
+  color: #39AE47;
   font-weight: 700;
 }
 

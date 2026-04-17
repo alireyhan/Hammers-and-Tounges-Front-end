@@ -26,6 +26,7 @@ import BuyerWonItems from "./pages/BuyerWonItems";
 import BuyerInvoices from "./pages/BuyerInvoices";
 import BuyerWallet from "./pages/BuyerWallet";
 import BuyerProfile from "./pages/BuyerProfile";
+import BuyerAddBalance from "./pages/BuyerAddBalance";
 import BuyerSell from "./pages/BuyerSell";
 import FavoriteAuctions from "./pages/FavoriteAuctions";
 
@@ -68,6 +69,11 @@ import AdminAuctionDetails from "./pages/adminDashboard/AdminAuctionDetails";
 import AdminProfile from "./pages/adminProfile/AdminProfile";
 import AdminSell from "./pages/AdminSell";
 import AdminFinance from './pages/AdminFinance'
+import ManualDepositDetail from './pages/ManualDepositDetail'
+import AdminUnsoldInventory from './pages/AdminUnsoldInventory'
+import AdminDepositExemption from './pages/AdminDepositExemption'
+import AdminAuctionDepositOverride from './pages/AdminAuctionDepositOverride'
+import AdminGoodsReceivedVerification from './pages/adminDashboard/AdminGoodsReceivedVerification'
 import ManualPaymentEntry from './components/ManualPayment'
 import ManualPaymentAuthorization from './pages/ManualPaymentAuthorization'
 import PaymentVerification from './pages/paymentVerification/PaymentVerification'
@@ -146,6 +152,7 @@ function App() {
                 <Route path="/buyer/invoices" element={<BuyerInvoices />} />
                 <Route path="/buyer/wallet" element={<BuyerWallet />} />
                 <Route path="/buyer/profile" element={<BuyerProfile />} />
+                <Route path="/buyer/add-balance" element={<BuyerAddBalance />} />
                 <Route path="/buyer/favorite-items" element={<FavoriteAuctions />} />
               </Route>
             </Route>
@@ -255,6 +262,12 @@ function App() {
                     <ManagerProductFields />
                   </>
                 } />
+                <Route path="/manager/unsold-inventory" element={<AdminUnsoldInventory />} />
+                <Route path="/manager/deposit-exemption" element={<AdminDepositExemption />} />
+                <Route path="/manager/auction-deposit-override" element={<AdminAuctionDepositOverride />} />
+                <Route path="/manager/goods-received-verification" element={<AdminGoodsReceivedVerification />} />
+                <Route path="/manager/finance/manual-deposits/:depositId" element={<ManualDepositDetail />} />
+                <Route path="/manager/finance" element={<AdminFinance />} />
                 <Route path="/manager/role-management/:id" element={
                   <>
                     <AdminRoleManagement />
@@ -315,6 +328,11 @@ function App() {
                 <Route path="/admin/event/:eventId/lot/:lotId" element={<AdminLotDetail />} />
                 <Route path="/admin/auction/:id" element={<AdminAuctionDetails />} />
                 <Route path="/admin/profile" element={<AdminProfile />} />
+                <Route path="/admin/unsold-inventory" element={<AdminUnsoldInventory />} />
+                <Route path="/admin/deposit-exemption" element={<AdminDepositExemption />} />
+                <Route path="/admin/goods-received-verification" element={<AdminGoodsReceivedVerification />} />
+                <Route path="/admin/auction-deposit-override" element={<AdminAuctionDepositOverride />} />
+                <Route path="/admin/finance/manual-deposits/:depositId" element={<ManualDepositDetail />} />
                 <Route path="/admin/finance" element={<AdminFinance />} />
                 <Route path="/admin/finance/manual-payments" element={
                   <>

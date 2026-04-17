@@ -35,6 +35,7 @@ const GuestEventLots = () => {
   const [lots, setLots] = useState([]);
   const [eventTitle, setEventTitle] = useState(eventFromState?.title || 'Event Lots');
   const [eventStatus, setEventStatus] = useState(eventFromState?.status ?? 'LIVE');
+  const [eventStartTime, setEventStartTime] = useState(eventFromState?.start_time || null);
   const [eventEndTime, setEventEndTime] = useState(eventFromState?.end_time || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -121,6 +122,7 @@ const GuestEventLots = () => {
         if (!cancelled) {
           setEventTitle(ev.title || eventTitle);
           setEventStatus(ev.status ?? 'LIVE');
+          setEventStartTime(ev.start_time || null);
           setEventEndTime(ev.end_time || null);
         }
       } catch {
@@ -252,8 +254,10 @@ const GuestEventLots = () => {
                       <LotRow
                         key={lot.id}
                         lot={lot}
-                        eventEndTime={eventEndTime ?? eventFromState?.end_time}
+                        eventStartTime={lot.event_start_time ?? eventStartTime ?? eventFromState?.start_time}
+                        eventEndTime={lot.event_end_time ?? eventEndTime ?? eventFromState?.end_time}
                         eventTitle={eventTitle}
+                        eventStatus={eventStatus ?? eventFromState?.status}
                         onOpenDetail={handleLotClick}
                       />
                     ))}
@@ -294,7 +298,8 @@ const GuestEventLots = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={eventEndTime ?? eventFromState?.end_time}
+          eventStartTime={selectedLot.event_start_time ?? eventStartTime ?? eventFromState?.start_time}
+          eventEndTime={selectedLot.event_end_time ?? eventEndTime ?? eventFromState?.end_time}
           eventTitle={eventTitle}
           onClose={handleCloseDrawer}
         />

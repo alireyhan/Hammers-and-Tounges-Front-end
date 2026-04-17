@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./BuyerProfile.css";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
 import { fetchProfile, updateProfile } from "../store/actions/profileActions";
-import { toast } from "react-toastify";
-import { profileService } from "../services/interceptors/profile.service";
 
 const BuyerProfile = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Get profile data from Redux store
   const {
@@ -14,6 +15,8 @@ const BuyerProfile = () => {
     loading,
     error
   } = useSelector((state) => state.profile);
+  const authUser = useSelector((state) => state.auth.user);
+  const effectiveProfile = profileData || authUser || null;
 
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
@@ -23,8 +26,6 @@ const BuyerProfile = () => {
     email: "",
     phone: ""
   });
-
-  const [wallet, setWallet] = useState(null);
 
   // State for image preview
   const [securityData, setSecurityData] = useState({
@@ -38,15 +39,14 @@ const BuyerProfile = () => {
     dispatch(fetchProfile());
   }, [dispatch]);
 
+  // If a payment gateway redirects back to Profile with `?payment=...`,
+  // forward it to the dedicated Wallet tab.
   useEffect(() => {
-    let cancelled = false;
-    profileService.getWallet().then((data) => {
-      if (!cancelled) setWallet(data);
-    }).catch(() => {
-      if (!cancelled) setWallet(null);
-    });
-    return () => { cancelled = true };
-  }, []);
+    const params = new URLSearchParams(location.search || "");
+    const payment = params.get("payment");
+    if (!payment) return;
+    navigate(`/buyer/wallet${location.search || ""}`, { replace: true });
+  }, [location.search, navigate]);
 
   const handleRetry = useCallback(() => {
     dispatch(fetchProfile());
@@ -54,15 +54,15 @@ const BuyerProfile = () => {
 
   // Update formData when profileData changes from API
   useEffect(() => {
-    if (profileData) {
+    if (effectiveProfile) {
       setFormData({
-        firstName: profileData.first_name || "",
-        lastName: profileData.last_name || "",
-        email: profileData.email || "",
-        phone: profileData.phone || ""
+        firstName: effectiveProfile.first_name || effectiveProfile.firstName || "",
+        lastName: effectiveProfile.last_name || effectiveProfile.lastName || "",
+        email: effectiveProfile.email || "",
+        phone: effectiveProfile.phone || ""
       });
     }
-  }, [profileData]);
+  }, [effectiveProfile]);
 
   const getDisplayName = useCallback(() => {
     return `${formData.firstName} ${formData.lastName}`.trim() || "Buyer";
@@ -127,35 +127,40 @@ const BuyerProfile = () => {
   };
 
   // Loading/error states - must be after all hooks to avoid "fewer hooks" error
-  if (loading && !profileData) {
+  if (loading && !effectiveProfile) {
     return (
-      <div className="buyer-profile-container">
-        <div className="buyer-profile-loading">
-          <div className="buyer-profile-spinner" />
-          <p>Loading your profile...</p>
+      <>
+        <div className="buyer-profile-container">
+          <div className="buyer-profile-loading">
+            <div className="buyer-profile-spinner" />
+            <p>Loading your profile...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
-  if (error && !profileData) {
+  if (error && !effectiveProfile) {
     return (
-      <div className="buyer-profile-container">
-        <div className="buyer-profile-error">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 8v4M12 16h.01" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <h3>Unable to load profile</h3>
-          <p>{error?.message || error?.detail || 'Failed to fetch your profile. Please check your connection and try again.'}</p>
-          <button className="b-action-btn b-primary" onClick={handleRetry}>
-            Retry
-          </button>
+      <>
+        <div className="buyer-profile-container">
+          <div className="buyer-profile-error">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <h3>Unable to load profile</h3>
+            <p>{error?.message || error?.detail || 'Failed to fetch your profile. Please check your connection and try again.'}</p>
+            <button className="b-action-btn b-primary" onClick={handleRetry}>
+              Retry
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
+    <>
     <div className="buyer-profile-container">
       <div className="profile-header">
         <div className="header-content">
@@ -428,37 +433,6 @@ const BuyerProfile = () => {
                   </div>
                 </div>
 
-                {wallet && (
-                  <div className="info-section" style={{ marginTop: '1.5rem' }}>
-                    <h3 className="section-title">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      Wallet
-                    </h3>
-                    <div className="info-grid wallet-grid">
-                      <div className="info-item">
-                        <label>Available Balance</label>
-                        <div className="info-value wallet-value">
-                          ${parseFloat(wallet.available_balance ?? 0).toFixed(2)}
-                        </div>
-                      </div>
-                      <div className="info-item">
-                        <label>Locked Balance</label>
-                        <div className="info-value wallet-value">
-                          ${parseFloat(wallet.locked_balance ?? 0).toFixed(2)}
-                        </div>
-                      </div>
-                      <div className="info-item">
-                        <label>Bidding Power</label>
-                        <div className="info-value wallet-value">
-                          ${parseFloat(wallet.bidding_power ?? 0).toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* <div className="info-section">
                   <h3 className="section-title">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -695,6 +669,7 @@ const BuyerProfile = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

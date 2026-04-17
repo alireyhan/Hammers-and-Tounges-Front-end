@@ -139,7 +139,8 @@ const BuyerBuy = () => {
                   <LotRow
                     key={lot.id}
                     lot={lot}
-                    eventEndTime={lot.end_date ?? lot.end_time}
+                    eventStartTime={lot.event_start_time ?? lot.start_date}
+                    eventEndTime={lot.event_end_time ?? lot.end_date ?? lot.end_time}
                     eventTitle={lot.event_title}
                     eventStatus={lot.event_status}
                     onOpenDetail={handleLotClick}
@@ -179,7 +180,8 @@ const BuyerBuy = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={selectedLot.end_date ?? selectedLot.end_time}
+          eventStartTime={selectedLot.event_start_time ?? selectedLot.start_date}
+          eventEndTime={selectedLot.event_end_time ?? selectedLot.end_date ?? selectedLot.end_time}
           eventTitle={selectedLot.event_title}
           eventId={selectedLot.event_id ?? selectedLot.event}
           eventStatus={selectedLot.event_status}

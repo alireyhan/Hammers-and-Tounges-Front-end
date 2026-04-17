@@ -33,7 +33,7 @@
 .lot-detail-ro__back:hover {
   background: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .lot-detail-ro__header-content {
@@ -67,7 +67,7 @@
   width: 32px;
   height: 32px;
   border: 2px solid var(--color-border);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: lot-detail-ro-spin 0.8s linear infinite;
   margin-bottom: 1rem;
@@ -128,7 +128,7 @@
 
 .lot-detail-ro__dot:hover,
 .lot-detail-ro__dot.active {
-  background: #8cc63f;
+  background: #39AE47;
 }
 
 .lot-detail-ro__placeholder {
@@ -149,7 +149,7 @@
 .lot-detail-ro__lot-no {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
@@ -184,7 +184,7 @@
 .lot-detail-ro__price {
   font-size: 1rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .lot-detail-ro__section-title {
@@ -226,7 +226,7 @@
 
 .lot-detail-ro__bids {
   font-size: 0.875rem;
-  color: #8cc63f;
+  color: #39AE47;
   font-weight: 500;
 }
 
@@ -290,5 +290,5 @@
 .lot-detail-ro__bid-amount {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
 }

@@ -265,7 +265,7 @@
 .gateway-amount {
     font-size: 1rem;
     font-weight: 700;
-    color: #8CC63F;
+    color: #39AE47;
 }
 
 .deposit-amount.mismatched-amount {
@@ -301,7 +301,7 @@
 
 .status-badge-1.verified {
     background-color: rgba(140, 198, 63, 0.15);
-    color: #8CC63F;
+    color: #39AE47;
     border: 1px solid rgba(140, 198, 63, 0.3);
 }
 
@@ -313,7 +313,7 @@
 
 .status-badge-1.completed {
     background-color: rgba(140, 198, 63, 0.15);
-    color: #8CC63F;
+    color: #39AE47;
     border: 1px solid rgba(140, 198, 63, 0.3);
 }
 
@@ -340,7 +340,7 @@
 
 .match-badge.matched {
     background-color: rgba(140, 198, 63, 0.15);
-    color: #8CC63F;
+    color: #39AE47;
     border: 1px solid rgba(140, 198, 63, 0.3);
 }
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { adminService } from '../../services/interceptors/admin.service';
 import { API_CONFIG, getMediaUrl } from '../../config/api.config';
+import { formatBidDateTime } from '../../utils/formatBidDateTime';
+import { maskBidderName } from '../../utils/maskBidderName';
 import './AdminAuctionDetails.css';
 
 const AdminAuctionDetails = () => {
@@ -198,17 +200,17 @@ const AdminAuctionDetails = () => {
             <div className="admin-auction-details-card">
               <h3 className="admin-auction-details-section-title">Bidding History</h3>
               <div className="admin-auction-details-bids-list">
-                {auction.bids.map((bid, index) => (
+                {auction.bids.slice(0, 15).map((bid, index) => (
                   <div key={bid.id} className="admin-auction-details-bid-item">
                     <div className="admin-auction-details-bid-info">
                       <div className="admin-auction-details-bid-amount">
                         {auction.currency || 'USD'} {formatPrice(bid.amount)}
                       </div>
                       <div className="admin-auction-details-bid-bidder">
-                        {bid.bidder_name || bid.bidder_email || 'Unknown Bidder'}
+                        {maskBidderName(bid.bidder_name || bid.bidder_email || 'Unknown Bidder')}
                       </div>
                       <div className="admin-auction-details-bid-time">
-                        {formatDate(bid.created_at)}
+                        {formatBidDateTime(bid.created_at)}
                       </div>
                     </div>
                     {index === 0 && (
@@ -243,7 +245,7 @@ const AdminAuctionDetails = () => {
                   {auction.seller_details?.name || auction.seller_name || 'N/A'}
                   {auction.seller_details?.business_name && ` (${auction.seller_details.business_name})`}
                   {auction.seller_details?.is_verified !== undefined && (
-                    <span style={{ marginLeft: '0.5rem', color: auction.seller_details.is_verified ? '#8CC63F' : '#f87171' }}>
+                    <span style={{ marginLeft: '0.5rem', color: auction.seller_details.is_verified ? '#39AE47' : '#f87171' }}>
                       {auction.seller_details.is_verified ? '✓ Verified' : '✗ Not Verified'}
                     </span>
                   )}
@@ -407,17 +409,17 @@ const AdminAuctionDetails = () => {
             <div className="admin-auction-details-card">
               <h3 className="admin-auction-details-section-title">Bidding History</h3>
               <div className="admin-auction-details-bids-list">
-                {auction.bids.map((bid, index) => (
+                {auction.bids.slice(0, 15).map((bid, index) => (
                   <div key={bid.id} className="admin-auction-details-bid-item">
                     <div className="admin-auction-details-bid-info">
                       <div className="admin-auction-details-bid-amount">
                         {auction.currency || 'USD'} {formatPrice(bid.amount)}
                       </div>
                       <div className="admin-auction-details-bid-bidder">
-                        {bid.bidder_name || bid.bidder_email || 'Unknown Bidder'}
+                        {maskBidderName(bid.bidder_name || bid.bidder_email || 'Unknown Bidder')}
                       </div>
                       <div className="admin-auction-details-bid-time">
-                        {formatDate(bid.created_at)}
+                        {formatBidDateTime(bid.created_at)}
                       </div>
                     </div>
                     {index === 0 && (

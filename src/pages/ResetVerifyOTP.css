@@ -37,7 +37,7 @@
 
 .back-button:hover {
   background-color: rgba(140, 198, 63, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .verify-reset-otp-header-link {
@@ -51,7 +51,7 @@
 .header-link-button {
   background: none;
   border: none;
-  color: #8CC63F;
+  color: #39AE47;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -61,7 +61,7 @@
 }
 
 .header-link-button:hover {
-  color: #8CC63F !important;
+  color: #39AE47 !important;
   text-decoration: underline;
 }
 
@@ -142,7 +142,7 @@
 }
 
 .verify-reset-otp-subtitle strong {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .verify-reset-otp-form {
@@ -173,7 +173,7 @@
 }
 
 .otp-input:focus {
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 0 3px rgba(140, 198, 63, 0.1);
 }
@@ -192,7 +192,7 @@
 }
 
 .submit-button {
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000000;
   border: none;
   padding: 0.75rem 2rem;
@@ -205,7 +205,7 @@
 }
 
 .submit-button:hover {
-  background-color: #7BB337;
+  background-color: #39AE47;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
 }
 
@@ -232,7 +232,7 @@
 .resend-otp-button {
   background: none;
   border: none;
-  color: #8CC63F;
+  color: #39AE47;
   font-weight: 600;
   cursor: pointer;
   font-size: 0.875rem;
@@ -242,7 +242,7 @@
 }
 
 .resend-otp-button:hover {
-  color: #7BB337;
+  color: #39AE47;
 }
 
 .resend-otp-button:disabled {

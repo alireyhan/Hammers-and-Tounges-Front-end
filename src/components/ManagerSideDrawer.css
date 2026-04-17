@@ -69,7 +69,7 @@
 
 .manager-side-drawer__close:hover {
   background: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .manager-side-drawer__nav {
@@ -106,16 +106,16 @@
 }
 
 .manager-side-drawer__link:hover svg {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .manager-side-drawer__link.active {
   background: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .manager-side-drawer__link.active svg {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .manager-side-drawer__link--btn {
@@ -148,12 +148,12 @@
 }
 
 .manager-side-drawer__sub-tab:hover {
-  color: #8cc63f;
+  color: #39AE47;
   background: rgba(140, 198, 63, 0.08);
 }
 
 .manager-side-drawer__sub-tab.active {
-  color: #8cc63f;
+  color: #39AE47;
   font-weight: 600;
   background: rgba(140, 198, 63, 0.12);
 }

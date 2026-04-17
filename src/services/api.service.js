@@ -33,6 +33,42 @@ const apiClient = axios.create({
   },
 });
 
+const inFlightRequests = new Map();
+const DEDUPE_METHODS = new Set(['get']);
+
+const stableStringify = (value) => {
+  if (value === null || typeof value !== 'object') {
+    return JSON.stringify(value);
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`;
+  }
+
+  if (value instanceof URLSearchParams) {
+    return value.toString();
+  }
+
+  if (value instanceof FormData) {
+    // FormData is mutable and can contain files/blobs; skip deep serialization.
+    return '[form-data]';
+  }
+
+  const keys = Object.keys(value).sort();
+  return `{${keys
+    .map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`)
+    .join(',')}}`;
+};
+
+const getRequestKey = (config) => {
+  const method = (config.method || 'get').toLowerCase();
+  const url = config.url || '';
+  const params = stableStringify(config.params || {});
+  const data = stableStringify(config.data || {});
+
+  return `${method}|${url}|${params}|${data}`;
+};
+
 apiClient.interceptors.request.use((config) => {
   // Strip leading slash so path appends to baseURL (e.g. /auctions/events/ -> auctions/events/)
   if (typeof config.url === 'string' && config.url.startsWith('/')) {
@@ -40,7 +76,23 @@ apiClient.interceptors.request.use((config) => {
   }
   // For FormData, remove Content-Type so axios sets multipart/form-data with boundary
   if (config.data instanceof FormData) {
-    delete config.headers['Content-Type'];
+    if (typeof config.headers?.delete === 'function') {
+      // AxiosHeaders instance (axios v1+)
+      config.headers.delete('Content-Type');
+      config.headers.delete('content-type');
+    } else if (config.headers && typeof config.headers === 'object') {
+      // Plain-object fallback
+      delete config.headers['Content-Type'];
+      delete config.headers['content-type'];
+      if (config.headers.common && typeof config.headers.common === 'object') {
+        delete config.headers.common['Content-Type'];
+        delete config.headers.common['content-type'];
+      }
+      if (config.headers.post && typeof config.headers.post === 'object') {
+        delete config.headers.post['Content-Type'];
+        delete config.headers.post['content-type'];
+      }
+    }
   }
   // Add auth token only for protected routes (skip for public/guest endpoints)
   if (!isPublicPath(config.url)) {
@@ -61,5 +113,28 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+const originalRequest = apiClient.request.bind(apiClient);
+
+apiClient.request = (config = {}) => {
+  const method = (config.method || 'get').toLowerCase();
+  const shouldDedupe = DEDUPE_METHODS.has(method) && !config.skipDedupe;
+
+  if (!shouldDedupe) {
+    return originalRequest(config);
+  }
+
+  const requestKey = getRequestKey(config);
+  if (inFlightRequests.has(requestKey)) {
+    return inFlightRequests.get(requestKey);
+  }
+
+  const requestPromise = originalRequest(config).finally(() => {
+    inFlightRequests.delete(requestKey);
+  });
+
+  inFlightRequests.set(requestKey, requestPromise);
+  return requestPromise;
+};
 
 export default apiClient;

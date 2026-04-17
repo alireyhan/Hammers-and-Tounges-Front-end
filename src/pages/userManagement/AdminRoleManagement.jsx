@@ -7,37 +7,72 @@ import { fetchUserPermissions } from "../../store/actions/permissionsActions";
 import "./AdminRoleManagement.css";
 
 /** Read is always true (not shown as a toggle). */
-const TOGGLE_PERMISSION_KEYS = ["create", "update", "delete"];
+const DEFAULT_TOGGLE_PERMISSION_KEYS = ["create", "update", "delete"];
 
 const makeDefaultFeaturePermissions = () => ({
   read: true,
   create: false,
   update: false,
-  delete: false,
+  delete: false
 });
 
 const withReadAlwaysTrue = (perms) => ({
   ...(perms || makeDefaultFeaturePermissions()),
-  read: true,
+  read: true
+});
+
+const normalizeFeaturePermissions = (featureKey, src) => ({
+  // GRV read must remain true even if backend returns false.
+  read: featureKey === "manage_grv" ? true : true,
+  create: !!src.create,
+  update: !!src.update,
+  delete: !!src.delete
 });
 
 const makeReadOnlyFeaturePermissions = () => ({
   read: true,
   create: false,
   update: false,
-  delete: false,
+  delete: false
+});
+
+/** Clerks must not have GRV or deposit exemption; manager-only features. */
+const clerkDeniedFeaturePermissions = () => ({
+  read: false,
+  create: false,
+  update: false,
+  delete: false
 });
 
 const FEATURE_LABELS = {
   manage_users: "User management",
-  manage_events: "Event management",
+  manage_events: "Event management + Auction Control",
   manage_categories: "Category management",
+  manage_grv: "GRV management",
+  deposit_exempt: "Deposit exempt"
+};
+
+/** Clerks only work events here; do not imply auction-control scope in the heading. */
+const featureSectionTitle = (featureKey, roleType) => {
+  const rt = String(roleType || "").toLowerCase();
+  if (featureKey === "manage_events" && rt === "clerk") {
+    return "Event management";
+  }
+  return FEATURE_LABELS[featureKey] || featureKey;
+};
+
+const FEATURE_PERMISSION_KEYS = {
+  manage_users: DEFAULT_TOGGLE_PERMISSION_KEYS,
+  manage_events: DEFAULT_TOGGLE_PERMISSION_KEYS,
+  manage_categories: DEFAULT_TOGGLE_PERMISSION_KEYS,
+  manage_grv: DEFAULT_TOGGLE_PERMISSION_KEYS,
+  deposit_exempt: ["create"]
 };
 
 const PERMISSION_DESCRIPTIONS = {
   create: "Create access",
   update: "Update access",
-  delete: "Delete access",
+  delete: "Delete access"
 };
 
 const PermissionSwitch = ({ checked, onChange, label }) => {
@@ -60,9 +95,12 @@ const AdminRoleManagement = () => {
   const dispatch = useDispatch();
   const authUserId = useSelector((state) => state.auth?.user?.id);
 
-  const roleType = location.state?.role || "manager"; // "manager" | "clerk"
+  // API may return "Clerk" / "Manager"; normalize so clerk never sees the manager feature set.
+  const roleType = String(location.state?.role ?? "manager").toLowerCase(); // "manager" | "clerk"
   const user = location.state?.user;
-  const basePath = location.pathname.startsWith("/manager") ? "/manager" : "/admin";
+  const basePath = location.pathname.startsWith("/manager")
+    ? "/manager"
+    : "/admin";
   const targetUserId = id ?? user?.id ?? user?.user_id ?? user?.userId ?? null;
 
   const [isLoading, setIsLoading] = useState(true);
@@ -70,8 +108,16 @@ const AdminRoleManagement = () => {
   const [featurePermissions, setFeaturePermissions] = useState({});
 
   const featuresToShow = useMemo(() => {
-    if (roleType === "clerk") return ["manage_events"];
-    return ["manage_users", "manage_events", "manage_categories"];
+    if (roleType === "clerk") {
+      return ["manage_events"];
+    }
+    return [
+      "manage_users",
+      "manage_events",
+      "manage_categories",
+      "manage_grv",
+      "deposit_exempt"
+    ];
   }, [roleType]);
 
   useEffect(() => {
@@ -81,27 +127,20 @@ const AdminRoleManagement = () => {
         const data = await adminService.getUserPermissions(targetUserId);
         const incoming = data?.feature_permissions || {};
 
-        // Normalize per feature; read is always true (not user-toggleable).
+        // Only load keys this role is allowed to edit in UI (avoid merging extra manager features for clerks).
         const normalized = {};
-        for (const featureKey of Object.keys(incoming)) {
+        for (const featureKey of featuresToShow) {
           const src = incoming?.[featureKey] || {};
           normalized[featureKey] = {
-            read: true,
-            create: !!src.create,
-            update: !!src.update,
-            delete: !!src.delete,
+            ...makeDefaultFeaturePermissions(),
+            ...normalizeFeaturePermissions(featureKey, src)
           };
         }
 
-        // Ensure expected keys exist (important for UI toggles).
-        for (const featureKey of ["manage_users", "manage_events", "manage_categories"]) {
-          if (!normalized[featureKey]) normalized[featureKey] = makeDefaultFeaturePermissions();
-          else {
-            normalized[featureKey] = {
-              ...makeDefaultFeaturePermissions(),
-              ...normalized[featureKey],
-            };
-          }
+        // Product rule: GRV read is always true in admin flow,
+        // regardless of what backend returns.
+        if (normalized.manage_grv) {
+          normalized.manage_grv = withReadAlwaysTrue(normalized.manage_grv);
         }
 
         setFeaturePermissions(normalized);
@@ -118,22 +157,24 @@ const AdminRoleManagement = () => {
     };
 
     if (targetUserId != null) fetchPermissions();
-  }, [targetUserId]);
+  }, [targetUserId, featuresToShow]);
 
   const headerSubtitle = useMemo(() => {
-    const name = user?.full_name || user?.display_name || user?.email || "Selected user";
+    const name =
+      user?.full_name || user?.display_name || user?.email || "Selected user";
     return `${roleType.toUpperCase()} • ${name}`;
   }, [roleType, user]);
 
   const handleToggle = (featureKey, permissionKey, value) => {
     setFeaturePermissions((prev) => {
-      const currentFeature = prev?.[featureKey] || makeDefaultFeaturePermissions();
+      const currentFeature =
+        prev?.[featureKey] || makeDefaultFeaturePermissions();
       return {
         ...prev,
         [featureKey]: {
           ...currentFeature,
-          [permissionKey]: value,
-        },
+          [permissionKey]: value
+        }
       };
     });
   };
@@ -150,18 +191,36 @@ const AdminRoleManagement = () => {
         roleType === "clerk"
           ? {
               feature_permissions: {
-                manage_events: withReadAlwaysTrue(featurePermissions.manage_events),
+                manage_events: withReadAlwaysTrue(
+                  featurePermissions.manage_events
+                ),
                 // Keep users/categories read-only for clerk users.
                 manage_users: makeReadOnlyFeaturePermissions(),
                 manage_categories: makeReadOnlyFeaturePermissions(),
-              },
+                // GRV and deposit exemption are manager-only (not configurable for clerks).
+                manage_grv: clerkDeniedFeaturePermissions(),
+                deposit_exempt: clerkDeniedFeaturePermissions()
+              }
             }
           : {
               feature_permissions: {
-                manage_users: withReadAlwaysTrue(featurePermissions.manage_users),
-                manage_events: withReadAlwaysTrue(featurePermissions.manage_events),
-                manage_categories: withReadAlwaysTrue(featurePermissions.manage_categories),
-              },
+                manage_users: withReadAlwaysTrue(
+                  featurePermissions.manage_users
+                ),
+                manage_events: withReadAlwaysTrue(
+                  featurePermissions.manage_events
+                ),
+                manage_categories: withReadAlwaysTrue(
+                  featurePermissions.manage_categories
+                ),
+                manage_grv: {
+                  ...withReadAlwaysTrue(featurePermissions.manage_grv),
+                  read: true
+                },
+                deposit_exempt: withReadAlwaysTrue(
+                  featurePermissions.deposit_exempt
+                )
+              }
             };
 
       await adminService.updateUserPermissions(targetUserId, payload);
@@ -212,10 +271,18 @@ const AdminRoleManagement = () => {
             <p className="rm-subtitle">{headerSubtitle}</p>
           </div>
           <div className="rm-header-actions">
-            <button className="rm-btn rm-btn-secondary" onClick={handleBack} disabled={isSaving}>
+            <button
+              className="rm-btn rm-btn-secondary"
+              onClick={handleBack}
+              disabled={isSaving}
+            >
               Back
             </button>
-            <button className="rm-btn rm-btn-primary" onClick={handleSave} disabled={isSaving}>
+            <button
+              className="rm-btn rm-btn-primary"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
               {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
@@ -223,16 +290,24 @@ const AdminRoleManagement = () => {
 
         <div className="rm-grid">
           {featuresToShow.map((featureKey) => {
-            const featureValue = featurePermissions?.[featureKey] || makeDefaultFeaturePermissions();
+            const featureValue =
+              featurePermissions?.[featureKey] ||
+              makeDefaultFeaturePermissions();
             return (
               <section key={featureKey} className="rm-feature-card">
-                <div className="rm-feature-title">{FEATURE_LABELS[featureKey] || featureKey}</div>
+                <div className="rm-feature-title">
+                  {featureSectionTitle(featureKey, roleType)}
+                </div>
                 <div className="rm-permission-list">
-                  {TOGGLE_PERMISSION_KEYS.map((permissionKey) => (
+                  {(
+                    FEATURE_PERMISSION_KEYS[featureKey] ||
+                    DEFAULT_TOGGLE_PERMISSION_KEYS
+                  ).map((permissionKey) => (
                     <div key={permissionKey} className="rm-permission-row">
                       <div className="rm-permission-meta">
                         <div className="rm-permission-name">
-                          {permissionKey.charAt(0).toUpperCase() + permissionKey.slice(1)}
+                          {permissionKey.charAt(0).toUpperCase() +
+                            permissionKey.slice(1)}
                         </div>
                         <div className="rm-permission-desc">
                           {PERMISSION_DESCRIPTIONS[permissionKey] || ""}
@@ -240,8 +315,10 @@ const AdminRoleManagement = () => {
                       </div>
                       <PermissionSwitch
                         checked={featureValue[permissionKey]}
-                        onChange={(v) => handleToggle(featureKey, permissionKey, v)}
-                        label={`${FEATURE_LABELS[featureKey] || featureKey} - ${permissionKey}`}
+                        onChange={(v) =>
+                          handleToggle(featureKey, permissionKey, v)
+                        }
+                        label={`${featureSectionTitle(featureKey, roleType)} - ${permissionKey}`}
                       />
                     </div>
                   ))}
@@ -256,4 +333,3 @@ const AdminRoleManagement = () => {
 };
 
 export default AdminRoleManagement;
-

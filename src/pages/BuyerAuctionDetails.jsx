@@ -9,8 +9,14 @@ import {
 } from "../store/actions/buyerActions";
 import { fetchCategories } from "../store/actions/AuctionsActions";
 import { auctionService } from "../services/interceptors/auction.service";
+import { profileService } from "../services/interceptors/profile.service";
 import { useAuctionWebSocket } from "../hooks/useAuctionWebSocket";
+import { useBuyerLotAutoBid } from "../hooks/useBuyerLotAutoBid";
 import { getMediaUrl } from "../config/api.config";
+import InsufficientBalanceBidModal from "../components/InsufficientBalanceBidModal";
+import { formatBidDateTime } from "../utils/formatBidDateTime";
+import { maskBidderName } from "../utils/maskBidderName";
+import { canWalletCoverBidAmount } from "../utils/walletBidEligibility";
 import "./BuyerAuctionDetails.css";
 import { toast } from "react-toastify";
 
@@ -197,15 +203,15 @@ const BidHistoryPanel = memo(({ bids, formatCurrency }) => (
     <h3 className="buyer-details-panel-title">Bid History</h3>
     {bids && bids.length > 0 ? (
       <div className="buyer-details-bid-list">
-        {bids.map((bid, index) => (
+        {bids.slice(0, 15).map((bid, index) => (
           <div key={bid.id ?? index} className="buyer-details-bid-item">
             <div className="buyer-details-bid-rank">#{index + 1}</div>
             <div className="buyer-details-bid-info">
               <div className="buyer-details-bid-bidder">
-                {bid.bidder_name ?? bid.user_name ?? bid.bidder ?? "Bidder"}
+                {maskBidderName(bid.bidder_name ?? bid.user_name ?? bid.bidder ?? "Bidder")}
               </div>
               <div className="buyer-details-bid-time">
-                {new Date(bid.created_at).toLocaleString()}
+                {formatBidDateTime(bid.created_at)}
               </div>
             </div>
             <div className="buyer-details-bid-amount">
@@ -302,6 +308,15 @@ const BuyerAuctionDetails = () => {
     if (id) dispatch(fetchAuctionBids(id));
   }, [id, dispatch]);
 
+  /** REST poll (not WebSocket): refresh bid list every 3s while this lot page is open. */
+  useEffect(() => {
+    if (!id) return undefined;
+    const interval = setInterval(() => {
+      dispatch(fetchAuctionBids({ lotId: id, silent: true }));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [id, dispatch]);
+
   // Fetch lot by id when no listing in state, or when listing is a bid object (from My Bids)
   useEffect(() => {
     if (!id) return;
@@ -361,6 +376,15 @@ const BuyerAuctionDetails = () => {
     isFavorite: auctionObj?.is_favourite ?? false,
     customBidAmount: ""
   });
+  const [walletSummary, setWalletSummary] = useState({
+    availableBalance: null,
+    biddingPower: null,
+    lockedBalance: null,
+    loading: true
+  });
+  /** null | 'low_balance' | 'wallet_unavailable' */
+  const [insufficientBalanceModalKind, setInsufficientBalanceModalKind] =
+    useState(null);
 
   // Use same categories API as Buy & Sell (GET /auctions/categories/) - not the detail endpoint which returns 403
   useEffect(() => {
@@ -510,6 +534,64 @@ const BuyerAuctionDetails = () => {
     },
     [auction?.currency]
   );
+  const formatWalletCurrency = useCallback(
+    (amount) =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: auction?.currency || "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(Number(amount || 0)),
+    [auction?.currency]
+  );
+
+  const refreshBidsForPoll = useCallback(() => {
+    if (!id) return undefined;
+    return dispatch(fetchAuctionBids({ lotId: id, silent: true }));
+  }, [dispatch, id]);
+
+  const {
+    autoBidRecord,
+    autoBidLoading,
+    autobidToggleOn,
+    autobidMaxInput,
+    setAutobidMaxInput,
+    autobidSaving,
+    handleAutobidToggle,
+    handleSaveAutobid,
+    refreshAutoBidForLot
+  } = useBuyerLotAutoBid({
+    lotId: id,
+    enabled: Boolean(id && !fromBuyAndSell && isEventLive),
+    floorAmount: currentHighest,
+    formatCurrency,
+    onRefreshBids: refreshBidsForPoll
+  });
+
+  const loadWalletSummary = useCallback(async () => {
+    setWalletSummary((prev) => ({ ...prev, loading: true }));
+    try {
+      const wallet = await profileService.getWallet();
+      setWalletSummary({
+        availableBalance:
+          wallet?.available_balance ?? wallet?.availableBalance ?? 0,
+        biddingPower: wallet?.bidding_power ?? wallet?.biddingPower ?? 0,
+        lockedBalance: wallet?.locked_balance ?? wallet?.lockedBalance ?? 0,
+        loading: false
+      });
+    } catch {
+      setWalletSummary({
+        availableBalance: null,
+        biddingPower: null,
+        lockedBalance: null,
+        loading: false
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    loadWalletSummary();
+  }, [loadWalletSummary, id]);
 
   // Event handlers
   const handleSelectImage = useCallback((index) => {
@@ -539,6 +621,20 @@ const BuyerAuctionDetails = () => {
   const handlePlaceBid = useCallback(() => {
     const amount = effectiveBidAmount;
     if (!auction || amount == null || isPlacingBid) return;
+
+    if (
+      !walletSummary.loading &&
+      walletSummary.availableBalance != null &&
+      !canWalletCoverBidAmount(walletSummary, amount)
+    ) {
+      setInsufficientBalanceModalKind("low_balance");
+      return;
+    }
+    if (!walletSummary.loading && walletSummary.availableBalance == null) {
+      setInsufficientBalanceModalKind("wallet_unavailable");
+      return;
+    }
+
     dispatch(
       placeBid({
         lot_id: auction.id,
@@ -548,9 +644,27 @@ const BuyerAuctionDetails = () => {
       if (result.type === "buyer/placeBid/fulfilled") {
         setState((prev) => ({ ...prev, customBidAmount: "" }));
         dispatch(fetchAuctionBids(id));
+        loadWalletSummary();
+        if (id) void refreshAutoBidForLot(id);
       }
     });
-  }, [auction, effectiveBidAmount, isPlacingBid, dispatch, id]);
+  }, [
+    auction,
+    effectiveBidAmount,
+    isPlacingBid,
+    dispatch,
+    id,
+    loadWalletSummary,
+    refreshAutoBidForLot,
+    walletSummary.availableBalance,
+    walletSummary.biddingPower,
+    walletSummary.loading
+  ]);
+
+  const handleInsufficientModalAddBalance = useCallback(() => {
+    setInsufficientBalanceModalKind(null);
+    navigate("/buyer/add-balance");
+  }, [navigate]);
 
   const handleQuickBidAdd = useCallback(
     (addAmount) => {
@@ -607,6 +721,7 @@ const BuyerAuctionDetails = () => {
 
   // Render based on auction status
   return (
+    <>
     <div
       className={`buyer-details-page ${
         isLive ? "buyer-details-live-page" : ""
@@ -804,6 +919,94 @@ const BuyerAuctionDetails = () => {
 
             {isEventLive && !fromBuyAndSell && (
               <div className="buyer-details-bidding-form">
+                <div className="buyer-details-wallet-summary">
+                  <div className="buyer-details-wallet-summary__head">Wallet snapshot</div>
+                  {walletSummary.loading ? (
+                    <p className="buyer-details-wallet-summary__loading">Loading wallet...</p>
+                  ) : walletSummary.availableBalance == null ? (
+                    <p className="buyer-details-wallet-summary__loading">
+                      Wallet info unavailable right now.
+                    </p>
+                  ) : (
+                    <div className="buyer-details-wallet-summary__grid">
+                      <div className="buyer-details-wallet-summary__item">
+                        <span className="buyer-details-wallet-summary__label">Available</span>
+                        <span className="buyer-details-wallet-summary__value">
+                          {formatWalletCurrency(walletSummary.availableBalance)}
+                        </span>
+                      </div>
+                      <div className="buyer-details-wallet-summary__item">
+                        <span className="buyer-details-wallet-summary__label">Bidding power</span>
+                        <span className="buyer-details-wallet-summary__value">
+                          {formatWalletCurrency(walletSummary.biddingPower)}
+                        </span>
+                      </div>
+                      <div className="buyer-details-wallet-summary__item">
+                        <span className="buyer-details-wallet-summary__label">Locked</span>
+                        <span className="buyer-details-wallet-summary__value">
+                          {formatWalletCurrency(walletSummary.lockedBalance)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="buyer-details-autobid">
+                  <div className="buyer-details-autobid__row">
+                    <label className="buyer-details-autobid__toggle">
+                      <input
+                        type="checkbox"
+                        className="buyer-details-autobid__checkbox"
+                        checked={autobidToggleOn}
+                        onChange={(e) => handleAutobidToggle(e.target.checked)}
+                        disabled={autobidSaving || autoBidLoading}
+                      />
+                      <span className="buyer-details-autobid__toggle-text">
+                        Auto-bid
+                      </span>
+                    </label>
+                    {autoBidLoading ? (
+                      <span className="buyer-details-autobid__loading">Loading…</span>
+                    ) : null}
+                  </div>
+                  {autoBidRecord?.ceiling_reached === true && (
+                    <p className="buyer-details-autobid__ceiling">
+                      Auto-bid maximum reached for this lot.
+                    </p>
+                  )}
+                  {autobidToggleOn && (
+                    <>
+                      <label
+                        className="buyer-details-custom-bid-label"
+                        htmlFor="buyer-details-autobid-max"
+                      >
+                        Max amount (auto-bid)
+                      </label>
+                      <input
+                        id="buyer-details-autobid-max"
+                        type="number"
+                        className="buyer-details-bid-input"
+                        min={0}
+                        step="0.01"
+                        placeholder="Enter max amount"
+                        value={autobidMaxInput}
+                        onChange={(e) => setAutobidMaxInput(e.target.value)}
+                        disabled={autobidSaving}
+                      />
+                      <button
+                        type="button"
+                        className="buyer-details-autobid__save"
+                        onClick={handleSaveAutobid}
+                        disabled={autobidSaving}
+                      >
+                        {autobidSaving
+                          ? "Saving…"
+                          : autoBidRecord?.id
+                            ? "Update auto-bid"
+                            : "Start auto-bid"}
+                      </button>
+                    </>
+                  )}
+                </div>
                 <p className="buyer-details-increment-hint">
                   Bid increment:{" "}
                   {formatCurrency(incrementRules?.increment ?? 1)}
@@ -943,6 +1146,19 @@ const BuyerAuctionDetails = () => {
         </div>
       </div>
     </div>
+    <InsufficientBalanceBidModal
+      open={insufficientBalanceModalKind != null}
+      variant={
+        insufficientBalanceModalKind === "wallet_unavailable"
+          ? "wallet_unavailable"
+          : "insufficient"
+      }
+      onClose={() => setInsufficientBalanceModalKind(null)}
+      walletSummary={walletSummary}
+      formatWalletCurrency={formatWalletCurrency}
+      onAddBalance={handleInsufficientModalAddBalance}
+    />
+    </>
   );
 };
 

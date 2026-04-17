@@ -4,6 +4,7 @@ import { getMediaUrl } from '../config/api.config';
 import { useCountdownTimer } from '../hooks/useCountdownTimer';
 import { addToFavorite, deleteFavorite } from '../store/actions/buyerActions';
 import { toast } from 'react-toastify';
+import { getLotBidDisplay, resolveLotEventBounds } from '../utils/lotDisplayUtils';
 import './LotRow.css';
 
 const formatPrice = (price) => {
@@ -11,7 +12,53 @@ const formatPrice = (price) => {
   return parseFloat(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, showFavorite = false, isFavorite = false, onFavoriteToggle, statusOnly = false }) => {
+const formatCountdown = ({ days, hours, minutes, seconds }) => {
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m ${seconds}s`;
+};
+
+/** Fallback when timer hook is briefly stale after targetDate switches */
+const formatMsLeft = (ms) => {
+  if (ms <= 0) return null;
+  const totalSeconds = Math.floor(ms / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m ${seconds}s`;
+};
+
+const parseDate = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const formatListingStatusLabel = (raw) => {
+  const u = String(raw || '').toUpperCase();
+  if (!u) return '—';
+  return u.charAt(0) + u.slice(1).toLowerCase();
+};
+
+const LotRow = ({
+  lot,
+  eventStartTime,
+  eventEndTime,
+  eventTitle,
+  eventStatus,
+  onOpenDetail,
+  showFavorite = false,
+  isFavorite = false,
+  onFavoriteToggle,
+  statusOnly = false,
+  /** When true, right column shows lot listing status (e.g. Draft) instead of event timer / Live–Closed. */
+  showListingStatus = false,
+  /** Optional line under location (e.g. "Bid placed …" on My Bids). */
+  subCaption = null,
+}) => {
   const dispatch = useDispatch();
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -19,36 +66,72 @@ const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, show
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
   const displayUrl = imageUrls[0];
 
-  const endTime = lot.end_date || lot.end_time || eventEndTime;
-  const timerTarget = endTime || new Date(Date.now() + 86400000).toISOString();
-  const timer = useCountdownTimer(timerTarget);
-  const timerSaysEnded = !endTime || timer.isFinished || (endTime && new Date(endTime) <= new Date());
-  const isEventLive = (eventStatus || '').toUpperCase() === 'LIVE' || (eventStatus || '').toUpperCase() === 'ACTIVE';
-  const isEnded = isEventLive ? false : timerSaysEnded;
+  const nestedEvent =
+    lot.auction_event && typeof lot.auction_event === 'object'
+      ? lot.auction_event
+      : lot.event && typeof lot.event === 'object'
+        ? lot.event
+        : null;
 
-  const currentBid = lot.current_price ?? lot.highest_bid ?? lot.initial_price;
-  const currency = lot.currency || 'USD';
+  const { start: startTime, end: endTime } = resolveLotEventBounds(lot, eventStartTime, eventEndTime);
+  const now = new Date();
+  const startAt = parseDate(startTime);
+  const endAt = parseDate(endTime);
+
+  const resolvedEventStatus =
+    eventStatus ?? nestedEvent?.status ?? nestedEvent?.event_status ?? lot.event_status;
+  const isEventLive =
+    String(resolvedEventStatus || '').toUpperCase() === 'LIVE' ||
+    String(resolvedEventStatus || '').toUpperCase() === 'ACTIVE';
+  const shouldCountToStart = Boolean(startAt && startAt > now && !isEventLive);
+  const hasValidEnd = Boolean(endAt && !Number.isNaN(endAt.getTime()));
+  const timerTarget = shouldCountToStart
+    ? startAt.toISOString()
+    : hasValidEnd
+      ? endAt.toISOString()
+      : startAt && startAt > now
+        ? startAt.toISOString()
+        : new Date().toISOString();
+  const timer = useCountdownTimer(timerTarget);
+  const isEnded = Boolean(!shouldCountToStart && endAt && endAt <= now);
+  const timeLabel = shouldCountToStart ? 'STARTS IN' : 'TIME LEFT';
+
+  const bidDisplay = getLotBidDisplay(lot);
+  const currency = bidDisplay.currency;
+
+  const listingStatusRaw = String(lot?.status || lot?.listing_status || '').toUpperCase();
 
   const timeLeftDisplay = (() => {
+    if (showListingStatus) {
+      return formatListingStatusLabel(listingStatusRaw);
+    }
+
     if (statusOnly) {
       return isEventLive ? 'Live' : 'Closed';
     }
-    // When we have time left, always show the countdown
-    if (!timer.isFinished && endTime && new Date(endTime) > new Date()) {
-      const { days, hours, minutes, seconds } = timer;
-      if (days > 0) return `${days}d ${hours}h`;
-      if (hours > 0) return `${hours}h ${minutes}m`;
-      return `${minutes}m ${seconds}s`;
+
+    if (shouldCountToStart) {
+      if (!timer.isFinished) return formatCountdown(timer);
+      const toEndMs = hasValidEnd ? endAt.getTime() - Date.now() : NaN;
+      if (!Number.isNaN(toEndMs) && toEndMs > 0) return formatMsLeft(toEndMs) ?? formatCountdown(timer);
+      return '—';
     }
-    if (isEventLive && timerSaysEnded) return 'Live';
+
+    if (hasValidEnd && endAt > new Date()) {
+      if (!timer.isFinished) return formatCountdown(timer);
+      return formatMsLeft(endAt.getTime() - Date.now()) ?? '—';
+    }
+
     if (isEnded) return 'Ended';
-    const { days, hours, minutes, seconds } = timer;
-    if (days > 0) return `${days}d ${hours}h`;
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m ${seconds}s`;
+    if (isEventLive && !hasValidEnd) return '—';
+    return 'Scheduled';
   })();
 
-  const isClosed = timeLeftDisplay === 'Closed' || timeLeftDisplay === 'Ended';
+  const isClosed = showListingStatus
+    ? ['CLOSED', 'COMPLETED', 'REJECTED', 'ENDED'].includes(listingStatusRaw)
+    : timeLeftDisplay === 'Closed' || timeLeftDisplay === 'Ended';
+
+  const isDraftListing = showListingStatus && listingStatusRaw === 'DRAFT';
 
   const handleFavoriteClick = useCallback(
     async (e) => {
@@ -94,6 +177,9 @@ const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, show
         <p className="lot-row__location">
           {lot.location || lot.venue || eventTitle || '—'}
         </p>
+        {subCaption ? (
+          <p className="lot-row__subcaption">{subCaption}</p>
+        ) : null}
         <div className="lot-row__bid">
           <div className="lot-row__bid-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -101,9 +187,9 @@ const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, show
             </svg>
           </div>
           <div className="lot-row__bid-content">
-            <span className="lot-row__bid-label">CURRENT BID</span>
+            <span className="lot-row__bid-label">{bidDisplay.label}</span>
             <span className="lot-row__bid-value">
-              {currency} {formatPrice(currentBid)}
+              {currency} {formatPrice(bidDisplay.value)}
             </span>
           </div>
         </div>
@@ -129,8 +215,14 @@ const LotRow = ({ lot, eventEndTime, eventTitle, eventStatus, onOpenDetail, show
           </button>
         )}
         <div className="lot-row__time">
-          {!statusOnly && <span className="lot-row__time-label">TIME LEFT</span>}
-          <span className={`lot-row__time-value ${isClosed ? 'ended' : ''}`}>{timeLeftDisplay}</span>
+          {(showListingStatus || !statusOnly) && (
+            <span className="lot-row__time-label">{showListingStatus ? 'Lot status' : timeLabel}</span>
+          )}
+          <span
+            className={`lot-row__time-value ${isClosed ? 'ended' : ''} ${isDraftListing ? 'lot-row__time-value--draft' : ''}`}
+          >
+            {timeLeftDisplay}
+          </span>
         </div>
       </div>
     </article>
