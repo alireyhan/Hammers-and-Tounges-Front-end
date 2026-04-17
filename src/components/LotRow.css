@@ -68,6 +68,13 @@
   margin: 0 0 0.5rem;
 }
 
+.lot-row__subcaption {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  opacity: 0.9;
+  margin: -0.35rem 0 0.5rem;
+}
+
 .lot-row__bid {
   display: flex;
   align-items: center;

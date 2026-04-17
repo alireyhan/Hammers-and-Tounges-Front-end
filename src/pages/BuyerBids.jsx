@@ -169,6 +169,12 @@ const BuyerBids = () => {
     const cachedLot = (itemId ? lotCache[itemId] : null) ?? (lotNumber ? lotCache[lotNumber] : null)
     const lot = bid.lot ?? bid.lot_details ?? bid.item ?? cachedLot
     const media = getBidMedia(bid, cachedLot)
+    const nestedBidEvent =
+      bid.auction_event && typeof bid.auction_event === 'object'
+        ? bid.auction_event
+        : bid.event && typeof bid.event === 'object'
+          ? bid.event
+          : null
     return {
       ...(cachedLot || {}),
       id: cachedLot?.id ?? itemId,
@@ -179,13 +185,30 @@ const BuyerBids = () => {
       highest_bid: cachedLot?.highest_bid ?? bid.amount,
       initial_price: cachedLot?.initial_price ?? bid.amount,
       currency: cachedLot?.currency ?? 'USD',
-      end_date: cachedLot?.end_date ?? bid.event_end_time,
-      end_time: cachedLot?.end_time,
+      end_date:
+        cachedLot?.end_date ??
+        cachedLot?.enddate ??
+        nestedBidEvent?.end_date ??
+        nestedBidEvent?.end_time ??
+        bid.event_end_time ??
+        bid.auction_end_time,
+      end_time:
+        cachedLot?.end_time ??
+        nestedBidEvent?.end_date ??
+        nestedBidEvent?.end_time ??
+        bid.event_end_time,
+      start_date:
+        cachedLot?.start_date ??
+        cachedLot?.startdate ??
+        nestedBidEvent?.start_date ??
+        nestedBidEvent?.start_time ??
+        bid.event_start_time,
       location: cachedLot?.location,
       venue: cachedLot?.venue,
       event_title: bid.event_title,
-      event_status: bid.event_status ?? cachedLot?.event_status,
-      event_id: bid.event_id ?? bid.event,
+      event_status:
+        bid.event_status ?? cachedLot?.event_status ?? nestedBidEvent?.status ?? nestedBidEvent?.event_status,
+      event_id: bid.event_id ?? bid.event ?? nestedBidEvent?.id,
     }
   }, [lotCache])
 
@@ -303,14 +326,13 @@ const BuyerBids = () => {
                   const lot = bidToLot(bid)
                   return (
                     <div key={bid.id}>
-                      <p className="guest-event-lots__results-count" style={{ margin: '0 0 6px 4px' }}>
-                        Bid: {formatBidDateTime(bid.created_at)}
-                      </p>
                       <LotRow
                         lot={lot}
+                        eventStartTime={lot.start_date}
                         eventEndTime={lot.end_date ?? lot.end_time}
                         eventTitle={lot.event_title}
                         eventStatus={lot.event_status}
+                        subCaption={bid.created_at ? `Bid placed ${formatBidDateTime(bid.created_at)}` : null}
                         onOpenDetail={handleLotClick}
                         showFavorite
                         isFavorite={lot.is_favourite ?? false}

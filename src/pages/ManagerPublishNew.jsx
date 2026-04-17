@@ -424,11 +424,30 @@ const ManagerPublishNew = () => {
           toast.success('Lot updated successfully.');
         } else {
           const fd = buildFormData(effectiveStatus);
+          const mediaParts = [];
+          const labelParts = [];
+          for (const [key, value] of fd.entries()) {
+            if (key === 'media') {
+              mediaParts.push(
+                value instanceof File
+                  ? { kind: 'File', name: value.name, size: value.size, type: value.type }
+                  : { kind: typeof value, preview: String(value).slice(0, 120) }
+              );
+            } else if (key === 'media_labels') {
+              labelParts.push(value);
+            }
+          }
+          const nonFileSlots = images.filter((img) => !(img.file instanceof File)).length;
           console.log('[HT LotCreate][web] submitting lot images', {
             selectedImagesCount: images.length,
+            nonFileSlotsSkipped: nonFileSlots,
             selectedImageNames: images.map((img) =>
               img.file instanceof File ? img.file.name : String(img.file || '')
             ),
+            formDataMediaCount: mediaParts.length,
+            formDataLabelsCount: labelParts.length,
+            formDataMediaParts: mediaParts,
+            formDataLabelParts: labelParts,
           });
           const createdLot = await auctionService.createLot(fd);
           console.log('[HT LotCreate][web] create response media', {

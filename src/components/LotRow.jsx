@@ -17,6 +17,19 @@ const formatCountdown = ({ days, hours, minutes, seconds }) => {
   return `${minutes}m ${seconds}s`;
 };
 
+/** Fallback when timer hook is briefly stale after targetDate switches */
+const formatMsLeft = (ms) => {
+  if (ms <= 0) return null;
+  const totalSeconds = Math.floor(ms / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m ${seconds}s`;
+};
+
 const parseDate = (value) => {
   if (!value) return null;
   const date = new Date(value);
@@ -42,6 +55,8 @@ const LotRow = ({
   statusOnly = false,
   /** When true, right column shows lot listing status (e.g. Draft) instead of event timer / Live–Closed. */
   showListingStatus = false,
+  /** Optional line under location (e.g. "Bid placed …" on My Bids). */
+  subCaption = null,
 }) => {
   const dispatch = useDispatch();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -50,17 +65,48 @@ const LotRow = ({
   const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
   const displayUrl = imageUrls[0];
 
-  const startTime = lot.start_date || lot.start_time || eventStartTime;
-  const endTime = lot.end_date || lot.end_time || eventEndTime;
+  const nestedEvent =
+    lot.auction_event && typeof lot.auction_event === 'object'
+      ? lot.auction_event
+      : lot.event && typeof lot.event === 'object'
+        ? lot.event
+        : null;
+
+  const startTime =
+    lot.start_date ||
+    lot.start_time ||
+    lot.startdate ||
+    eventStartTime ||
+    lot.event_start_time ||
+    nestedEvent?.start_date ||
+    nestedEvent?.start_time;
+  const endTime =
+    lot.end_date ||
+    lot.end_time ||
+    lot.enddate ||
+    eventEndTime ||
+    lot.event_end_time ||
+    lot.auction_end_time ||
+    nestedEvent?.end_date ||
+    nestedEvent?.end_time;
   const now = new Date();
   const startAt = parseDate(startTime);
   const endAt = parseDate(endTime);
 
-  const isEventLive = (eventStatus || '').toUpperCase() === 'LIVE' || (eventStatus || '').toUpperCase() === 'ACTIVE';
+  const resolvedEventStatus =
+    eventStatus ?? nestedEvent?.status ?? nestedEvent?.event_status ?? lot.event_status;
+  const isEventLive =
+    String(resolvedEventStatus || '').toUpperCase() === 'LIVE' ||
+    String(resolvedEventStatus || '').toUpperCase() === 'ACTIVE';
   const shouldCountToStart = Boolean(startAt && startAt > now && !isEventLive);
+  const hasValidEnd = Boolean(endAt && !Number.isNaN(endAt.getTime()));
   const timerTarget = shouldCountToStart
     ? startAt.toISOString()
-    : (endAt?.toISOString() || new Date(Date.now() + 86400000).toISOString());
+    : hasValidEnd
+      ? endAt.toISOString()
+      : startAt && startAt > now
+        ? startAt.toISOString()
+        : new Date().toISOString();
   const timer = useCountdownTimer(timerTarget);
   const isEnded = Boolean(!shouldCountToStart && endAt && endAt <= now);
   const timeLabel = shouldCountToStart ? 'STARTS IN' : 'TIME LEFT';
@@ -81,15 +127,18 @@ const LotRow = ({
 
     if (shouldCountToStart) {
       if (!timer.isFinished) return formatCountdown(timer);
-      return 'Live';
+      const toEndMs = hasValidEnd ? endAt.getTime() - Date.now() : NaN;
+      if (!Number.isNaN(toEndMs) && toEndMs > 0) return formatMsLeft(toEndMs) ?? formatCountdown(timer);
+      return '—';
     }
 
-    if (endAt && !timer.isFinished && endAt > new Date()) {
-      return formatCountdown(timer);
+    if (hasValidEnd && endAt > new Date()) {
+      if (!timer.isFinished) return formatCountdown(timer);
+      return formatMsLeft(endAt.getTime() - Date.now()) ?? '—';
     }
 
     if (isEnded) return 'Ended';
-    if (isEventLive) return 'Live';
+    if (isEventLive && !hasValidEnd) return '—';
     return 'Scheduled';
   })();
 
@@ -143,6 +192,9 @@ const LotRow = ({
         <p className="lot-row__location">
           {lot.location || lot.venue || eventTitle || '—'}
         </p>
+        {subCaption ? (
+          <p className="lot-row__subcaption">{subCaption}</p>
+        ) : null}
         <div className="lot-row__bid">
           <div className="lot-row__bid-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

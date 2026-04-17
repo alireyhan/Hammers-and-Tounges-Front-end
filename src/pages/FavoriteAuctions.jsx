@@ -194,8 +194,10 @@ const FavoriteAuctions = () => {
                     <LotRow
                       key={auction.id}
                       lot={auction}
-                      eventEndTime={auction.end_date ?? auction.end_time}
+                      eventStartTime={auction.start_date ?? auction.startdate}
+                      eventEndTime={auction.end_date ?? auction.end_time ?? auction.enddate}
                       eventTitle={auction.event_title}
+                      eventStatus={auction.event_status ?? auction.status}
                       onOpenDetail={handleLotClick}
                       showFavorite
                       isFavorite={favoriteIds.has(auction.id) ?? auction.is_favourite ?? true}
