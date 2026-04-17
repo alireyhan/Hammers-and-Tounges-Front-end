@@ -254,8 +254,8 @@ const GuestEventLots = () => {
                       <LotRow
                         key={lot.id}
                         lot={lot}
-                        eventStartTime={eventStartTime ?? eventFromState?.start_time}
-                        eventEndTime={eventEndTime ?? eventFromState?.end_time}
+                        eventStartTime={lot.event_start_time ?? eventStartTime ?? eventFromState?.start_time}
+                        eventEndTime={lot.event_end_time ?? eventEndTime ?? eventFromState?.end_time}
                         eventTitle={eventTitle}
                         eventStatus={eventStatus ?? eventFromState?.status}
                         onOpenDetail={handleLotClick}
@@ -298,7 +298,8 @@ const GuestEventLots = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={eventEndTime ?? eventFromState?.end_time}
+          eventStartTime={selectedLot.event_start_time ?? eventStartTime ?? eventFromState?.start_time}
+          eventEndTime={selectedLot.event_end_time ?? eventEndTime ?? eventFromState?.end_time}
           eventTitle={eventTitle}
           onClose={handleCloseDrawer}
         />

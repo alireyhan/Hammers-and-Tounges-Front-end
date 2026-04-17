@@ -165,8 +165,8 @@ const AdminGoodsReceivedVerification = () => {
                       lot={lot}
                       eventTitle={lot.event_title}
                       eventStatus={lot.event_status || 'SCHEDULED'}
-                      eventStartTime={lot.start_date || lot.start_time}
-                      eventEndTime={lot.end_date || lot.end_time}
+                      eventStartTime={lot.event_start_time ?? lot.start_date}
+                      eventEndTime={lot.event_end_time ?? lot.end_date ?? lot.end_time}
                       showListingStatus
                       onOpenDetail={setSelectedLot}
                     />

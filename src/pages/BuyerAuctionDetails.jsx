@@ -16,6 +16,7 @@ import { getMediaUrl } from "../config/api.config";
 import InsufficientBalanceBidModal from "../components/InsufficientBalanceBidModal";
 import { formatBidDateTime } from "../utils/formatBidDateTime";
 import { maskBidderName } from "../utils/maskBidderName";
+import { canWalletCoverBidAmount } from "../utils/walletBidEligibility";
 import "./BuyerAuctionDetails.css";
 import { toast } from "react-toastify";
 
@@ -621,11 +622,10 @@ const BuyerAuctionDetails = () => {
     const amount = effectiveBidAmount;
     if (!auction || amount == null || isPlacingBid) return;
 
-    const availableBalance = Number(walletSummary.availableBalance ?? 0);
     if (
       !walletSummary.loading &&
       walletSummary.availableBalance != null &&
-      availableBalance < amount
+      !canWalletCoverBidAmount(walletSummary, amount)
     ) {
       setInsufficientBalanceModalKind("low_balance");
       return;
@@ -657,6 +657,7 @@ const BuyerAuctionDetails = () => {
     loadWalletSummary,
     refreshAutoBidForLot,
     walletSummary.availableBalance,
+    walletSummary.biddingPower,
     walletSummary.loading
   ]);
 

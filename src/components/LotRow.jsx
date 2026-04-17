@@ -4,6 +4,7 @@ import { getMediaUrl } from '../config/api.config';
 import { useCountdownTimer } from '../hooks/useCountdownTimer';
 import { addToFavorite, deleteFavorite } from '../store/actions/buyerActions';
 import { toast } from 'react-toastify';
+import { getLotBidDisplay, resolveLotEventBounds } from '../utils/lotDisplayUtils';
 import './LotRow.css';
 
 const formatPrice = (price) => {
@@ -72,23 +73,7 @@ const LotRow = ({
         ? lot.event
         : null;
 
-  const startTime =
-    lot.start_date ||
-    lot.start_time ||
-    lot.startdate ||
-    eventStartTime ||
-    lot.event_start_time ||
-    nestedEvent?.start_date ||
-    nestedEvent?.start_time;
-  const endTime =
-    lot.end_date ||
-    lot.end_time ||
-    lot.enddate ||
-    eventEndTime ||
-    lot.event_end_time ||
-    lot.auction_end_time ||
-    nestedEvent?.end_date ||
-    nestedEvent?.end_time;
+  const { start: startTime, end: endTime } = resolveLotEventBounds(lot, eventStartTime, eventEndTime);
   const now = new Date();
   const startAt = parseDate(startTime);
   const endAt = parseDate(endTime);
@@ -111,8 +96,8 @@ const LotRow = ({
   const isEnded = Boolean(!shouldCountToStart && endAt && endAt <= now);
   const timeLabel = shouldCountToStart ? 'STARTS IN' : 'TIME LEFT';
 
-  const currentBid = lot.current_price ?? lot.highest_bid ?? lot.initial_price;
-  const currency = lot.currency || 'USD';
+  const bidDisplay = getLotBidDisplay(lot);
+  const currency = bidDisplay.currency;
 
   const listingStatusRaw = String(lot?.status || lot?.listing_status || '').toUpperCase();
 
@@ -202,9 +187,9 @@ const LotRow = ({
             </svg>
           </div>
           <div className="lot-row__bid-content">
-            <span className="lot-row__bid-label">CURRENT BID</span>
+            <span className="lot-row__bid-label">{bidDisplay.label}</span>
             <span className="lot-row__bid-value">
-              {currency} {formatPrice(currentBid)}
+              {currency} {formatPrice(bidDisplay.value)}
             </span>
           </div>
         </div>

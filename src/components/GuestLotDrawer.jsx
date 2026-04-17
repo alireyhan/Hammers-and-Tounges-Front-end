@@ -15,6 +15,8 @@ import { formatBidDateTime } from '../utils/formatBidDateTime';
 import { maskBidderName } from '../utils/maskBidderName';
 import { logLotMediaFromApi } from '../utils/logLotMediaDebug';
 import { getLotImageUrls } from '../utils/lotMedia';
+import { getLotBidDisplay, parseLotAmount, resolveLotEventBounds } from '../utils/lotDisplayUtils';
+import { canWalletCoverBidAmount } from '../utils/walletBidEligibility';
 import './GuestLotDrawer.css';
 
 const formatPrice = (price) => {
@@ -44,7 +46,21 @@ const shouldTreatActivateErrorAsGrv = (status, err) => {
   return /grv|goods received|verification required|checklist|sign.?off|must .*verif/i.test(blob);
 };
 
-const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, eventStatus, onClose, isBuyer = false, isAdmin = false, isManager = false, isClerk = false, event, onLotUpdated }) => {
+const GuestLotDrawer = ({
+  lot: initialLot,
+  eventStartTime,
+  eventEndTime,
+  eventTitle,
+  eventId,
+  eventStatus,
+  onClose,
+  isBuyer = false,
+  isAdmin = false,
+  isManager = false,
+  isClerk = false,
+  event,
+  onLotUpdated,
+}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.buyer?.categories ?? state.seller?.categories ?? []);
@@ -82,30 +98,75 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
   const imageUrls = getLotImageUrls(effectiveLot);
   const displayImage = imageUrls[selectedImage] || imageUrls[0];
 
-  const endTime = lot?.end_date || lot?.end_time || eventEndTime;
-  const timerTarget = endTime || new Date(Date.now() + 86400000).toISOString();
-  const timer = useCountdownTimer(timerTarget);
-  const timerSaysEnded = !endTime || timer.isFinished || (endTime && new Date(endTime) <= new Date());
-
   // Event status from API is authoritative: when LIVE/ACTIVE, treat as live even if lot end_time suggests otherwise
   const effectiveEventStatus = eventStatus ?? lot?.event_status ?? initialLot?.event_status;
   const isEventLiveFromApi = useMemo(() => {
     const s = (effectiveEventStatus || '').toUpperCase();
     return s === 'LIVE' || s === 'ACTIVE';
   }, [effectiveEventStatus]);
+
+  const eventStartFromContext =
+    eventStartTime ?? event?.start_time ?? event?.start_date ?? eventData?.start_time ?? eventData?.start_date;
+  const eventEndFromContext = eventEndTime ?? event?.end_time ?? event?.end_date ?? eventData?.end_time ?? eventData?.end_date;
+
+  const { start: evStartRaw, end: evEndRaw } = useMemo(
+    () => resolveLotEventBounds(effectiveLot, eventStartFromContext, eventEndFromContext),
+    [effectiveLot, eventStartFromContext, eventEndFromContext]
+  );
+
+  const nowMs = Date.now();
+  const startAt = evStartRaw ? new Date(evStartRaw) : null;
+  const endAt = evEndRaw ? new Date(evEndRaw) : null;
+  const startValid = Boolean(startAt && !Number.isNaN(startAt.getTime()));
+  const endValid = Boolean(endAt && !Number.isNaN(endAt.getTime()));
+  const shouldCountToStart = Boolean(startValid && startAt.getTime() > nowMs && !isEventLiveFromApi);
+
+  /** Recomputed every render so we switch from start → end target when the start time passes. */
+  let countdownTargetIso;
+  if (shouldCountToStart) countdownTargetIso = startAt.toISOString();
+  else if (endValid) countdownTargetIso = endAt.toISOString();
+  else if (startValid && startAt.getTime() > nowMs) countdownTargetIso = startAt.toISOString();
+  else countdownTargetIso = new Date(nowMs + 86400000).toISOString();
+
+  const timer = useCountdownTimer(countdownTargetIso);
+  const timerSaysEnded = (() => {
+    if (!evEndRaw && !evStartRaw) return timer.isFinished;
+    if (shouldCountToStart) return timer.isFinished && startValid && startAt.getTime() <= Date.now();
+    if (endValid) return timer.isFinished || endAt.getTime() <= Date.now();
+    return timer.isFinished;
+  })();
+
   const isEnded = isEventLiveFromApi ? false : timerSaysEnded;
 
   const initialPrice = parseFloat(effectiveLot?.initial_price || 0);
-  const highestBidAmount = bids?.length
-    ? Math.max(initialPrice, ...bids.map((b) => parseFloat(b.amount) || 0))
-    : null;
-  const currentBid =
-    highestBidAmount != null
-      ? highestBidAmount
-      : (lot?.current_price ?? lot?.highest_bid ?? lot?.initial_price);
-  const currency = lot?.currency || effectiveLot?.currency || 'USD';
+  const highestBidAmount = useMemo(() => {
+    if (bids?.length) {
+      return Math.max(initialPrice, ...bids.map((b) => parseFloat(b.amount) || 0));
+    }
+    const hb = parseLotAmount(effectiveLot?.highest_bid);
+    if (hb != null && hb > initialPrice) return hb;
+    const cp = parseLotAmount(effectiveLot?.current_price);
+    if (cp != null && cp > initialPrice) return cp;
+    return null;
+  }, [bids, effectiveLot, initialPrice]);
+
+  const bidDisplay = useMemo(() => {
+    if (bids?.length) {
+      const mx = Math.max(initialPrice, ...bids.map((b) => parseFloat(b.amount) || 0));
+      return {
+        label: 'CURRENT BID',
+        value: mx,
+        currency: lot?.currency || effectiveLot?.currency || 'USD',
+      };
+    }
+    return getLotBidDisplay(effectiveLot);
+  }, [bids, effectiveLot, initialPrice, lot?.currency]);
+
+  const currency = lot?.currency || effectiveLot?.currency || bidDisplay.currency || 'USD';
 
   const isEventLive = isEventLiveFromApi;
+
+  const timeColumnLabel = shouldCountToStart ? 'STARTS IN' : 'TIME LEFT';
   const specificData = (() => {
     let sd = lot?.specific_data;
     if (typeof sd === 'string') {
@@ -119,14 +180,24 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
   })();
 
   const formatTimeLeft = () => {
-    // When we have time left, always show the countdown
-    if (!timer.isFinished && endTime && new Date(endTime) > new Date()) {
-      const { days, hours, minutes, seconds } = timer;
-      if (days > 0) return `${days}d ${hours}h ${minutes}m`;
-      if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
-      return `${minutes}m ${seconds}s`;
+    if (shouldCountToStart) {
+      if (!timer.isFinished && startValid && startAt.getTime() > Date.now()) {
+        const { days, hours, minutes, seconds } = timer;
+        if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+        if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+        return `${minutes}m ${seconds}s`;
+      }
+      return 'Scheduled';
     }
-    if (isEventLive && timerSaysEnded) return 'Live';
+    if (endValid && endAt.getTime() > Date.now()) {
+      if (!timer.isFinished) {
+        const { days, hours, minutes, seconds } = timer;
+        if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+        if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+        return `${minutes}m ${seconds}s`;
+      }
+    }
+    if (isEventLive && (timerSaysEnded || !endValid)) return 'Live';
     if (isEnded) return 'Ended';
     const { days, hours, minutes, seconds } = timer;
     if (days > 0) return `${days}d ${hours}h ${minutes}m`;
@@ -274,11 +345,10 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     if (!lotId || amount == null || isPlacingBid) return;
 
     if (isBuyer) {
-      const availableBalance = Number(walletSummary.availableBalance ?? 0);
       if (
         !walletSummary.loading &&
         walletSummary.availableBalance != null &&
-        availableBalance < amount
+        !canWalletCoverBidAmount(walletSummary, amount)
       ) {
         setInsufficientBalanceModalKind('low_balance');
         return;
@@ -313,6 +383,7 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
     loadWalletSummary,
     isBuyer,
     walletSummary.availableBalance,
+    walletSummary.biddingPower,
     walletSummary.loading,
   ]);
 
@@ -650,7 +721,7 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
                 <aside className="guest-lot-drawer__sidebar">
                   <div className="guest-lot-drawer__bid-card">
                     <div className="guest-lot-drawer__time">
-                      <span className="guest-lot-drawer__time-label">TIME LEFT</span>
+                      <span className="guest-lot-drawer__time-label">{timeColumnLabel}</span>
                       <span className={`guest-lot-drawer__time-value ${isEnded ? 'ended' : ''}`}>
                         {formatTimeLeft()}
                       </span>
@@ -658,9 +729,9 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
                     <div className="guest-lot-drawer__bid">
                       <div className="guest-lot-drawer__bid-icon">!</div>
                       <div>
-                        <span className="guest-lot-drawer__bid-label">CURRENT BID</span>
+                        <span className="guest-lot-drawer__bid-label">{bidDisplay.label}</span>
                         <span className="guest-lot-drawer__bid-value">
-                          {currency} {formatPrice(currentBid)}
+                          {currency} {formatPrice(bidDisplay.value)}
                         </span>
                       </div>
                     </div>

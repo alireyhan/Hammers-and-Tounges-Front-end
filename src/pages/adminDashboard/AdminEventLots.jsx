@@ -396,8 +396,8 @@ const AdminEventLots = () => {
                       <LotRow
                         key={lot.id}
                         lot={lot}
-                        eventStartTime={lot.start_date ?? lot.start_time ?? eventStartTime}
-                        eventEndTime={lot.end_date ?? lot.end_time ?? eventEndTime ?? eventFromState?.end_time}
+                        eventStartTime={lot.event_start_time ?? lot.start_date ?? lot.start_time ?? eventStartTime}
+                        eventEndTime={lot.event_end_time ?? lot.end_date ?? lot.end_time ?? eventEndTime ?? eventFromState?.end_time}
                         eventTitle={eventTitle}
                         eventStatus={lot.event_status ?? eventStatus}
                         onOpenDetail={setSelectedLot}
@@ -440,7 +440,8 @@ const AdminEventLots = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={selectedLot.end_date ?? selectedLot.end_time ?? eventEndTime ?? eventFromState?.end_time}
+          eventStartTime={selectedLot.event_start_time ?? selectedLot.start_date ?? selectedLot.start_time ?? eventFromState?.start_time ?? eventFromState?.start_date}
+          eventEndTime={selectedLot.event_end_time ?? selectedLot.end_date ?? selectedLot.end_time ?? eventEndTime ?? eventFromState?.end_time}
           eventTitle={eventTitle}
           eventId={id}
           eventStatus={selectedLot.event_status ?? eventStatus}

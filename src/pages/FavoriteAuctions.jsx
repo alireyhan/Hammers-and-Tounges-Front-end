@@ -194,8 +194,8 @@ const FavoriteAuctions = () => {
                     <LotRow
                       key={auction.id}
                       lot={auction}
-                      eventStartTime={auction.start_date ?? auction.startdate}
-                      eventEndTime={auction.end_date ?? auction.end_time ?? auction.enddate}
+                      eventStartTime={auction.event_start_time ?? auction.start_date ?? auction.startdate}
+                      eventEndTime={auction.event_end_time ?? auction.end_date ?? auction.end_time ?? auction.enddate}
                       eventTitle={auction.event_title}
                       eventStatus={auction.event_status ?? auction.status}
                       onOpenDetail={handleLotClick}
@@ -243,7 +243,8 @@ const FavoriteAuctions = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={selectedLot.end_date ?? selectedLot.end_time}
+          eventStartTime={selectedLot.event_start_time ?? selectedLot.start_date}
+          eventEndTime={selectedLot.event_end_time ?? selectedLot.end_date ?? selectedLot.end_time}
           eventTitle={selectedLot.event_title}
           eventId={selectedLot.event_id ?? selectedLot.event}
           eventStatus={selectedLot.event_status}

@@ -4,6 +4,11 @@ import { adminService } from '../services/interceptors/admin.service';
 import { auctionService } from '../services/interceptors/auction.service';
 import { getMediaUrl } from '../config/api.config';
 import { getLotImageUrls } from '../utils/lotMedia';
+import {
+  sanitizeDecimalPriceInput,
+  sanitizeDigitsOnly,
+  sanitizeYearInput,
+} from '../utils/numericFormInput';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import './ManagerPublishNew.css';
@@ -130,10 +135,15 @@ const ManagerPublishNew = () => {
       }));
       return;
     }
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    if (type === 'checkbox') {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+      return;
+    }
+    if (name === 'initial_price' || name === 'reserve_price') {
+      setFormData((prev) => ({ ...prev, [name]: sanitizeDecimalPriceInput(value) }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   const handleSpecificDataChange = useCallback((fieldName, value) => {
@@ -223,9 +233,34 @@ const ManagerPublishNew = () => {
         );
       }
 
+      // Year (often text in schema) — digits only
+      if (fieldName.toLowerCase() === 'year' || fieldName.toLowerCase() === 'model_year') {
+        return (
+          <div key={fieldName} className="mpn-form-group">
+            <label className="mpn-form-label">
+              {label} {isRequired && <span className="mpn-required">*</span>}
+            </label>
+            <input
+              type="text"
+              className="mpn-input"
+              inputMode="numeric"
+              autoComplete="off"
+              value={value ?? ''}
+              onChange={(e) => handleSpecificDataChange(fieldName, sanitizeYearInput(e.target.value))}
+              placeholder={`Enter ${label.toLowerCase()}...`}
+              maxLength={4}
+              required={isRequired}
+            />
+          </div>
+        );
+      }
+
       // Range
       if (fieldConfig.type === 'range') {
-        const numValue = value !== '' && value !== undefined ? Number(value) : (fieldConfig.min ?? 0);
+        const minR = fieldConfig.min ?? 0;
+        const maxR = fieldConfig.max ?? 100;
+        const parsed = value !== '' && value !== undefined && value !== null ? Number(value) : minR;
+        const numValue = Number.isNaN(parsed) ? minR : Math.min(maxR, Math.max(minR, parsed));
         return (
           <div key={fieldName} className="mpn-form-group">
             <label className="mpn-form-label">
@@ -235,19 +270,29 @@ const ManagerPublishNew = () => {
               <input
                 type="range"
                 className="mpn-input"
-                min={fieldConfig.min ?? 0}
-                max={fieldConfig.max ?? 100}
+                min={minR}
+                max={maxR}
                 value={numValue}
                 onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
               />
               <input
-                type="number"
+                type="text"
                 className="mpn-input"
                 style={{ maxWidth: '100px' }}
-                min={fieldConfig.min ?? 0}
-                max={fieldConfig.max ?? 100}
-                value={numValue}
-                onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+                inputMode="numeric"
+                autoComplete="off"
+                value={String(numValue)}
+                onChange={(e) => {
+                  const v = sanitizeDigitsOnly(e.target.value);
+                  if (v === '') {
+                    handleSpecificDataChange(fieldName, String(minR));
+                    return;
+                  }
+                  const n = Number(v);
+                  if (Number.isNaN(n)) return;
+                  const clamped = Math.min(maxR, Math.max(minR, n));
+                  handleSpecificDataChange(fieldName, String(clamped));
+                }}
               />
             </div>
           </div>
@@ -262,12 +307,20 @@ const ManagerPublishNew = () => {
               {label} {isRequired && <span className="mpn-required">*</span>}
             </label>
             <input
-              type="number"
+              type="text"
               className="mpn-input"
+              inputMode={fieldConfig.type === 'integer' ? 'numeric' : 'decimal'}
+              autoComplete="off"
               value={value ?? ''}
-              onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const next =
+                  fieldConfig.type === 'integer'
+                    ? sanitizeDigitsOnly(raw)
+                    : sanitizeDecimalPriceInput(raw);
+                handleSpecificDataChange(fieldName, next);
+              }}
               placeholder={`Enter ${label.toLowerCase()}...`}
-              step={fieldConfig.type === 'integer' ? 1 : 'any'}
               required={isRequired}
             />
           </div>
@@ -647,14 +700,14 @@ const ManagerPublishNew = () => {
                 <div className="mpn-input-with-prefix">
                   <span className="mpn-input-prefix">$</span>
                   <input
-                    type="number"
+                    type="text"
                     className="mpn-input"
                     placeholder="0.00"
                     name="initial_price"
                     value={formData.initial_price}
                     onChange={handleChange}
-                    min="0"
-                    step="0.01"
+                    inputMode="decimal"
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -664,14 +717,14 @@ const ManagerPublishNew = () => {
                 <div className="mpn-input-with-prefix">
                   <span className="mpn-input-prefix">$</span>
                   <input
-                    type="number"
+                    type="text"
                     className="mpn-input"
                     placeholder="0.00"
                     name="reserve_price"
                     value={formData.reserve_price}
                     onChange={handleChange}
-                    min="0"
-                    step="0.01"
+                    inputMode="decimal"
+                    autoComplete="off"
                   />
                 </div>
               </div>

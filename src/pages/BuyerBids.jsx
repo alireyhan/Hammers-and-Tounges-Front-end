@@ -181,11 +181,23 @@ const BuyerBids = () => {
       lot_number: cachedLot?.lot_number ?? lotNumber ?? itemId,
       title: cachedLot?.title ?? getBidItemTitle(bid),
       media: Array.isArray(media) ? media : [],
-      current_price: cachedLot?.current_price ?? bid.amount,
-      highest_bid: cachedLot?.highest_bid ?? bid.amount,
-      initial_price: cachedLot?.initial_price ?? bid.amount,
+      current_price: cachedLot?.current_price,
+      highest_bid: cachedLot?.highest_bid,
+      initial_price: cachedLot?.initial_price,
       currency: cachedLot?.currency ?? 'USD',
+      event_start_time:
+        cachedLot?.event_start_time ??
+        bid.event_start_time ??
+        nestedBidEvent?.start_time ??
+        nestedBidEvent?.start_date,
+      event_end_time:
+        cachedLot?.event_end_time ??
+        bid.event_end_time ??
+        nestedBidEvent?.end_time ??
+        nestedBidEvent?.end_date ??
+        bid.auction_end_time,
       end_date:
+        cachedLot?.event_end_time ??
         cachedLot?.end_date ??
         cachedLot?.enddate ??
         nestedBidEvent?.end_date ??
@@ -193,11 +205,13 @@ const BuyerBids = () => {
         bid.event_end_time ??
         bid.auction_end_time,
       end_time:
+        cachedLot?.event_end_time ??
         cachedLot?.end_time ??
         nestedBidEvent?.end_date ??
         nestedBidEvent?.end_time ??
         bid.event_end_time,
       start_date:
+        cachedLot?.event_start_time ??
         cachedLot?.start_date ??
         cachedLot?.startdate ??
         nestedBidEvent?.start_date ??
@@ -328,8 +342,8 @@ const BuyerBids = () => {
                     <div key={bid.id}>
                       <LotRow
                         lot={lot}
-                        eventStartTime={lot.start_date}
-                        eventEndTime={lot.end_date ?? lot.end_time}
+                        eventStartTime={lot.event_start_time ?? lot.start_date}
+                        eventEndTime={lot.event_end_time ?? lot.end_date ?? lot.end_time}
                         eventTitle={lot.event_title}
                         eventStatus={lot.event_status}
                         subCaption={bid.created_at ? `Bid placed ${formatBidDateTime(bid.created_at)}` : null}
@@ -390,7 +404,8 @@ const BuyerBids = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={selectedLot.end_date ?? selectedLot.end_time}
+          eventStartTime={selectedLot.event_start_time ?? selectedLot.start_date}
+          eventEndTime={selectedLot.event_end_time ?? selectedLot.end_date ?? selectedLot.end_time}
           eventTitle={selectedLot.event_title}
           eventId={selectedLot.event_id}
           eventStatus={selectedLot.event_status}
