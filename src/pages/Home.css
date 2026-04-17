@@ -49,7 +49,7 @@
 }
 
 .home-events__tab.active {
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
 }
 
@@ -79,10 +79,100 @@
   width: 32px;
   height: 32px;
   border: 3px solid var(--color-border);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1rem;
+}
+
+.events-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.events-skeleton-row {
+  border-bottom: 1px solid var(--color-border-strong);
+  padding: 1rem 0;
+  min-height: 90px;
+  display: grid;
+  grid-template-columns: 120px 104px 1fr 90px;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.events-skeleton-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+  background-size: 200% 100%;
+  animation: eventsShimmer 1.2s linear infinite;
+}
+
+.events-skeleton-thumb {
+  position: relative;
+}
+
+.events-skeleton-shape-thumb {
+  width: 120px;
+  height: 72px;
+  border-radius: 8px;
+}
+
+.events-skeleton-shape-badge {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 4px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.events-skeleton-dates {
+  display: flex;
+  gap: 6px;
+}
+
+.events-skeleton-shape-date {
+  width: 48px;
+  height: 72px;
+  border-radius: 6px;
+}
+
+.events-skeleton-body {
+  min-width: 0;
+}
+
+.events-skeleton-line {
+  height: 10px;
+  border-radius: 999px;
+}
+
+.events-skeleton-line--title {
+  width: 74%;
+  margin-bottom: 0.55rem;
+}
+
+.events-skeleton-line--chip {
+  width: 38%;
+  margin-bottom: 0.55rem;
+}
+
+.events-skeleton-line--meta {
+  width: 52%;
+}
+
+.events-skeleton-lots {
+  justify-self: end;
+}
+
+.events-skeleton-shape-lots {
+  width: 84px;
+  height: 32px;
+  border-radius: 999px;
+}
+
+@keyframes eventsShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes spin {
@@ -93,7 +183,7 @@
 .home-empty a {
   margin-top: 0.75rem;
   padding: 0.4rem 0.75rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 4px;
@@ -113,9 +203,9 @@
 
 .home-pagination__btn {
   padding: 0.4rem 0.75rem;
-  border: 1px solid #8cc63f;
+  border: 1px solid #39AE47;
   background: transparent;
-  color: #8cc63f;
+  color: #39AE47;
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -124,7 +214,7 @@
 }
 
 .home-pagination__btn:hover:not(:disabled) {
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
 }
 

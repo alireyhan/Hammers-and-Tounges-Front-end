@@ -14,6 +14,9 @@ import { useAuctionWebSocket } from "../hooks/useAuctionWebSocket";
 import { useBuyerLotAutoBid } from "../hooks/useBuyerLotAutoBid";
 import { getMediaUrl } from "../config/api.config";
 import InsufficientBalanceBidModal from "../components/InsufficientBalanceBidModal";
+import { formatBidDateTime } from "../utils/formatBidDateTime";
+import { maskBidderName } from "../utils/maskBidderName";
+import { canWalletCoverBidAmount } from "../utils/walletBidEligibility";
 import "./BuyerAuctionDetails.css";
 import { toast } from "react-toastify";
 
@@ -200,15 +203,15 @@ const BidHistoryPanel = memo(({ bids, formatCurrency }) => (
     <h3 className="buyer-details-panel-title">Bid History</h3>
     {bids && bids.length > 0 ? (
       <div className="buyer-details-bid-list">
-        {bids.map((bid, index) => (
+        {bids.slice(0, 15).map((bid, index) => (
           <div key={bid.id ?? index} className="buyer-details-bid-item">
             <div className="buyer-details-bid-rank">#{index + 1}</div>
             <div className="buyer-details-bid-info">
               <div className="buyer-details-bid-bidder">
-                {bid.bidder_name ?? bid.user_name ?? bid.bidder ?? "Bidder"}
+                {maskBidderName(bid.bidder_name ?? bid.user_name ?? bid.bidder ?? "Bidder")}
               </div>
               <div className="buyer-details-bid-time">
-                {new Date(bid.created_at).toLocaleString()}
+                {formatBidDateTime(bid.created_at)}
               </div>
             </div>
             <div className="buyer-details-bid-amount">
@@ -619,11 +622,10 @@ const BuyerAuctionDetails = () => {
     const amount = effectiveBidAmount;
     if (!auction || amount == null || isPlacingBid) return;
 
-    const availableBalance = Number(walletSummary.availableBalance ?? 0);
     if (
       !walletSummary.loading &&
       walletSummary.availableBalance != null &&
-      availableBalance < amount
+      !canWalletCoverBidAmount(walletSummary, amount)
     ) {
       setInsufficientBalanceModalKind("low_balance");
       return;
@@ -655,6 +657,7 @@ const BuyerAuctionDetails = () => {
     loadWalletSummary,
     refreshAutoBidForLot,
     walletSummary.availableBalance,
+    walletSummary.biddingPower,
     walletSummary.loading
   ]);
 

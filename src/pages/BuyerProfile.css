@@ -60,19 +60,19 @@
 }
 
 .b-action-btn.b-primary {
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
 }
 
 .b-action-btn.b-primary:hover {
-  background-color: #7bb337;
+  background-color: #39AE47;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
 }
 
 .b-action-btn.b-secondary {
   background-color: transparent;
-  border: 1px solid #8cc63f;
-  color: #8cc63f;
+  border: 1px solid #39AE47;
+  color: #39AE47;
 }
 
 .b-action-btn.b-outline {
@@ -82,8 +82,8 @@
 }
 
 .b-action-btn.b-outline:hover {
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .b-action-btn.small {
@@ -129,7 +129,7 @@
   height: 80px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid #8cc63f;
+  border: 3px solid #39AE47;
 }
 
 .avatar img {
@@ -168,7 +168,7 @@
   right: 5px;
   width: 14px;
   height: 14px;
-  background: #8cc63f;
+  background: #39AE47;
   border: 2px solid #1e293b;
   border-radius: 50%;
 }
@@ -179,7 +179,7 @@
   right: -5px;
   width: 28px;
   height: 28px;
-  background: #8cc63f;
+  background: #39AE47;
   border: 2px solid #1e293b;
   border-radius: 50%;
   display: flex;
@@ -191,7 +191,7 @@
 }
 
 .b-avatar-upload:hover {
-  background: #7bb337;
+  background: #39AE47;
   transform: scale(1.1);
 }
 
@@ -275,8 +275,8 @@
 
 .stat-icon.won {
   background: rgba(34, 197, 94, 0.15);
-  color: #8cc63f;
-  border: 1px solid #8cc63f;
+  color: #39AE47;
+  border: 1px solid #39AE47;
 }
 
 .stat-icon.success {
@@ -351,11 +351,11 @@
 }
 
 .stat-value.b-primary {
-  color: #8cc63f !important;
+  color: #39AE47 !important;
 }
 
 .stat-value.success {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .stat-value.warning {
@@ -859,13 +859,13 @@
 }
 
 .buyer-payment-modal__primary--success {
-  background: #8cc63f;
+  background: #39AE47;
   color: #0a0a0a;
   box-shadow: 0 4px 20px rgba(140, 198, 63, 0.35);
 }
 
 .buyer-payment-modal__primary--success:hover {
-  background: #7bb337;
+  background: #39AE47;
   box-shadow: 0 6px 24px rgba(140, 198, 63, 0.4);
 }
 
@@ -1012,8 +1012,8 @@ select.edit-input {
 
 .icon-circle.won {
   background: rgba(34, 197, 94, 0.15);
-  color: #8cc63f;
-  border: 1px solid #8cc63f;
+  color: #39AE47;
+  border: 1px solid #39AE47;
 }
 
 .icon-circle.lost {
@@ -1124,7 +1124,7 @@ select.edit-input {
 }
 
 input:checked + .slider {
-  background-color: #8cc63f;
+  background-color: #39AE47;
 }
 
 input:checked + .slider:before {

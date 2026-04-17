@@ -21,7 +21,7 @@
 }
 
 .guest-sell__breadcrumb a:hover {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .guest-sell__breadcrumb-sep {
@@ -97,8 +97,8 @@
 }
 
 .guest-sell__tab.active {
-  color: #8cc63f;
-  border-bottom-color: #8cc63f;
+  color: #39AE47;
+  border-bottom-color: #39AE47;
 }
 
 .guest-sell__tab svg {
@@ -128,7 +128,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border-radius: 50%;
   font-size: 0.75rem;
@@ -143,7 +143,7 @@
 }
 
 .guest-sell__inline-link {
-  color: #8cc63f;
+  color: #39AE47;
   text-decoration: none;
 }
 
@@ -182,14 +182,14 @@
 }
 
 .guest-sell__cta-btn--primary {
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
-  border: 1px solid #8cc63f;
+  border: 1px solid #39AE47;
 }
 
 .guest-sell__cta-btn--primary:hover {
-  background: #7bb337;
-  border-color: #7bb337;
+  background: #39AE47;
+  border-color: #39AE47;
 }
 
 .guest-sell__cta-btn--outline {
@@ -199,8 +199,8 @@
 }
 
 .guest-sell__cta-btn--outline:hover {
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 @media (max-width: 600px) {
@@ -216,6 +216,6 @@
 
   .guest-sell__tab.active {
     border-bottom: none;
-    border-left-color: #8cc63f;
+    border-left-color: #39AE47;
   }
 }

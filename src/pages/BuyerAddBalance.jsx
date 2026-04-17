@@ -6,8 +6,8 @@ import { profileService } from "../services/interceptors/profile.service";
 import "./BuyerAddBalance.css";
 
 const TABS = [
-  { id: "bank", label: "Bank transfer" },
-  { id: "manual", label: "Manual payment" },
+  { id: "bank", label: "Online Deposit" },
+  { id: "manual", label: "Cash Deposit" },
 ];
 
 function formatManualDate(iso) {
@@ -73,7 +73,7 @@ const BuyerAddBalance = () => {
         err?.response?.data?.detail ||
         err?.response?.data?.message ||
         err?.message ||
-        "Could not load manual payment requests.";
+        "Could not load cash deposit requests.";
       toast.error(message);
       setManualList([]);
     } finally {
@@ -233,7 +233,7 @@ const BuyerAddBalance = () => {
           : {}),
       });
       toast.success(
-        manualFormMode === "resubmit" ? "Resubmitted for review." : "Manual payment request submitted."
+        manualFormMode === "resubmit" ? "Resubmitted for review." : "Cash deposit request submitted."
       );
       closeManualForm();
       loadManualList();
@@ -241,8 +241,8 @@ const BuyerAddBalance = () => {
       const message =
         error?.response?.data?.detail ||
         error?.response?.data?.message ||
-        "Could not submit manual payment.";
-      toast.error(typeof message === "string" ? message : "Could not submit manual payment.");
+        "Could not submit cash deposit request.";
+      toast.error(typeof message === "string" ? message : "Could not submit cash deposit request.");
     } finally {
       setManualSubmitting(false);
     }
@@ -250,8 +250,8 @@ const BuyerAddBalance = () => {
 
   const subtitle =
     activeTab === "bank"
-      ? "Initialize your deposit with amount and cell number."
-      : "Submit bank transfer proof or track your manual deposit requests.";
+      ? "Initialize your online deposit with amount and cell number."
+      : "Submit your cash deposit proof or track your cash deposit requests.";
 
   return (
     <div className="buyer-add-balance-page">
@@ -346,21 +346,21 @@ const BuyerAddBalance = () => {
           ) : (
             <>
               <div className="buyer-manual-toolbar">
-                <h2 className="buyer-add-balance-card-title buyer-manual-toolbar-title">Manual deposits</h2>
+                <h2 className="buyer-add-balance-card-title buyer-manual-toolbar-title">Cash deposits</h2>
                 <button
                   type="button"
                   className="buyer-add-balance-btn primary buyer-manual-new-btn"
                   onClick={openNewManualForm}
                   disabled={manualSubmitting || deletingId != null}
                 >
-                  Request new transfer
+                  New cash deposit
                 </button>
               </div>
 
               {manualLoading ? (
                 <p className="buyer-manual-muted">Loading requests…</p>
               ) : manualList.length === 0 ? (
-                <p className="buyer-manual-muted">No manual payment requests yet.</p>
+                <p className="buyer-manual-muted">No cash deposit requests yet.</p>
               ) : (
                 <ul className="buyer-manual-list">
                   {manualList.map((item) => {
@@ -457,14 +457,13 @@ const BuyerAddBalance = () => {
             </>
           ) : (
             <>
-              <h3>Manual bank transfer</h3>
+              <h3>Cash Deposit</h3>
               <ul>
                 <li>
-                  Use <strong>Request new transfer</strong> to open the submission form in a dialog (no need to scroll
+                  Use <strong>New cash deposit</strong> to open the submission form in a dialog (no need to scroll
                   past a long list).
                 </li>
-                <li>Send your transfer from your bank using the instructions provided by support if applicable.</li>
-                <li>Keep your proof (receipt or screenshot) ready to upload.</li>
+                <li>Make your cash deposit and keep the proof (receipt or screenshot) ready to upload.</li>
                 <li>Pending requests are reviewed by the team; approved amounts credit your wallet.</li>
                 <li>If a request is rejected, you can resubmit with updated proof.</li>
                 <li>Pending requests can be deleted if you no longer need them.</li>
@@ -500,7 +499,7 @@ const BuyerAddBalance = () => {
               ×
             </button>
             <h2 id="buyer-manual-modal-title" className="buyer-manual-modal-title">
-              Manual deposit #{detailItem.id}
+              Cash deposit #{detailItem.id}
             </h2>
             <div className="buyer-manual-modal-body">
               <p className="buyer-manual-modal-line">
@@ -613,12 +612,12 @@ const BuyerAddBalance = () => {
             </button>
             <form className="buyer-manual-form buyer-manual-form--in-modal" onSubmit={handleManualSubmit}>
               <h2 id="buyer-manual-form-modal-title" className="buyer-manual-modal-title">
-                {manualFormMode === "resubmit" ? "Resubmit proof" : "New manual transfer"}
+                {manualFormMode === "resubmit" ? "Resubmit proof" : "New cash deposit"}
               </h2>
               <p className="buyer-manual-form-hint">
                 {manualFormMode === "resubmit"
                   ? "Upload a new proof document. Your previous request was rejected."
-                  : "Upload proof after you have sent your bank transfer."}
+                  : "Upload proof after you complete your cash deposit."}
               </p>
               <div className="buyer-add-balance-field">
                 <label htmlFor="manualAmount">Amount</label>

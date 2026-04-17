@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { API_CONFIG, getMediaUrl } from '../config/api.config';
 import { managerService } from '../services/interceptors/manager.service';
 import { toast } from 'react-toastify';
+import { formatBidDateTime } from '../utils/formatBidDateTime';
+import { maskBidderName } from '../utils/maskBidderName';
 import "./ManagerAuctionControlPanel.css";
 
 export default function ManagerAuctionControlPanel() {
@@ -300,18 +302,18 @@ export default function ManagerAuctionControlPanel() {
                   <h3 className="control-card-title">Live Bid Feed</h3>
                   <div className="control-bids-list">
                     {auctionData?.bids && auctionData.bids.length > 0 ? (
-                      auctionData.bids.map((bid, i) => (
+                      auctionData.bids.slice(0, 15).map((bid, i) => (
                         <div key={i} className="control-bid-row">
                           <div className="control-bid-info">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="control-bid-icon">
-                              <polyline points="18 15 12 9 6 15" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <polyline points="18 15 12 9 6 15" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
-                            <span className="control-bid-user">{bid.user || bid.bidder_name || 'Anonymous'}</span>
+                            <span className="control-bid-user">{maskBidderName(bid.user || bid.bidder_name || 'Anonymous')}</span>
                             <span className="control-bid-text">placed a bid</span>
                           </div>
                           <div className="control-bid-details">
                             <span className="control-bid-amount">${parseFloat(bid.amount || bid.bid_amount || 0).toLocaleString()}</span>
-                            <span className="control-bid-time">{bid.time || formatDate(bid.created_at) || 'just now'}</span>
+                            <span className="control-bid-time">{bid.time || formatBidDateTime(bid.created_at)}</span>
                           </div>
                         </div>
                       ))

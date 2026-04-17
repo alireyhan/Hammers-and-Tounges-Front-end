@@ -66,8 +66,8 @@ const AdminFinance = () => {
         err?.response?.data?.message ||
         err?.response?.data?.error ||
         err?.message ||
-        'Failed to load manual deposits'
-      const msg = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw.map((e) => e?.message || e).join(' ') : 'Failed to load manual deposits'
+        'Failed to load cash deposits'
+      const msg = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw.map((e) => e?.message || e).join(' ') : 'Failed to load cash deposits'
       toast.error(msg)
       setItems([])
     } finally {
@@ -166,7 +166,7 @@ const AdminFinance = () => {
             <div className="finance-header-content">
               <h1 className="finance-title">Finance</h1>
               <p className="finance-subtitle">
-                Review buyer manual deposit requests. Approve or reject pending proofs of payment.
+                Review buyer cash deposit requests. Approve or reject pending proofs of payment.
               </p>
             </div>
             <div className="finance-header-actions">
@@ -209,7 +209,7 @@ const AdminFinance = () => {
 
           <section className="finance-logs-section" aria-live="polite">
             <div className="finance-section-header">
-              <h2 className="finance-section-title">Manual deposits</h2>
+              <h2 className="finance-section-title">Cash deposits</h2>
               <span className="finance-results-info">
                 {loading ? 'Loading…' : `${items.length} request${items.length !== 1 ? 's' : ''}`}
                 {statusFilter === 'PENDING' && !loading && pendingCount > 0 ? ` · ${pendingCount} pending` : ''}
@@ -235,14 +235,14 @@ const AdminFinance = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <h3>No manual deposits</h3>
+                <h3>No cash deposits</h3>
                 <p>Nothing matches this filter.</p>
               </div>
             ) : (
               <div
                 className="finance-table-container finance-md-table-scroll"
                 role="region"
-                aria-label="Manual deposits table"
+                aria-label="Cash deposits table"
                 tabIndex={0}
               >
                 <div className="finance-table-wrapper">

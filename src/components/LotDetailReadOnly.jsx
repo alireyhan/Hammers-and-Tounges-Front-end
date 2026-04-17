@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { auctionService } from '../services/interceptors/auction.service';
 import { buyerService } from '../services/interceptors/buyer.service';
-import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
+import { formatBidDateTime } from '../utils/formatBidDateTime';
+import { maskBidderName } from '../utils/maskBidderName';
+import { logLotMediaFromApi } from '../utils/logLotMediaDebug';
+import { getLotImageUrls } from '../utils/lotMedia';
 import './LotDetailReadOnly.css';
 
 const formatPrice = (price) => {
@@ -30,12 +33,11 @@ const LotDetailReadOnly = ({ backPath }) => {
   const [bidsLoading, setBidsLoading] = useState(false);
   const [bidsError, setBidsError] = useState(null);
 
-  const imageMedia = lot?.media?.filter((m) => m.media_type === 'image') || [];
-  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
+  const imageUrls = getLotImageUrls(lot);
+  const requestedLotId = lotId || lotFromState?.id;
 
   useEffect(() => {
-    if (lotFromState) return;
-    if (!lotId) {
+    if (!requestedLotId) {
       navigate(backPath || -1);
       return;
     }
@@ -43,7 +45,8 @@ const LotDetailReadOnly = ({ backPath }) => {
     (async () => {
       setLoading(true);
       try {
-        const data = await auctionService.getLot(lotId);
+        const data = await auctionService.getLot(requestedLotId);
+        logLotMediaFromApi('LotDetailReadOnly getLot()', data);
         if (!cancelled) setLot(data);
       } catch (err) {
         if (!cancelled) {
@@ -55,10 +58,16 @@ const LotDetailReadOnly = ({ backPath }) => {
       }
     })();
     return () => { cancelled = true; };
-  }, [lotId, lotFromState, backPath, navigate]);
+  }, [requestedLotId, backPath, navigate]);
+
+  useEffect(() => {
+    if (lotFromState?.id) {
+      logLotMediaFromApi('LotDetailReadOnly navigation state (initial, refetching full lot)', lotFromState);
+    }
+  }, [lotFromState?.id]);
 
   // Fetch bid history when lot is available
-  const effectiveLotId = lot?.id ?? lotId;
+  const effectiveLotId = lot?.id ?? requestedLotId;
   useEffect(() => {
     if (!effectiveLotId) return;
     let cancelled = false;
@@ -185,15 +194,15 @@ const LotDetailReadOnly = ({ backPath }) => {
               <p className="lot-detail-ro__bids-error">{bidsError}</p>
             ) : bids && bids.length > 0 ? (
               <div className="lot-detail-ro__bid-list">
-                {bids.map((bid, index) => (
+                {bids.slice(0, 15).map((bid, index) => (
                   <div key={bid.id ?? index} className="lot-detail-ro__bid-item">
                     <div className="lot-detail-ro__bid-rank">#{index + 1}</div>
                     <div className="lot-detail-ro__bid-info">
                       <div className="lot-detail-ro__bid-bidder">
-                        {bid.bidder_name ?? bid.user_name ?? bid.bidder ?? 'Bidder'}
+                        {maskBidderName(bid.bidder_name ?? bid.user_name ?? bid.bidder ?? 'Bidder')}
                       </div>
                       <div className="lot-detail-ro__bid-time">
-                        {bid.created_at ? new Date(bid.created_at).toLocaleString() : '—'}
+                        {formatBidDateTime(bid.created_at)}
                       </div>
                     </div>
                     <div className="lot-detail-ro__bid-amount">

@@ -60,7 +60,7 @@
   left: 0;
   width: 0%;
   height: 2px;
-  background-color: #8cc63f;
+  background-color: #39AE47;
   transition: width 0.3s;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .buyer-header__nav-link.active {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .buyer-header__right {
@@ -98,14 +98,14 @@
   gap: 0.6rem;
 }
 .buyer-header__profile-btn span {
-  color: #8cc63f;
+  color: #39AE47;
   font-weight: 500;
   font-size: 1rem;
 }
 
 .buyer-header__profile-btn:hover {
   background-color: rgba(140, 198, 63, 0.14);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .buyer-header__avatar {
@@ -117,7 +117,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .buyer-header__mobile-toggle {
@@ -133,7 +133,7 @@
 
 .buyer-header__mobile-toggle:hover {
   background-color: rgba(140, 198, 63, 0.14);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .buyer-header__mobile-menu {
@@ -199,7 +199,7 @@
 
 .buyer-header__mobile-nav-link.active {
   background-color: rgba(140, 198, 63, 0.14);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 @media (max-width: 1200px) {

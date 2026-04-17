@@ -191,8 +191,8 @@
 
 .filter-button.active {
   background-color: #000;
-  border-color: #8CC63F;
-  color: #8CC63F;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .sort-group {
@@ -232,7 +232,7 @@
 .sort-select:focus,
 .filter-select:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .primary-button,
@@ -253,12 +253,12 @@
 }
 
 .action-button.primary {
-  background-color: #8CC63F !important;
+  background-color: #39AE47 !important;
   color: #000000 !important;
 }
 
 .action-button.primary:hover {
-  background-color: #7BB337 !important;
+  background-color: #39AE47 !important;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
 }
 
@@ -293,7 +293,7 @@
 }
 
 .s-primary-button:hover {
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000;
 }
 
@@ -336,7 +336,7 @@
 .link-button {
   background: none;
   border: none;
-  color: #8CC63F;
+  color: #39AE47;
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
@@ -486,7 +486,7 @@
 }
 
 .listing-time svg {
-  color: #8CC63F;
+  color: #39AE47;
   width: 14px;
   height: 14px;
 }
@@ -927,7 +927,7 @@
 .payout-amount {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .payout-details {

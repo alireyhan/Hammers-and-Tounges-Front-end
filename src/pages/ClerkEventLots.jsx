@@ -57,6 +57,7 @@ export default function ClerkEventLots() {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedFilters, setSelectedFilters] = useState({});
   const [selectedLot, setSelectedLot] = useState(null);
+  const [syncingNewLot, setSyncingNewLot] = useState(false);
 
   const [deletingEvent, setDeletingEvent] = useState(false);
   const [canDeleteEvent, setCanDeleteEvent] = useState(false);
@@ -111,11 +112,13 @@ export default function ClerkEventLots() {
         if (items[0]?.event_title && !eventFromState?.title) {
           setEventTitle(items[0].event_title);
         }
+        return items;
       } catch (err) {
         console.error("Error fetching lots:", err);
         setError(err?.message || err?.response?.data?.detail || "Failed to load lots");
         toast.error("Failed to load lots");
         setLots([]);
+        return [];
       } finally {
         setLoading(false);
       }
@@ -178,8 +181,38 @@ export default function ClerkEventLots() {
         setSelectedLot(createdLot);
       }
       setPage(1);
-      fetchLots(1);
-      navigate(`/clerk/event/${id}`, { state: { event: eventFromState }, replace: true });
+      setSyncingNewLot(true);
+
+      let cancelled = false;
+      const targetLotId = createdLot?.id ? String(createdLot.id) : null;
+
+      (async () => {
+        const maxAttempts = 8;
+        const pollDelayMs = 1200;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+          const latestItems = (await fetchLots(1)) || [];
+          if (cancelled) return;
+
+          if (!targetLotId || latestItems.some((l) => String(l?.id) === targetLotId)) {
+            break;
+          }
+
+          if (attempt < maxAttempts) {
+            await new Promise((resolve) => setTimeout(resolve, pollDelayMs));
+            if (cancelled) return;
+          }
+        }
+
+        if (!cancelled) {
+          setSyncingNewLot(false);
+          navigate(`/clerk/event/${id}`, { state: { event: eventFromState }, replace: true });
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
     }
   }, [lotCreated, createdLot, id, eventFromState, fetchLots, navigate]);
 
@@ -321,6 +354,12 @@ export default function ClerkEventLots() {
       </header>
 
       <main className="manager-event-lots__main">
+        {syncingNewLot && (
+          <div className="manager-event-lots__sync-banner" role="status" aria-live="polite">
+            <span className="manager-event-lots__sync-dot" />
+            Fetching newly created lot...
+          </div>
+        )}
         {loading && lots.length === 0 ? (
           <div className="manager-event-lots__loading">
             <div className="manager-event-lots__spinner" />
@@ -352,7 +391,8 @@ export default function ClerkEventLots() {
                       <LotRow
                         key={lot.id}
                         lot={lot}
-                        eventEndTime={lot.end_date ?? lot.end_time ?? eventFromState?.end_time}
+                        eventStartTime={lot.event_start_time ?? lot.start_date ?? lot.start_time ?? eventFromState?.start_time ?? eventFromState?.start_date}
+                        eventEndTime={lot.event_end_time ?? lot.end_date ?? lot.end_time ?? eventFromState?.end_time}
                         eventTitle={eventTitle}
                         eventStatus={lot.event_status ?? eventStatus}
                         onOpenDetail={setSelectedLot}
@@ -383,7 +423,8 @@ export default function ClerkEventLots() {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={selectedLot.end_date ?? selectedLot.end_time ?? eventFromState?.end_time}
+          eventStartTime={selectedLot.event_start_time ?? selectedLot.start_date ?? selectedLot.start_time ?? eventFromState?.start_time ?? eventFromState?.start_date}
+          eventEndTime={selectedLot.event_end_time ?? selectedLot.end_date ?? selectedLot.end_time ?? eventFromState?.end_time}
           eventTitle={eventTitle}
           eventId={id}
           eventStatus={selectedLot.event_status ?? eventStatus}

@@ -235,7 +235,7 @@
 .manual-status.approved {
   background: rgba(34, 197, 94, 0.15);
   border: 1px solid rgba(34, 197, 94, 0.4);
-  color: #22C55E;
+  color: #39AE47;
 }
 
 .manual-status.rejected {
@@ -251,7 +251,7 @@
 }
 
 .manual-amount.positive {
-  color: #22C55E;
+  color: #39AE47;
 }
 
 .manual-amount.negative {
@@ -290,7 +290,7 @@
 .manual-btn.approve {
   background: rgba(34, 197, 94, 0.15);
   border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #22C55E;
+  color: #39AE47;
 }
 
 .manual-btn.approve:hover {

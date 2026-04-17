@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { auctionService } from '../services/interceptors/auction.service';
-import { getMediaUrl } from '../config/api.config';
+import { getLotImageUrls } from '../utils/lotMedia';
 import { toast } from 'react-toastify';
 import './GuestBuy.css';
 
@@ -22,8 +22,7 @@ const getLotStatusModifier = (status) => {
 };
 
 const LotCard = ({ lot, onLotClick }) => {
-  const imageMedia = lot.media?.filter((m) => m.media_type === 'image') || [];
-  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
+  const imageUrls = getLotImageUrls(lot);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const intervalRef = useRef(null);
   const lotStatus = lot.status || lot.listing_status;

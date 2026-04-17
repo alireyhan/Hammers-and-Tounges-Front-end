@@ -80,6 +80,8 @@ const BuyerWonItems = () => {
     venue: item.venue,
     event_title: item.eventTitle,
     event_status: 'CLOSED',
+    event_start_time: item.eventStartTime ?? item.startDate,
+    event_end_time: item.eventEndTime ?? item.endDate ?? item.endTime,
     end_date: item.endDate,
     end_time: item.endTime,
   })
@@ -155,7 +157,8 @@ const BuyerWonItems = () => {
                       <LotRow
                         key={item.id}
                         lot={lot}
-                        eventEndTime={item.endDate ?? item.endTime}
+                        eventStartTime={item.eventStartTime ?? item.startDate}
+                        eventEndTime={item.eventEndTime ?? item.endDate ?? item.endTime}
                         eventTitle={item.eventTitle}
                         onOpenDetail={handleLotClick}
                         showFavorite={false}
@@ -212,7 +215,8 @@ const BuyerWonItems = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={selectedLot.end_date ?? selectedLot.end_time}
+          eventStartTime={selectedLot.event_start_time ?? selectedLot.start_date}
+          eventEndTime={selectedLot.event_end_time ?? selectedLot.end_date ?? selectedLot.end_time}
           eventTitle={selectedLot.event_title}
           eventId={selectedLot.event_id}
           eventStatus={selectedLot.event_status ?? 'CLOSED'}

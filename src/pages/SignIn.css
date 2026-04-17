@@ -244,7 +244,7 @@ html[data-theme="light"] .signin-form__input::-webkit-input-placeholder {
 }
 
 .signin-form__submit:hover:not(:disabled) {
-  background: #7bb337;
+  background: #39AE47;
   box-shadow: 0 4px 16px rgba(140, 198, 63, 0.4);
 }
 

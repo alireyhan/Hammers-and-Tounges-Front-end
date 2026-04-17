@@ -40,19 +40,19 @@
 }
 
 .category-tab:hover {
-  border-color: #8CC63F;
+  border-color: #39AE47;
   background-color: rgba(140, 198, 63, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .category-tab.active {
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000000;
-  border-color: #8CC63F;
+  border-color: #39AE47;
 }
 
 .category-tab.active:hover {
-  background-color: #7BB337;
+  background-color: #39AE47;
 }
 
 .scroll-indicator {
@@ -72,7 +72,7 @@
 }
 
 .scroll-dot.active {
-  background-color: #8CC63F;
+  background-color: #39AE47;
   transform: scale(1.2);
 }
 

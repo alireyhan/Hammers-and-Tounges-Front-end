@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { auctionService } from '../services/interceptors/auction.service';
 import { buyerService } from '../services/interceptors/buyer.service';
-import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
+import { formatBidDateTime } from '../utils/formatBidDateTime';
+import { maskBidderName } from '../utils/maskBidderName';
+import { logLotMediaFromApi } from '../utils/logLotMediaDebug';
+import { getLotImageUrls } from '../utils/lotMedia';
 import './ManagerLotDetail.css';
 
 const formatPrice = (price) => {
@@ -27,8 +30,7 @@ const SellerLotDetail = () => {
   const [bidsLoading, setBidsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  const imageMedia = lot?.media?.filter((m) => m.media_type === 'image') || [];
-  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
+  const imageUrls = getLotImageUrls(lot);
 
   useEffect(() => {
     if (!lotId) {
@@ -40,6 +42,7 @@ const SellerLotDetail = () => {
       setLoading(true);
       try {
         const data = await auctionService.getLot(lotId);
+        logLotMediaFromApi('SellerLotDetail getLot()', data);
         if (!cancelled) setLot(data);
       } catch (err) {
         if (!cancelled) {
@@ -174,15 +177,15 @@ const SellerLotDetail = () => {
               <p className="manager-lot-detail__bids-loading">Loading bids...</p>
             ) : bids.length > 0 ? (
               <div className="manager-lot-detail__bids-list">
-                {bids.map((bid, index) => (
+                {bids.slice(0, 15).map((bid, index) => (
                   <div key={bid.id ?? index} className="manager-lot-detail__bid-item">
                     <div className="manager-lot-detail__bid-rank">#{index + 1}</div>
                     <div className="manager-lot-detail__bid-info">
                       <span className="manager-lot-detail__bid-bidder">
-                        {bid.bidder_name ?? bid.user_name ?? bid.bidder ?? 'Bidder'}
+                        {maskBidderName(bid.bidder_name ?? bid.user_name ?? bid.bidder ?? 'Bidder')}
                       </span>
                       <span className="manager-lot-detail__bid-time">
-                        {bid.created_at ? new Date(bid.created_at).toLocaleString() : '—'}
+                        {formatBidDateTime(bid.created_at)}
                       </span>
                     </div>
                     <div className="manager-lot-detail__bid-amount">

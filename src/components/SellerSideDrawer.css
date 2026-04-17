@@ -69,7 +69,7 @@
 
 .seller-side-drawer__close:hover {
   background: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .seller-side-drawer__nav {
@@ -106,16 +106,16 @@
 }
 
 .seller-side-drawer__link:hover svg {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .seller-side-drawer__link.active {
   background: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .seller-side-drawer__link.active svg {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .seller-side-drawer__actions {

@@ -100,10 +100,10 @@ export default function ManagerAuctionResults() {
       value: "92%",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       ),
-      color: "#8CC63F"
+      color: "#39AE47"
     },
     { 
       title: "Total Lots Sold", 

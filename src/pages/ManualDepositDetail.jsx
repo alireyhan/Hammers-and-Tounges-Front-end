@@ -206,7 +206,7 @@ const ManualDepositDetail = () => {
           ) : (
             <article className="finance-md-detail-card">
               <header className="finance-md-detail-card-header">
-                <h1 className="finance-title finance-md-detail-screen-title">Manual deposit</h1>
+                <h1 className="finance-title finance-md-detail-screen-title">Cash deposit</h1>
                 <p className="finance-md-detail-id">Request #{deposit.id}</p>
               </header>
 

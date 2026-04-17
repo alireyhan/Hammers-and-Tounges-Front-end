@@ -101,7 +101,7 @@
     width: 48px;
     height: 48px;
     border: 3px solid rgba(140, 198, 63, 0.2);
-    border-top: 3px solid #8CC63F;
+    border-top: 3px solid #39AE47;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -198,12 +198,12 @@
 }
 
 .action-button.primary {
-    background-color: #8CC63F !important;
+    background-color: #39AE47 !important;
     color: #000000 !important;
 }
 
 .action-button.primary:hover {
-    background-color: #7BB337 !important;
+    background-color: #39AE47 !important;
     box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
 
 }
@@ -485,7 +485,7 @@
 }
 
 .bid-info-value.leading {
-    color: #8CC63F;
+    color: #39AE47;
 }
 
 .bid-info-value.outbid {
@@ -505,7 +505,7 @@
 }
 
 .bid-card-time svg {
-    color: #8CC63F;
+    color: #39AE47;
     width: 14px;
     height: 14px;
     flex-shrink: 0;

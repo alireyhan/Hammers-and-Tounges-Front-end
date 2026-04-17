@@ -5,7 +5,7 @@ import './ManualPayment.css';
 export default function ManualPaymentEntry() {
   const [formData, setFormData] = useState({
     referenceId: '',
-    paymentMethod: 'Bank Transfer',
+    paymentMethod: 'Online Deposit',
     paymentAmount: '',
     remarks: '',
     proofFile: null,
@@ -163,7 +163,7 @@ export default function ManualPaymentEntry() {
         <div className="manual-dashboard-container">
           <div className="manual-payment-header">
             <div className="header-content">
-              <h1 className="manual-page-title">Manual Payment Entry</h1>
+              <h1 className="manual-page-title">Cash Deposit Entry</h1>
               <p className="manual-page-subtitle">Record offline payments for invoices and accounts</p>
             </div>
             <div className="header-actions">
@@ -218,7 +218,7 @@ export default function ManualPaymentEntry() {
                       onChange={handleInputChange}
                       className="form-select"
                     >
-                      <option value="Bank Transfer">Bank Transfer</option>
+                      <option value="Online Deposit">Online Deposit</option>
                       <option value="Credit Card">Credit Card</option>
                       <option value="Cash">Cash</option>
                       <option value="Check">Check</option>

@@ -81,7 +81,7 @@
 }
 
 .buyer-add-balance-field input:focus {
-  border-color: #8cc63f;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.16);
 }
 
@@ -102,8 +102,8 @@
 }
 
 .buyer-add-balance-quick-btn:hover {
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
 }
 
 .buyer-add-balance-actions {
@@ -128,7 +128,7 @@
 }
 
 .buyer-add-balance-btn.primary {
-  background: #8cc63f;
+  background: #39AE47;
   color: #111;
 }
 
@@ -213,7 +213,7 @@
 }
 
 .buyer-add-balance-tab.is-active {
-  border-color: #8cc63f;
+  border-color: #39AE47;
   color: #9ed95b;
   background: rgba(140, 198, 63, 0.1);
 }

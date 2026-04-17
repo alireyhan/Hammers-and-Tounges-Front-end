@@ -3,6 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { adminService } from '../services/interceptors/admin.service';
 import { auctionService } from '../services/interceptors/auction.service';
 import { getMediaUrl } from '../config/api.config';
+import { getLotImageUrls } from '../utils/lotMedia';
+import {
+  sanitizeDecimalPriceInput,
+  sanitizeDigitsOnly,
+  sanitizeYearInput,
+} from '../utils/numericFormInput';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import './ManagerPublishNew.css';
@@ -80,9 +86,11 @@ const ManagerPublishNew = () => {
     });
     if (existingLot.media?.length) {
       setImages(
-        existingLot.media
-          .filter((m) => m.media_type === 'image' && m.file)
-          .map((m, i) => ({ id: m.id, file: m.file, label: `Image ${i + 1}` }))
+        getLotImageUrls(existingLot.media).map((url, i) => ({
+          id: `existing-${i}`,
+          file: url,
+          label: `Image ${i + 1}`,
+        }))
       );
     }
   }, [isEdit, existingLot]);
@@ -127,10 +135,15 @@ const ManagerPublishNew = () => {
       }));
       return;
     }
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    if (type === 'checkbox') {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+      return;
+    }
+    if (name === 'initial_price' || name === 'reserve_price') {
+      setFormData((prev) => ({ ...prev, [name]: sanitizeDecimalPriceInput(value) }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   const handleSpecificDataChange = useCallback((fieldName, value) => {
@@ -220,9 +233,34 @@ const ManagerPublishNew = () => {
         );
       }
 
+      // Year (often text in schema) — digits only
+      if (fieldName.toLowerCase() === 'year' || fieldName.toLowerCase() === 'model_year') {
+        return (
+          <div key={fieldName} className="mpn-form-group">
+            <label className="mpn-form-label">
+              {label} {isRequired && <span className="mpn-required">*</span>}
+            </label>
+            <input
+              type="text"
+              className="mpn-input"
+              inputMode="numeric"
+              autoComplete="off"
+              value={value ?? ''}
+              onChange={(e) => handleSpecificDataChange(fieldName, sanitizeYearInput(e.target.value))}
+              placeholder={`Enter ${label.toLowerCase()}...`}
+              maxLength={4}
+              required={isRequired}
+            />
+          </div>
+        );
+      }
+
       // Range
       if (fieldConfig.type === 'range') {
-        const numValue = value !== '' && value !== undefined ? Number(value) : (fieldConfig.min ?? 0);
+        const minR = fieldConfig.min ?? 0;
+        const maxR = fieldConfig.max ?? 100;
+        const parsed = value !== '' && value !== undefined && value !== null ? Number(value) : minR;
+        const numValue = Number.isNaN(parsed) ? minR : Math.min(maxR, Math.max(minR, parsed));
         return (
           <div key={fieldName} className="mpn-form-group">
             <label className="mpn-form-label">
@@ -232,19 +270,29 @@ const ManagerPublishNew = () => {
               <input
                 type="range"
                 className="mpn-input"
-                min={fieldConfig.min ?? 0}
-                max={fieldConfig.max ?? 100}
+                min={minR}
+                max={maxR}
                 value={numValue}
                 onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
               />
               <input
-                type="number"
+                type="text"
                 className="mpn-input"
                 style={{ maxWidth: '100px' }}
-                min={fieldConfig.min ?? 0}
-                max={fieldConfig.max ?? 100}
-                value={numValue}
-                onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+                inputMode="numeric"
+                autoComplete="off"
+                value={String(numValue)}
+                onChange={(e) => {
+                  const v = sanitizeDigitsOnly(e.target.value);
+                  if (v === '') {
+                    handleSpecificDataChange(fieldName, String(minR));
+                    return;
+                  }
+                  const n = Number(v);
+                  if (Number.isNaN(n)) return;
+                  const clamped = Math.min(maxR, Math.max(minR, n));
+                  handleSpecificDataChange(fieldName, String(clamped));
+                }}
               />
             </div>
           </div>
@@ -259,12 +307,20 @@ const ManagerPublishNew = () => {
               {label} {isRequired && <span className="mpn-required">*</span>}
             </label>
             <input
-              type="number"
+              type="text"
               className="mpn-input"
+              inputMode={fieldConfig.type === 'integer' ? 'numeric' : 'decimal'}
+              autoComplete="off"
               value={value ?? ''}
-              onChange={(e) => handleSpecificDataChange(fieldName, e.target.value)}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const next =
+                  fieldConfig.type === 'integer'
+                    ? sanitizeDigitsOnly(raw)
+                    : sanitizeDecimalPriceInput(raw);
+                handleSpecificDataChange(fieldName, next);
+              }}
               placeholder={`Enter ${label.toLowerCase()}...`}
-              step={fieldConfig.type === 'integer' ? 1 : 'any'}
               required={isRequired}
             />
           </div>
@@ -344,9 +400,12 @@ const ManagerPublishNew = () => {
       fd.append('stc_eligible', formData.stc_eligible ? 'true' : 'false');
       fd.append('status', status);
       const specificData = formData.specific_data;
-      if (specificData && typeof specificData === 'object' && Object.keys(specificData).length > 0) {
-        fd.append('specific_data', JSON.stringify(specificData));
-      }
+      fd.append(
+        'specific_data',
+        JSON.stringify(
+          specificData && typeof specificData === 'object' ? specificData : {}
+        )
+      );
       images.forEach((img, idx) => {
         if (img.file instanceof File) {
           fd.append(`image_${idx + 1}`, img.file);
@@ -424,7 +483,37 @@ const ManagerPublishNew = () => {
           toast.success('Lot updated successfully.');
         } else {
           const fd = buildFormData(effectiveStatus);
+          const mediaParts = [];
+          const labelParts = [];
+          for (const [key, value] of fd.entries()) {
+            if (/^image_\d+$/.test(key)) {
+              mediaParts.push(
+                value instanceof File
+                  ? { field: key, kind: 'File', name: value.name, size: value.size, type: value.type }
+                  : { field: key, kind: typeof value, preview: String(value).slice(0, 120) }
+              );
+            } else if (key === 'media_labels') {
+              labelParts.push(value);
+            }
+          }
+          const nonFileSlots = images.filter((img) => !(img.file instanceof File)).length;
+          console.log('[HT LotCreate][web] submitting lot images', {
+            selectedImagesCount: images.length,
+            nonFileSlotsSkipped: nonFileSlots,
+            selectedImageNames: images.map((img) =>
+              img.file instanceof File ? img.file.name : String(img.file || '')
+            ),
+            formDataMediaCount: mediaParts.length,
+            formDataLabelsCount: labelParts.length,
+            formDataMediaParts: mediaParts,
+            formDataLabelParts: labelParts,
+          });
           const createdLot = await auctionService.createLot(fd);
+          console.log('[HT LotCreate][web] create response media', {
+            lotId: createdLot?.id,
+            mediaArrayLength: Array.isArray(createdLot?.media) ? createdLot.media.length : 0,
+            media: createdLot?.media,
+          });
           toast.success('Lot created successfully.');
           // Pass created lot back so clerk can see it even if list API omits drafts
           if (fromAdmin) {
@@ -611,14 +700,14 @@ const ManagerPublishNew = () => {
                 <div className="mpn-input-with-prefix">
                   <span className="mpn-input-prefix">$</span>
                   <input
-                    type="number"
+                    type="text"
                     className="mpn-input"
                     placeholder="0.00"
                     name="initial_price"
                     value={formData.initial_price}
                     onChange={handleChange}
-                    min="0"
-                    step="0.01"
+                    inputMode="decimal"
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -628,14 +717,14 @@ const ManagerPublishNew = () => {
                 <div className="mpn-input-with-prefix">
                   <span className="mpn-input-prefix">$</span>
                   <input
-                    type="number"
+                    type="text"
                     className="mpn-input"
                     placeholder="0.00"
                     name="reserve_price"
                     value={formData.reserve_price}
                     onChange={handleChange}
-                    min="0"
-                    step="0.01"
+                    inputMode="decimal"
+                    autoComplete="off"
                   />
                 </div>
               </div>
@@ -693,7 +782,9 @@ const ManagerPublishNew = () => {
                 </svg>
                 <div className="mpn-drop-area-text">
                   <p className="mpn-drop-area-title">Drop images here or click to upload</p>
-                  <p className="mpn-drop-area-subtitle">JPG, PNG, GIF up to 5MB each (max {MAX_IMAGES})</p>
+                  <p className="mpn-drop-area-subtitle">
+                    JPG, PNG, GIF up to 5MB each (max {MAX_IMAGES}) - multi-select supported
+                  </p>
                 </div>
               </div>
               <input

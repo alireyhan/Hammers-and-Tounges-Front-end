@@ -18,19 +18,19 @@ const Onboarding = () => {
           <div className="onboarding-features">
             <div className="feature-item">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M20 6L9 17L4 12" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20 6L9 17L4 12" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span>Free to join</span>
             </div>
             <div className="feature-item">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M20 6L9 17L4 12" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20 6L9 17L4 12" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span>Secure transactions</span>
             </div>
             <div className="feature-item">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M20 6L9 17L4 12" stroke="#8CC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20 6L9 17L4 12" stroke="#39AE47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span>24/7 support</span>
             </div>

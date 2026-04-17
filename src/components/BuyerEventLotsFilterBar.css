@@ -65,13 +65,13 @@
 }
 
 .buyer-event-lots-filter__label:hover {
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .buyer-event-lots-filter__checkbox {
   width: 16px;
   height: 16px;
-  accent-color: #8cc63f;
+  accent-color: #39AE47;
   cursor: pointer;
   flex-shrink: 0;
 }

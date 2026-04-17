@@ -5,14 +5,16 @@ import React, {
   useCallback,
 } from "react";
 import "./AdminDashboard.css";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsersList } from "../../store/actions/adminActions";
 import { adminService } from "../../services/interceptors/admin.service";
 import { auctionService } from "../../services/interceptors/auction.service";
+import { fetchEvents } from "../../store/actions/AuctionsActions";
 import { toast } from "react-toastify";
 import { API_CONFIG } from "../../config/api.config";
 import EventListingRow from "../../components/EventListingRow";
+import { normalizeEventStatusForFilter } from "../../utils/eventStatus";
 
 // Lazy load images for better performance
 // const Car1 = lazy(() => import('../../assets/admin-assests/1.png'));
@@ -135,46 +137,105 @@ const formatEventDate = (isoStr) => {
   }
 };
 
+const EventsSkeleton = ({ rows = 10 }) => (
+  <div className="events-skeleton-list" aria-hidden="true">
+    {Array.from({ length: rows }).map((_, idx) => (
+      <div key={idx} className="events-skeleton-row">
+        <div className="events-skeleton-thumb">
+          <div className="events-skeleton-shimmer events-skeleton-shape-thumb" />
+          <div className="events-skeleton-shimmer events-skeleton-shape-badge" />
+        </div>
+        <div className="events-skeleton-dates">
+          <div className="events-skeleton-shimmer events-skeleton-shape-date" />
+          <div className="events-skeleton-shimmer events-skeleton-shape-date" />
+        </div>
+        <div className="events-skeleton-body">
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--title" />
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--chip" />
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--meta" />
+        </div>
+        <div className="events-skeleton-lots">
+          <div className="events-skeleton-shimmer events-skeleton-shape-lots" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { users, isLoading } = useSelector((state) => state.admin);
-  const [events, setEvents] = useState([]);
+  const { events, eventsLoading, eventsLoaded } = useSelector((state) => state.buyer);
   const [filterStatus, setFilterStatus] = useState("ALL");
-  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
-  const [eventCount, setEventCount] = useState(0);
+  const [syncingCreatedEvent, setSyncingCreatedEvent] = useState(false);
+  const eventCreated = location.state?.eventCreated === true;
+  const createdEventId = location.state?.createdEventId ?? null;
+  const createdEventCode = location.state?.createdEventCode ?? null;
 
   // Fetch users on component mount
   useEffect(() => {
     dispatch(fetchUsersList());
   }, [dispatch]);
 
-  // Fetch events on component mount (admin token attached for auth)
+  // Fetch events on component mount (cached in redux unless stale)
   useEffect(() => {
-    const fetchEventsData = async () => {
-      setIsLoadingEvents(true);
-      try {
-        const allResults = await auctionService.fetchAllEvents();
-        setEvents(allResults);
-        setEventCount(allResults.length);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-        toast.error("Failed to load events. Please try again.");
-        setEvents([]);
-        setEventCount(0);
-      } finally {
-        setIsLoadingEvents(false);
-      }
+    dispatch(fetchEvents({}));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!eventCreated) return;
+
+    let cancelled = false;
+    setSyncingCreatedEvent(true);
+
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const isCreatedEvent = (event) => {
+      if (!event || typeof event !== 'object') return false;
+      if (createdEventId != null && String(event.id) === String(createdEventId)) return true;
+      if (createdEventCode && String(event.event_id) === String(createdEventCode)) return true;
+      return false;
     };
-    fetchEventsData();
-  }, []);
+
+    (async () => {
+      const maxAttempts = 8;
+      const pollDelayMs = 1200;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        try {
+          const payload = await dispatch(fetchEvents({ forceRefresh: true })).unwrap();
+          const list = payload?.results || [];
+          if ((!createdEventId && !createdEventCode) || list.some(isCreatedEvent)) {
+            break;
+          }
+        } catch {
+          // Continue polling; transient errors can resolve on the next tick.
+        }
+
+        if (attempt < maxAttempts) {
+          await wait(pollDelayMs);
+          if (cancelled) return;
+        }
+      }
+
+      if (!cancelled) {
+        setSyncingCreatedEvent(false);
+        navigate('/admin/dashboard', { replace: true });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventCreated, createdEventId, createdEventCode, dispatch, navigate]);
 
   // Calculate stats from users data
   const stats = useMemo(() => {
     if (!users?.results) {
       return {
         totalUsers: 0,
-        totalEvents: eventCount,
+        totalEvents: events.length,
         totalRevenue: "0"
       };
     }
@@ -184,10 +245,10 @@ const AdminDashboard = () => {
 
     return {
       totalUsers,
-      totalEvents: eventCount,
+      totalEvents: events.length,
       totalRevenue: "0"
     };
-  }, [users, eventCount]);
+  }, [users, events.length]);
 
   // Memoized data
   const recentActivities = useMemo(
@@ -211,17 +272,57 @@ const AdminDashboard = () => {
     []
   );
 
-  // Filter events based on selected status (ALL, SCHEDULED, LIVE, CLOSING, CLOSED)
-  const filteredEvents = useMemo(() => {
+  // Keep this non-memoized so status changes never get stuck.
+  const getFilteredEvents = () => {
     if (!events || events.length === 0) return [];
 
     if (filterStatus === "ALL") return events;
 
     return events.filter((event) => {
-      const status = (event.status || "").toUpperCase();
+      const status = normalizeEventStatusForFilter(event);
       return status === filterStatus;
     });
+  };
+  const filteredEvents = getFilteredEvents();
+
+  useEffect(() => {
+    const rows = (events || []).map((ev) => ({
+      id: ev?.id,
+      title: ev?.title,
+      status: ev?.status,
+      event_status: ev?.event_status,
+      normalized: normalizeEventStatusForFilter(ev),
+      start_time: ev?.start_time,
+      end_time: ev?.end_time,
+    }));
+    console.log('[HT AdminDashboard] events status snapshot', {
+      total: rows.length,
+      filterStatus,
+      rows,
+    });
   }, [events, filterStatus]);
+
+  useEffect(() => {
+    const normalizedRows = (events || []).map((ev) => ({
+      id: ev?.id,
+      title: ev?.title,
+      status: ev?.status,
+      event_status: ev?.event_status,
+      normalized: normalizeEventStatusForFilter(ev),
+    }));
+    const byStatus = normalizedRows.reduce((acc, row) => {
+      const key = row.normalized || 'UNKNOWN';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    console.log('[HT AdminDashboard] all events (no filter)', {
+      total: normalizedRows.length,
+      byStatus,
+      selectedFilter: filterStatus,
+      renderedCount: filteredEvents.length,
+      rows: normalizedRows,
+    });
+  }, [events, filterStatus, filteredEvents.length]);
 
   const handleViewDetails = useCallback(
     (eventId, event) => {
@@ -458,9 +559,9 @@ const AdminDashboard = () => {
             <div className="admin-dashboard-card-header">
               <div className="admin-dashboard-card-title-wrapper">
                 <h2 className="admin-dashboard-card-title">Recent Events</h2>
-                {eventCount > 0 && (
+              {events.length > 0 && (
                   <span className="admin-dashboard-event-count">
-                    ({eventCount})
+                    ({events.length})
                   </span>
                 )}
               </div>
@@ -480,10 +581,17 @@ const AdminDashboard = () => {
               </div>
             </div>
 
+            {syncingCreatedEvent && (
+              <div className="admin-dashboard-events-sync-banner" role="status" aria-live="polite">
+                <span className="admin-dashboard-events-sync-dot" />
+                Fetching newly created event...
+              </div>
+            )}
+
             <div className="admin-dashboard-events-list-wrapper">
-              {isLoadingEvents ? (
+              {eventsLoading && !eventsLoaded ? (
                 <div className="admin-dashboard-events-loading">
-                  Loading events...
+                  <EventsSkeleton />
                 </div>
               ) : filteredEvents.length === 0 ? (
                 <div className="admin-dashboard-events-empty">

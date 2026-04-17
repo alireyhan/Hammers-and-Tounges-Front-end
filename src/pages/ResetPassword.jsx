@@ -188,14 +188,14 @@ const ResetPassword = () => {
                                 >
                                     <path
                                         d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
-                                        stroke="#8CC63F"
+                                        stroke="#39AE47"
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                     />
                                     <path
                                         d="M22 4L12 14.01l-3-3"
-                                        stroke="#8CC63F"
+                                        stroke="#39AE47"
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -358,8 +358,8 @@ const ResetPassword = () => {
                                 fill="none"
                                 style={{ marginRight: '8px', flexShrink: 0 }}
                             >
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="#8CC63F" strokeWidth="2" />
-                                <path d="M7 11V7a5 5 0 0110 0v4" stroke="#8CC63F" strokeWidth="2" />
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="#39AE47" strokeWidth="2" />
+                                <path d="M7 11V7a5 5 0 0110 0v4" stroke="#39AE47" strokeWidth="2" />
                             </svg>
                             <p>
                                 For your security, please choose a strong password that you haven't used before.

@@ -85,7 +85,7 @@
 
 .buyer-details-status-badge[data-status="ACTIVE"] {
   background-color: rgba(140, 198, 63, 0.15);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.5);
 }
 
@@ -188,8 +188,8 @@
 }
 
 .buyer-details-thumbnail-active {
-  border-color: #8CC63F !important;
-  box-shadow: 0 0 0 1px #8CC63F;
+  border-color: #39AE47 !important;
+  box-shadow: 0 0 0 1px #39AE47;
 }
 
 .buyer-details-thumbnail img {
@@ -386,12 +386,12 @@
 .buyer-details-upcoming-notice, .buyer-details-notice {
   background-color: rgba(140, 198, 63, 0.1);
   border: 1px solid rgba(140, 198, 63, 0.5);
-  /* color: #8CC63F; */
+  /* color: #39AE47; */
     color: rgba(255, 255, 255, 0.6);
 }
 
 .buyer-details-upcoming-notice svg {
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 
@@ -522,7 +522,7 @@
 .buyer-details-autobid__checkbox {
   width: 1rem;
   height: 1rem;
-  accent-color: var(--color-accent, #8cc63f);
+  accent-color: var(--color-accent, #39AE47);
 }
 
 .buyer-details-autobid__toggle-text {
@@ -676,7 +676,7 @@ html[data-theme="dark"] .buyer-details-bid-input {
 
 .buyer-details-bid-button {
   padding: 0.875rem 2rem;
-  background: #8CC63F ;
+  background: #39AE47 ;
   border: none;
   border-radius: 8px;
   color: black;
@@ -881,7 +881,7 @@ html[data-theme="dark"] .buyer-details-bid-input {
   background: linear-gradient(135deg, rgba(140, 198, 63, 0.2) 0%, rgba(140, 198, 63, 0.1) 100%);
   border: 1px solid rgba(140, 198, 63, 0.3);
   border-radius: 50%;
-  color: #8CC63F;
+  color: #39AE47;
   font-weight: 700;
   font-size: 0.875rem;
   flex-shrink: 0;
@@ -956,7 +956,7 @@ html[data-theme="dark"] .buyer-details-bid-input {
 .buyer-details-back-link {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #8CC63F 0%, #7AB32E 100%);
+  background: linear-gradient(135deg, #39AE47 0%, #7AB32E 100%);
   color: #ffffff;
   text-decoration: none;
   border-radius: 8px;

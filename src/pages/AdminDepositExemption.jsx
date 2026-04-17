@@ -31,8 +31,31 @@ const AdminDepositExemption = () => {
     }
     setIsLoading(true);
     try {
-      const data = await adminService.getUsersList({ role: "buyer", page: 1, page_size: 200 });
-      setBuyers(Array.isArray(data?.results) ? data.results : []);
+      const pageSize = 100;
+      let page = 1;
+      let hasNext = true;
+      const allBuyers = [];
+
+      while (hasNext) {
+        const data = await adminService.getUsersList({
+          role: "buyer",
+          page,
+          page_size: pageSize,
+        });
+        const chunk = Array.isArray(data?.results) ? data.results : [];
+        allBuyers.push(...chunk);
+        hasNext = !!data?.has_next;
+        page += 1;
+      }
+
+      const seen = new Set();
+      const uniqueBuyers = allBuyers.filter((u) => {
+        const id = String(u?.id ?? u?.user_id ?? u?.userId ?? "");
+        if (!id || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+      setBuyers(uniqueBuyers);
     } catch (err) {
       const message =
         err?.response?.data?.message ||

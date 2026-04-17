@@ -1,14 +1,41 @@
 import React, { useEffect, useMemo, useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { auctionService } from "../services/interceptors/auction.service";
 import { toast } from "react-toastify";
 import EventListingRow from "../components/EventListingRow";
+import { fetchEvents } from "../store/actions/AuctionsActions";
+import { normalizeEventStatusForFilter } from "../utils/eventStatus";
 import "./ManagerDashboard.css";
 
 const TAB_UPCOMING = "upcoming";
 const TAB_PAST = "past";
 const ITEMS_PER_PAGE = 15;
+
+const EventsSkeleton = ({ rows = 10 }) => (
+  <div className="events-skeleton-list" aria-hidden="true">
+    {Array.from({ length: rows }).map((_, idx) => (
+      <div key={idx} className="events-skeleton-row">
+        <div className="events-skeleton-thumb">
+          <div className="events-skeleton-shimmer events-skeleton-shape-thumb" />
+          <div className="events-skeleton-shimmer events-skeleton-shape-badge" />
+        </div>
+        <div className="events-skeleton-dates">
+          <div className="events-skeleton-shimmer events-skeleton-shape-date" />
+          <div className="events-skeleton-shimmer events-skeleton-shape-date" />
+        </div>
+        <div className="events-skeleton-body">
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--title" />
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--chip" />
+          <div className="events-skeleton-shimmer events-skeleton-line events-skeleton-line--meta" />
+        </div>
+        <div className="events-skeleton-lots">
+          <div className="events-skeleton-shimmer events-skeleton-shape-lots" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const canDeleteEventByLots = async (eventId) => {
   try {
@@ -28,36 +55,71 @@ const canDeleteEventByLots = async (eventId) => {
 
 export default function ClerkDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
   const features = useSelector((state) => state.permissions?.features);
   const permissionsLoading = useSelector((state) => state.permissions?.isLoading);
+  const { events, eventsLoading, eventsLoaded, eventsError } = useSelector((state) => state.buyer);
   const manageEventsPerm = features?.manage_events || {};
   const canCreateEvents = manageEventsPerm?.create === true;
   const canDeleteEvents = manageEventsPerm?.delete === true;
-  const [events, setEvents] = useState([]);
-  const [eventsLoading, setEventsLoading] = useState(false);
-  const [eventsError, setEventsError] = useState(null);
   const [deletableEventIds, setDeletableEventIds] = useState({});
   const [activeTab, setActiveTab] = useState(TAB_UPCOMING);
   const [page, setPage] = useState(1);
-
-  const fetchEventsData = useCallback(async () => {
-    setEventsLoading(true);
-    setEventsError(null);
-    try {
-      const list = await auctionService.fetchAllEvents();
-      setEvents(list);
-    } catch (err) {
-      setEvents([]);
-      setEventsError(err);
-      toast.error("Failed to load events");
-    } finally {
-      setEventsLoading(false);
-    }
-  }, []);
+  const [syncingCreatedEvent, setSyncingCreatedEvent] = useState(false);
+  const eventCreated = location.state?.eventCreated === true;
+  const createdEventId = location.state?.createdEventId ?? null;
+  const createdEventCode = location.state?.createdEventCode ?? null;
 
   useEffect(() => {
-    fetchEventsData();
-  }, [fetchEventsData]);
+    dispatch(fetchEvents({}));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!eventCreated) return;
+
+    let cancelled = false;
+    setSyncingCreatedEvent(true);
+
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const isCreatedEvent = (event) => {
+      if (!event || typeof event !== "object") return false;
+      if (createdEventId != null && String(event.id) === String(createdEventId)) return true;
+      if (createdEventCode && String(event.event_id) === String(createdEventCode)) return true;
+      return false;
+    };
+
+    (async () => {
+      const maxAttempts = 8;
+      const pollDelayMs = 1200;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        try {
+          const payload = await dispatch(fetchEvents({ forceRefresh: true })).unwrap();
+          const list = payload?.results || [];
+          if ((!createdEventId && !createdEventCode) || list.some(isCreatedEvent)) {
+            break;
+          }
+        } catch {
+          // Continue polling on transient fetch failures.
+        }
+
+        if (attempt < maxAttempts) {
+          await wait(pollDelayMs);
+          if (cancelled) return;
+        }
+      }
+
+      if (!cancelled) {
+        setSyncingCreatedEvent(false);
+        navigate("/clerk/dashboard", { replace: true });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventCreated, createdEventId, createdEventCode, dispatch, navigate]);
 
   useEffect(() => {
     if (!canDeleteEvents || permissionsLoading || !events?.length) {
@@ -67,10 +129,10 @@ export default function ClerkDashboard() {
 
     const run = async () => {
       const nonCompletedEvents = (events || []).filter((e) => {
-        const s = (e.status || '').toUpperCase();
+        const s = normalizeEventStatusForFilter(e);
         return s !== 'CLOSED' && s !== 'CLOSING';
       });
-      const scheduled = nonCompletedEvents.filter((e) => (e.status || '').toUpperCase() === 'SCHEDULED');
+      const scheduled = nonCompletedEvents.filter((e) => normalizeEventStatusForFilter(e) === 'SCHEDULED');
       const checks = await Promise.all(
         scheduled.map(async (e) => [String(e.id), await canDeleteEventByLots(e.id)])
       );
@@ -107,32 +169,33 @@ export default function ClerkDashboard() {
       try {
         await auctionService.deleteEvent(eventId);
         toast.success("Event deleted successfully.");
-        await fetchEventsData();
+        await dispatch(fetchEvents({ forceRefresh: true })).unwrap();
       } catch (err) {
         toast.error(err?.message || "Failed to delete event");
       }
     },
-    [canDeleteEvents, fetchEventsData]
+    [canDeleteEvents, dispatch]
   );
 
-  const filteredEvents = useMemo(() => {
+  const getFilteredEvents = () => {
     if (!events?.length) return [];
     const now = new Date();
     if (activeTab === TAB_UPCOMING) {
       return events.filter((e) => {
         const end = e.end_time ? new Date(e.end_time) : null;
-        const status = (e.status || "").toUpperCase();
+        const status = normalizeEventStatusForFilter(e);
         if (status === "CLOSED" || status === "CLOSING") return false;
         return !end || end > now;
       });
     }
     return events.filter((e) => {
       const end = e.end_time ? new Date(e.end_time) : null;
-      const status = (e.status || "").toUpperCase();
+      const status = normalizeEventStatusForFilter(e);
       if (status === "CLOSED" || status === "CLOSING") return true;
       return end && end <= now;
     });
-  }, [events, activeTab]);
+  };
+  const filteredEvents = getFilteredEvents();
 
   const totalPages = Math.max(1, Math.ceil(filteredEvents.length / ITEMS_PER_PAGE));
   const paginatedEvents = filteredEvents.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -194,8 +257,15 @@ export default function ClerkDashboard() {
             </div>
           </div>
 
-          {eventsLoading && !events.length ? (
-            <div className="manager-dashboard-loading">Loading events...</div>
+          {syncingCreatedEvent && (
+            <div className="manager-dashboard-events-sync-banner" role="status" aria-live="polite">
+              <span className="manager-dashboard-events-sync-dot" />
+              Fetching newly created event...
+            </div>
+          )}
+
+          {eventsLoading && !eventsLoaded ? (
+            <div className="manager-dashboard-loading"><EventsSkeleton /></div>
           ) : eventsError && !events.length ? (
             <div className="manager-dashboard-empty">Failed to load events</div>
           ) : paginatedEvents.length === 0 ? (
@@ -224,7 +294,7 @@ export default function ClerkDashboard() {
                           View
                         </button>
                         {canDeleteEvents &&
-                          (ev.status || '').toUpperCase() === 'SCHEDULED' &&
+                          normalizeEventStatusForFilter(ev) === 'SCHEDULED' &&
                           deletableEventIds[String(ev.id)] === true && (
                             <button
                               type="button"

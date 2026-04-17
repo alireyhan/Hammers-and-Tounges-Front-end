@@ -44,7 +44,7 @@
 .grv-panel__check input {
   width: 1.1rem;
   height: 1.1rem;
-  accent-color: #8cc63f;
+  accent-color: #39AE47;
 }
 
 .grv-panel__notes-label {
@@ -95,7 +95,7 @@
 }
 
 .grv-panel__btn--primary {
-  background: #8cc63f;
+  background: #39AE47;
   color: #111;
 }
 

@@ -88,7 +88,7 @@
 
 .create-event-form-group input:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .create-event-form-group input:disabled {
@@ -117,7 +117,7 @@
 
 .create-event-datebox:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .create-event-datebox:disabled {
@@ -216,7 +216,7 @@ html[data-theme="light"] .create-event-form-group input[type="datetime-local"]::
 
 .create-event-form-group select.create-event-select:focus {
   outline: none;
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .create-event-form-group select.create-event-select:disabled {
@@ -233,7 +233,7 @@ html[data-theme="light"] .create-event-form-group input[type="datetime-local"]::
 }
 
 .create-event-btn-primary {
-  background-color: #8cc63f;
+  background-color: #39AE47;
   color: #000000;
   border: none;
   padding: 0.75rem 1.75rem;
@@ -248,7 +248,7 @@ html[data-theme="light"] .create-event-form-group input[type="datetime-local"]::
 }
 
 .create-event-btn-primary:hover:not(:disabled) {
-  background-color: #7bb335;
+  background-color: #39AE47;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(140, 198, 63, 0.3);
 }
@@ -273,8 +273,8 @@ html[data-theme="light"] .create-event-form-group input[type="datetime-local"]::
 }
 
 .create-event-btn-secondary:hover:not(:disabled) {
-  border-color: #8cc63f;
-  color: #8cc63f;
+  border-color: #39AE47;
+  color: #39AE47;
   transform: translateY(-1px);
 }
 

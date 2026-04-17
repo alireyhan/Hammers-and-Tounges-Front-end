@@ -194,8 +194,10 @@ const FavoriteAuctions = () => {
                     <LotRow
                       key={auction.id}
                       lot={auction}
-                      eventEndTime={auction.end_date ?? auction.end_time}
+                      eventStartTime={auction.event_start_time ?? auction.start_date ?? auction.startdate}
+                      eventEndTime={auction.event_end_time ?? auction.end_date ?? auction.end_time ?? auction.enddate}
                       eventTitle={auction.event_title}
+                      eventStatus={auction.event_status ?? auction.status}
                       onOpenDetail={handleLotClick}
                       showFavorite
                       isFavorite={favoriteIds.has(auction.id) ?? auction.is_favourite ?? true}
@@ -212,20 +214,20 @@ const FavoriteAuctions = () => {
                     onClick={handlePrevious}
                     disabled={!hasPrevPage}
                     className={`px-4 py-2 rounded border-[1px] ${hasPrevPage
-                      ? 'text-[#8cc63f] border-[#8cc63f] hover:bg-[#8cc63f] hover:text-black cursor-pointer transition-all duration-200'
+                      ? 'text-[#39AE47] border-[#39AE47] hover:bg-[#39AE47] hover:text-black cursor-pointer transition-all duration-200'
                       : 'border-white/20 bg-black text-white/40 cursor-not-allowed'
                       }`}
                   >
                     Previous
                   </button>
-                  <button disabled className="px-4 py-2 rounded-sm border-[1px] border-[#8cc63f] text-[#8cc63f] bg-black">
+                  <button disabled className="px-4 py-2 rounded-sm border-[1px] border-[#39AE47] text-[#39AE47] bg-black">
                     <strong className='text-sm'>{page} of {totalPages}</strong>
                   </button>
                   <button
                     onClick={handleNext}
                     disabled={!hasNextPage}
                     className={`px-4 py-2 rounded border-[1px] ${hasNextPage
-                      ? 'text-[#8cc63f] border-[#8cc63f] hover:bg-[#8cc63f] hover:text-black cursor-pointer transition-all duration-200'
+                      ? 'text-[#39AE47] border-[#39AE47] hover:bg-[#39AE47] hover:text-black cursor-pointer transition-all duration-200'
                       : 'border-white/20 bg-black text-white/40 cursor-not-allowed'
                       }`}
                   >
@@ -241,7 +243,8 @@ const FavoriteAuctions = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={selectedLot.end_date ?? selectedLot.end_time}
+          eventStartTime={selectedLot.event_start_time ?? selectedLot.start_date}
+          eventEndTime={selectedLot.event_end_time ?? selectedLot.end_date ?? selectedLot.end_time}
           eventTitle={selectedLot.event_title}
           eventId={selectedLot.event_id ?? selectedLot.event}
           eventStatus={selectedLot.event_status}

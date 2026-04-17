@@ -44,6 +44,7 @@ const AdminEventLots = () => {
   const [selectedLot, setSelectedLot] = useState(null);
   const [canDeleteEvent, setCanDeleteEvent] = useState(false);
   const [hasActiveLot, setHasActiveLot] = useState(false);
+  const [syncingNewLot, setSyncingNewLot] = useState(false);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
 
@@ -66,11 +67,13 @@ const AdminEventLots = () => {
       if (res.results?.[0]?.event_title && !eventFromState?.title) {
         setEventTitle(res.results[0].event_title);
       }
+      return res.results || [];
     } catch (err) {
       console.error('Error fetching lots:', err);
       setError(err.message || 'Failed to load lots');
       toast.error('Failed to load lots');
       setLots([]);
+      return [];
     } finally {
       setLoading(false);
     }
@@ -81,13 +84,53 @@ const AdminEventLots = () => {
   }, [fetchLots, page]);
 
   const lotCreated = location.state?.lotCreated;
+  const createdLot = location.state?.createdLot;
   useEffect(() => {
     if (lotCreated && id) {
+      // Keep UI in sync immediately after create, even if list API is eventually consistent.
+      if (createdLot?.id) {
+        setLots((prev) => {
+          const exists = prev.some((l) => String(l.id) === String(createdLot.id));
+          if (exists) return prev;
+          return [createdLot, ...prev];
+        });
+        setTotalCount((c) => (typeof c === 'number' ? c + 1 : c));
+      }
       setPage(1);
-      fetchLots(1);
-      navigate(`/admin/event/${id}`, { state: { event: eventFromState }, replace: true });
+      setSyncingNewLot(true);
+
+      let cancelled = false;
+      const targetLotId = createdLot?.id ? String(createdLot.id) : null;
+
+      (async () => {
+        const maxAttempts = 8;
+        const pollDelayMs = 1200;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+          const latestItems = (await fetchLots(1)) || [];
+          if (cancelled) return;
+
+          if (!targetLotId || latestItems.some((l) => String(l?.id) === targetLotId)) {
+            break;
+          }
+
+          if (attempt < maxAttempts) {
+            await new Promise((resolve) => setTimeout(resolve, pollDelayMs));
+            if (cancelled) return;
+          }
+        }
+
+        if (!cancelled) {
+          setSyncingNewLot(false);
+          navigate(`/admin/event/${id}`, { state: { event: eventFromState }, replace: true });
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
     }
-  }, [lotCreated, id, eventFromState, fetchLots, navigate]);
+  }, [lotCreated, createdLot, id, eventFromState, fetchLots, navigate]);
 
   const handleCreateLot = useCallback(() => {
     const eventData = eventFromState || { id, title: eventTitle, status: eventStatus };
@@ -313,6 +356,12 @@ const AdminEventLots = () => {
       </header>
 
       <main className="admin-event-lots__main">
+        {syncingNewLot && (
+          <div className="admin-event-lots__sync-banner" role="status" aria-live="polite">
+            <span className="admin-event-lots__sync-dot" />
+            Fetching newly created lot...
+          </div>
+        )}
         {loading && lots.length === 0 ? (
           <div className="admin-event-lots__loading">
             <div className="admin-event-lots__spinner" />
@@ -347,8 +396,8 @@ const AdminEventLots = () => {
                       <LotRow
                         key={lot.id}
                         lot={lot}
-                        eventStartTime={lot.start_date ?? lot.start_time ?? eventStartTime}
-                        eventEndTime={lot.end_date ?? lot.end_time ?? eventEndTime ?? eventFromState?.end_time}
+                        eventStartTime={lot.event_start_time ?? lot.start_date ?? lot.start_time ?? eventStartTime}
+                        eventEndTime={lot.event_end_time ?? lot.end_date ?? lot.end_time ?? eventEndTime ?? eventFromState?.end_time}
                         eventTitle={eventTitle}
                         eventStatus={lot.event_status ?? eventStatus}
                         onOpenDetail={setSelectedLot}
@@ -391,7 +440,8 @@ const AdminEventLots = () => {
       {selectedLot && (
         <GuestLotDrawer
           lot={selectedLot}
-          eventEndTime={selectedLot.end_date ?? selectedLot.end_time ?? eventEndTime ?? eventFromState?.end_time}
+          eventStartTime={selectedLot.event_start_time ?? selectedLot.start_date ?? selectedLot.start_time ?? eventFromState?.start_time ?? eventFromState?.start_date}
+          eventEndTime={selectedLot.event_end_time ?? selectedLot.end_date ?? selectedLot.end_time ?? eventEndTime ?? eventFromState?.end_time}
           eventTitle={eventTitle}
           eventId={id}
           eventStatus={selectedLot.event_status ?? eventStatus}

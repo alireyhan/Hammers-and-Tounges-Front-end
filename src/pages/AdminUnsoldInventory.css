@@ -32,7 +32,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid var(--color-border);
-  border-top-color: #8cc63f;
+  border-top-color: #39AE47;
   border-radius: 50%;
   animation: unsold-inventory-spin 0.85s linear infinite;
 }
@@ -81,12 +81,12 @@
 }
 
 .unsold-inventory-line {
-  stroke: #8cc63f;
+  stroke: #39AE47;
   stroke-width: 2.5;
 }
 
 .unsold-inventory-point {
-  fill: #8cc63f;
+  fill: #39AE47;
 }
 
 .unsold-inventory-tick-label,
@@ -127,7 +127,7 @@
 }
 
 .unsold-inventory-filter-item select:focus {
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .unsold-inventory-age-grid {
@@ -176,7 +176,7 @@
 .unsold-inventory-age-bar-fill {
   height: 100%;
   border-radius: 5px;
-  background: linear-gradient(90deg, rgba(140, 198, 63, 0.35), #8cc63f);
+  background: linear-gradient(90deg, rgba(140, 198, 63, 0.35), #39AE47);
   min-width: 0;
   transition: width 0.35s ease;
 }

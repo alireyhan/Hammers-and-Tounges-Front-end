@@ -3,6 +3,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { auctionService } from '../../services/interceptors/auction.service';
 import { toast } from 'react-toastify';
 
+const EVENTS_CACHE_TTL_MS = 5 * 60 * 1000;
 
 export const fetchAuctionsList = createAsyncThunk(
   'auctions/fetchAuctionsList',
@@ -61,16 +62,17 @@ export const fetchEvents = createAsyncThunk(
       const noCacheParams = { ...params, _t: Date.now() };
 
       if (hasExplicitPage) {
-        const response = await auctionService.getEvents(noCacheParams);
-        return response;
+        const response = await auctionService.getEvents(params);
+        return { ...response, fetchedAt: Date.now() };
       }
-      const { page: _omit, ...rest } = noCacheParams;
-      const results = await auctionService.fetchAllEvents(rest);
+      const { page: _omit, forceRefresh = false, ...rest } = params || {};
+      const results = await auctionService.fetchAllEvents(rest, { forceRefresh });
       return {
         results,
         count: results.length,
         next: null,
         previous: null,
+        fetchedAt: Date.now(),
       };
     } catch (error) {
       const message =
@@ -87,6 +89,21 @@ export const fetchEvents = createAsyncThunk(
         data: error.response?.data,
       });
     }
+  },
+  {
+    condition: (params = {}, { getState }) => {
+      const hasExplicitPage =
+        params != null && Object.prototype.hasOwnProperty.call(params, 'page');
+      if (hasExplicitPage) return true;
+      if (params?.forceRefresh) return true;
+
+      const buyerState = getState()?.buyer;
+      const hasLoaded = buyerState?.eventsLoaded;
+      const lastFetched = buyerState?.eventsLastFetched || 0;
+      if (!hasLoaded || !lastFetched) return true;
+
+      return Date.now() - lastFetched >= EVENTS_CACHE_TTL_MS;
+    },
   }
 );
 

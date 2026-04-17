@@ -50,7 +50,7 @@ body {
 
 .auction-stat-card:hover {
   transform: translateY(-2px);
-  border-color: #8CC63F;
+  border-color: #39AE47;
   box-shadow: 0 8px 24px rgba(140, 198, 63, 0.15);
 }
 
@@ -125,7 +125,7 @@ body {
 
 .auction-card-change.positive {
   background-color: rgba(140, 198, 63, 0.15);
-  color: #8CC63F;
+  color: #39AE47;
 }
 
 .auction-section-header {
@@ -163,7 +163,7 @@ body {
 
 .auction-primary-action-btn {
   padding: 0.75rem 1.5rem;
-  background-color: #8CC63F;
+  background-color: #39AE47;
   color: #000000;
   border: none;
   border-radius: 8px;
@@ -181,7 +181,7 @@ body {
 }
 
 .auction-primary-action-btn:hover {
-  background-color: #7BB337;
+  background-color: #39AE47;
   box-shadow: 0 6px 16px rgba(140, 198, 63, 0.3);
   text-decoration: none;
 }
@@ -250,7 +250,7 @@ body {
 
 .auction-search-input:focus {
   outline: none;
-  border-color: #8CC63F;
+  border-color: #39AE47;
   box-shadow: 0 0 0 2px rgba(140, 198, 63, 0.2);
   background-color: rgba(255, 255, 255, 0.08);
 }
@@ -302,7 +302,7 @@ body {
 .auction-filter-btn.active {
   background-color: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8CC63F;
+  color: #39AE47;
   font-weight: 600;
 }
 
@@ -435,13 +435,13 @@ body {
 
 .auction-status-badge.badge-live {
   background-color: rgba(34, 197, 94, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .auction-status-badge.badge-approved {
   background-color: rgba(34, 197, 94, 0.1);
-  color: #8CC63F;
+  color: #39AE47;
   border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
@@ -507,7 +507,7 @@ body {
 }
 
 .auction-edit-btn:hover {
-  color: #8CC63F;
+  color: #39AE47;
   background-color: rgba(140, 198, 63, 0.1);
 }
 
@@ -627,7 +627,7 @@ body {
 .auction-page-number.active {
   background-color: rgba(140, 198, 63, 0.15);
   border-color: rgba(140, 198, 63, 0.4);
-  color: #8CC63F;
+  color: #39AE47;
   font-weight: 700;
 }
 

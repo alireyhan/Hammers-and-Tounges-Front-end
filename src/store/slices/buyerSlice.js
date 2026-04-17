@@ -11,6 +11,8 @@ const initialState = {
   events: [],
   eventsLoading: false,
   eventsError: null,
+  eventsLoaded: false,
+  eventsLastFetched: null,
   isLoading: false,
   isPlacingBid: false,
   error: null,
@@ -174,6 +176,8 @@ const buyerSlice = createSlice({
       .addCase(fetchEvents.fulfilled, (state, action) => {
         state.eventsLoading = false;
         state.events = action.payload?.results || [];
+        state.eventsLoaded = true;
+        state.eventsLastFetched = action.payload?.fetchedAt || Date.now();
       })
       .addCase(fetchEvents.rejected, (state, action) => {
         state.eventsLoading = false;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { getMediaUrl } from '../config/api.config';
+import { getLotImageUrls } from '../utils/lotMedia';
 import { auctionService } from '../services/interceptors/auction.service';
 import { grvService } from '../services/interceptors/grv.service';
 import { toast } from 'react-toastify';
@@ -58,8 +58,7 @@ const GrvLotDrawer = ({ lot: initialLot, onClose, onGrvChanged }) => {
   const effectiveLot = lot || initialLot;
   const eventTitle = effectiveLot?.event_title || '—';
 
-  const imageMedia = effectiveLot?.media?.filter((m) => m.media_type === 'image') || [];
-  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
+  const imageUrls = getLotImageUrls(effectiveLot);
   const displayImage = imageUrls[selectedImage] || imageUrls[0];
 
   const specificData = useMemo(() => {
@@ -266,11 +265,13 @@ const GrvLotDrawer = ({ lot: initialLot, onClose, onGrvChanged }) => {
                 <div className="guest-lot-drawer__content">
                   <div className="guest-lot-drawer__media">
                     {displayImage ? (
-                      <div className="guest-lot-drawer__image-wrap">
-                        <img src={displayImage} alt={effectiveLot.title || ''} />
+                      <>
+                        <div className="guest-lot-drawer__image-wrap">
+                          <img src={displayImage} alt={effectiveLot.title || ''} />
+                        </div>
                         {imageUrls.length > 1 && (
                           <div className="guest-lot-drawer__thumbs">
-                            {imageUrls.slice(0, 5).map((url, i) => (
+                            {imageUrls.map((url, i) => (
                               <button
                                 key={i}
                                 type="button"
@@ -282,7 +283,7 @@ const GrvLotDrawer = ({ lot: initialLot, onClose, onGrvChanged }) => {
                             ))}
                           </div>
                         )}
-                      </div>
+                      </>
                     ) : (
                       <div className="guest-lot-drawer__placeholder">📷 No image</div>
                     )}

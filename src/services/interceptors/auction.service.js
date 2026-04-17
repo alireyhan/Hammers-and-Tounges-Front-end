@@ -229,7 +229,9 @@ export const auctionService = {
   // Create lot (multipart/form-data)
   createLot: async (formData) => {
     try {
-      const { data } = await apiClient.post(API_ROUTES.AUCTIONS_LOTS, formData);
+      const { data } = await apiClient.post(API_ROUTES.AUCTIONS_LOTS, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return data;
     } catch (error) {
       if (error.isNetworkError) {

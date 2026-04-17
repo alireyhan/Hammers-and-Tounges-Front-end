@@ -62,12 +62,12 @@
   gap: 0.5rem;
   color: #000;
   text-decoration: none;
-  background-color: #8cc63f;
+  background-color: #39AE47;
 }
 
 .s-secondary-button:hover {
   color: #000;
-  background-color: #7BB337;
+  background-color: #39AE47;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
 }
 
@@ -367,7 +367,7 @@
 .price-cell {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #8cc63f;
+  color: #39AE47;
   text-align: center;
   white-space: nowrap;
 }
@@ -412,7 +412,7 @@
 
 .conversion-cell.high {
   background-color: rgba(140, 198, 63, 0.15);
-  color: #8cc63f;
+  color: #39AE47;
   border: 1px solid rgba(140, 198, 63, 0.4);
 }
 
@@ -448,7 +448,7 @@
 
 .insight-card:hover {
   transform: translateY(-2px);
-  border-color: #8cc63f;
+  border-color: #39AE47;
   box-shadow: 0 8px 24px rgba(140, 198, 63, 0.1);
 }
 
@@ -760,7 +760,7 @@
   }
 
   .conversion-cell.high {
-    background-color: #8cc63f !important;
+    background-color: #39AE47 !important;
     color: black !important;
   }
 

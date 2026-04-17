@@ -76,7 +76,23 @@ apiClient.interceptors.request.use((config) => {
   }
   // For FormData, remove Content-Type so axios sets multipart/form-data with boundary
   if (config.data instanceof FormData) {
-    delete config.headers['Content-Type'];
+    if (typeof config.headers?.delete === 'function') {
+      // AxiosHeaders instance (axios v1+)
+      config.headers.delete('Content-Type');
+      config.headers.delete('content-type');
+    } else if (config.headers && typeof config.headers === 'object') {
+      // Plain-object fallback
+      delete config.headers['Content-Type'];
+      delete config.headers['content-type'];
+      if (config.headers.common && typeof config.headers.common === 'object') {
+        delete config.headers.common['Content-Type'];
+        delete config.headers.common['content-type'];
+      }
+      if (config.headers.post && typeof config.headers.post === 'object') {
+        delete config.headers.post['Content-Type'];
+        delete config.headers.post['content-type'];
+      }
+    }
   }
   // Add auth token only for protected routes (skip for public/guest endpoints)
   if (!isPublicPath(config.url)) {

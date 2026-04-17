@@ -129,9 +129,15 @@ export default function ManagerCreateEvent() {
         payload.append('status', 'SCHEDULED');
         if (imageFile) payload.append('image', imageFile);
 
-        await auctionService.createEvent(payload);
+        const createdEvent = await auctionService.createEvent(payload);
         toast.success('Event created successfully!');
-        navigate(`${basePath}/dashboard`);
+        navigate(`${basePath}/dashboard`, {
+          state: {
+            eventCreated: true,
+            createdEventId: createdEvent?.id ?? null,
+            createdEventCode: createdEvent?.event_id ?? formData.event_id,
+          },
+        });
       } catch (err) {
         const msg = err?.response?.data?.message || err?.response?.data?.detail || err?.message;
         toast.error(msg || 'Failed to create event. Please try again.');

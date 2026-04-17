@@ -423,20 +423,20 @@ const BuyerAuctions = () => {
                   onClick={handlePrevious}
                   disabled={!hasPrevPage}
                   className={`px-4 py-2 rounded border-[1px] ${hasPrevPage
-                    ? 'text-[#8cc63f] border-[#8cc63f] hover:bg-[#8cc63f] hover:text-black cursor-pointer transition-all duration-200'
+                    ? 'text-[#39AE47] border-[#39AE47] hover:bg-[#39AE47] hover:text-black cursor-pointer transition-all duration-200'
                     : 'border-white/20 bg-black text-white/40 cursor-not-allowed'
                     }`}
                 >
                   Previous
                 </button>
-                <button disabled className="px-4 py-2 rounded-sm border-[1px] border-[#8cc63f] text-[#8cc63f] bg-black">
+                <button disabled className="px-4 py-2 rounded-sm border-[1px] border-[#39AE47] text-[#39AE47] bg-black">
                   <strong className='text-sm'>{page} of {totalPages}</strong>
                 </button>
                 <button
                   onClick={handleNext}
                   disabled={!hasNextPage}
                   className={`px-4 py-2 rounded border-[1px] ${hasNextPage
-                    ? 'text-[#8cc63f] border-[#8cc63f] hover:bg-[#8cc63f] hover:text-black cursor-pointer transition-all duration-200'
+                    ? 'text-[#39AE47] border-[#39AE47] hover:bg-[#39AE47] hover:text-black cursor-pointer transition-all duration-200'
                     : 'border-white/20 bg-black text-white/40 cursor-not-allowed'
                     }`}
                 >

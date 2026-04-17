@@ -80,7 +80,7 @@
 .kyc-status-message.verified {
   background: rgba(140, 198, 63, 0.15);
   border: 1px solid rgba(140, 198, 63, 0.3);
-  color: #8cc63f;
+  color: #39AE47;
 }
 
 .kyc-status-message.pending {
@@ -152,7 +152,7 @@
 
 .kyc-option.uploaded {
   background: rgba(140, 198, 63, 0.15);
-  border-color: #8cc63f;
+  border-color: #39AE47;
 }
 
 .kyc-option-content {
@@ -170,7 +170,7 @@
 
 .kyc-option-status {
   font-size: 0.875rem;
-  color: #8cc63f;
+  color: #39AE47;
   font-weight: 500;
 }
 
@@ -180,7 +180,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8cc63f;
+  color: #39AE47;
   flex-shrink: 0;
 }
 
@@ -214,7 +214,7 @@
 .kyc-submit-btn {
   width: 100%;
   padding: 1rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 12px;
@@ -226,7 +226,7 @@
 }
 
 .kyc-submit-btn:hover:not(:disabled) {
-  background: #7bb337;
+  background: #39AE47;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
   transform: translateY(-2px);
 }
@@ -295,7 +295,7 @@
 }
 
 .kyc-upload-icon {
-  color: #8cc63f;
+  color: #39AE47;
   margin-bottom: 0.5rem;
 }
 
@@ -316,7 +316,7 @@
 .kyc-choose-btn {
   margin-top: 1rem;
   padding: 0.75rem 1.5rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 8px;
@@ -327,7 +327,7 @@
 }
 
 .kyc-choose-btn:hover {
-  background: #7bb337;
+  background: #39AE47;
   transform: translateY(-2px);
 }
 
@@ -378,9 +378,9 @@
   margin-top: 1rem;
   padding: 0.75rem 1.5rem;
   background: rgba(140, 198, 63, 0.1);
-  border: 1px solid #8cc63f;
+  border: 1px solid #39AE47;
   border-radius: 8px;
-  color: #8cc63f;
+  color: #39AE47;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -390,7 +390,7 @@
 
 .kyc-upload-replace:hover {
   background: rgba(140, 198, 63, 0.2);
-  border-color: #7bb337;
+  border-color: #39AE47;
 }
 
 .kyc-upload-actions {
@@ -400,7 +400,7 @@
 .kyc-continue-btn {
   width: 100%;
   padding: 1rem;
-  background: #8cc63f;
+  background: #39AE47;
   color: #000;
   border: none;
   border-radius: 12px;
@@ -412,7 +412,7 @@
 }
 
 .kyc-continue-btn:hover:not(:disabled) {
-  background: #7bb337;
+  background: #39AE47;
   box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
   transform: translateY(-2px);
 }

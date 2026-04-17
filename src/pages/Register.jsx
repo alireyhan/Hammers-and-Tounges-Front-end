@@ -207,7 +207,7 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="register-form__group">
+            {/* <div className="register-form__group">
               <label htmlFor="user_id" className="register-form__label">
                 User ID
               </label>
@@ -226,7 +226,7 @@ const Register = () => {
               <span id="user-id-hint" className="register-form__hint">
                 System will assign you an ID when name is filled
               </span>
-            </div>
+            </div> */}
 
             <div className="register-form__group">
               <label htmlFor="email" className="register-form__label">
