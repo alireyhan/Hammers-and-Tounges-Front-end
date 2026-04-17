@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { adminService } from '../services/interceptors/admin.service';
 import { auctionService } from '../services/interceptors/auction.service';
 import { getMediaUrl } from '../config/api.config';
+import { getLotImageUrls } from '../utils/lotMedia';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import './ManagerPublishNew.css';
@@ -80,9 +81,11 @@ const ManagerPublishNew = () => {
     });
     if (existingLot.media?.length) {
       setImages(
-        existingLot.media
-          .filter((m) => m.media_type === 'image' && m.file)
-          .map((m, i) => ({ id: m.id, file: m.file, label: `Image ${i + 1}` }))
+        getLotImageUrls(existingLot.media).map((url, i) => ({
+          id: `existing-${i}`,
+          file: url,
+          label: `Image ${i + 1}`,
+        }))
       );
     }
   }, [isEdit, existingLot]);
@@ -344,12 +347,15 @@ const ManagerPublishNew = () => {
       fd.append('stc_eligible', formData.stc_eligible ? 'true' : 'false');
       fd.append('status', status);
       const specificData = formData.specific_data;
-      if (specificData && typeof specificData === 'object' && Object.keys(specificData).length > 0) {
-        fd.append('specific_data', JSON.stringify(specificData));
-      }
+      fd.append(
+        'specific_data',
+        JSON.stringify(
+          specificData && typeof specificData === 'object' ? specificData : {}
+        )
+      );
       images.forEach((img, idx) => {
         if (img.file instanceof File) {
-          fd.append('media', img.file);
+          fd.append(`image_${idx + 1}`, img.file);
           fd.append('media_labels', img.label || `Image ${idx + 1}`);
         }
       });
@@ -427,11 +433,11 @@ const ManagerPublishNew = () => {
           const mediaParts = [];
           const labelParts = [];
           for (const [key, value] of fd.entries()) {
-            if (key === 'media') {
+            if (/^image_\d+$/.test(key)) {
               mediaParts.push(
                 value instanceof File
-                  ? { kind: 'File', name: value.name, size: value.size, type: value.type }
-                  : { kind: typeof value, preview: String(value).slice(0, 120) }
+                  ? { field: key, kind: 'File', name: value.name, size: value.size, type: value.type }
+                  : { field: key, kind: typeof value, preview: String(value).slice(0, 120) }
               );
             } else if (key === 'media_labels') {
               labelParts.push(value);

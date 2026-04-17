@@ -57,6 +57,7 @@ const ManagerLotDetail = () => {
   const canDelete = eventStatus === 'SCHEDULED' && !isLotActive && canDeleteEvents;
 
   const imageUrls = getLotImageUrls(lot);
+  const requestedLotId = lotId || lotFromState?.id;
 
   // Fetch lot when not in state (e.g. direct URL)
   // Fetch lot when no state (e.g. direct URL)
@@ -64,8 +65,7 @@ const ManagerLotDetail = () => {
   // Fetch lot when not in state (e.g. direct URL)
   // Fetch lot when not in state (e.g. direct URL)
   useEffect(() => {
-    if (lotFromState) return;
-    if (!lotId) {
+    if (!requestedLotId) {
       navigate('/manager/dashboard');
       return;
     }
@@ -73,7 +73,7 @@ const ManagerLotDetail = () => {
     (async () => {
       setLoading(true);
       try {
-        const data = await auctionService.getLot(lotId);
+        const data = await auctionService.getLot(requestedLotId);
         logLotMediaFromApi('ManagerLotDetail getLot()', data);
         if (!cancelled) setLot(data);
       } catch (err) {
@@ -86,11 +86,11 @@ const ManagerLotDetail = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [lotId, lotFromState, eventId, navigate]);
+  }, [requestedLotId, eventId, navigate]);
 
   useEffect(() => {
     if (lotFromState?.id) {
-      logLotMediaFromApi('ManagerLotDetail navigation state (no refetch)', lotFromState);
+      logLotMediaFromApi('ManagerLotDetail navigation state (initial, refetching full lot)', lotFromState);
     }
   }, [lotFromState?.id]);
 
@@ -200,12 +200,12 @@ const ManagerLotDetail = () => {
   }, [eventId, eventFromState]);
 
   useEffect(() => {
-    if (!lotId) return;
+    if (!requestedLotId) return;
     let cancelled = false;
     (async () => {
       setBidsLoading(true);
       try {
-        const data = await buyerService.getLotBids(lotId);
+        const data = await buyerService.getLotBids(requestedLotId);
         if (!cancelled) setBids(Array.isArray(data) ? data : []);
       } catch {
         if (!cancelled) setBids([]);
@@ -214,7 +214,7 @@ const ManagerLotDetail = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [lotId]);
+  }, [requestedLotId]);
 
   useEffect(() => {
     if (lot) {

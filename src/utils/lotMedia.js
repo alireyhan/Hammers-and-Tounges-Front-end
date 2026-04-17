@@ -28,10 +28,9 @@ export const getLotImageUrls = (lotOrMedia) => {
   const media = Array.isArray(lotOrMedia) ? lotOrMedia : lotOrMedia?.media;
   if (!Array.isArray(media) || media.length === 0) return [];
 
-  const urls = media
+  // Keep one entry per media row (do not dedupe by URL — two uploads can normalize to the same path in edge cases).
+  return media
     .filter(isLikelyImageMedia)
     .map((m) => getMediaUrl(m?.file ?? m?.url ?? m?.path))
     .filter(Boolean);
-
-  return [...new Set(urls)];
 };

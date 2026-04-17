@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { auctionService } from '../services/interceptors/auction.service';
 import { buyerService } from '../services/interceptors/buyer.service';
-import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
 import { formatBidDateTime } from '../utils/formatBidDateTime';
 import { maskBidderName } from '../utils/maskBidderName';
 import { logLotMediaFromApi } from '../utils/logLotMediaDebug';
+import { getLotImageUrls } from '../utils/lotMedia';
 import './ManagerLotDetail.css';
 
 const formatPrice = (price) => {
@@ -30,8 +30,7 @@ const SellerLotDetail = () => {
   const [bidsLoading, setBidsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  const imageMedia = lot?.media?.filter((m) => m.media_type === 'image') || [];
-  const imageUrls = imageMedia.map((m) => getMediaUrl(m.file)).filter(Boolean);
+  const imageUrls = getLotImageUrls(lot);
 
   useEffect(() => {
     if (!lotId) {

@@ -37,9 +37,10 @@ const AdminLotDetail = () => {
 
   const imageUrls = getLotImageUrls(lot);
 
+  const requestedLotId = lotId || lotFromState?.id;
+
   useEffect(() => {
-    if (lotFromState) return;
-    if (!lotId) {
+    if (!requestedLotId) {
       navigate('/admin/dashboard');
       return;
     }
@@ -47,7 +48,7 @@ const AdminLotDetail = () => {
     (async () => {
       setLoading(true);
       try {
-        const data = await auctionService.getLot(lotId);
+        const data = await auctionService.getLot(requestedLotId);
         logLotMediaFromApi('AdminLotDetail getLot()', data);
         if (!cancelled) setLot(data);
       } catch (err) {
@@ -60,11 +61,11 @@ const AdminLotDetail = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [lotId, lotFromState, eventId, navigate]);
+  }, [requestedLotId, eventId, navigate]);
 
   useEffect(() => {
     if (lotFromState?.id) {
-      logLotMediaFromApi('AdminLotDetail navigation state (no refetch)', lotFromState);
+      logLotMediaFromApi('AdminLotDetail navigation state (initial, refetching full lot)', lotFromState);
     }
   }, [lotFromState?.id]);
 

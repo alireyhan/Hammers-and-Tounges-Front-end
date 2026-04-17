@@ -322,6 +322,10 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
   }, [navigate]);
 
   useEffect(() => {
+    setSelectedImage(0);
+  }, [initialLot?.id]);
+
+  useEffect(() => {
     if (!initialLot?.id) return;
     let cancelled = false;
     (async () => {
@@ -569,11 +573,13 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
                 <div className="guest-lot-drawer__content">
                   <div className="guest-lot-drawer__media">
                     {displayImage ? (
-                      <div className="guest-lot-drawer__image-wrap">
-                        <img src={displayImage} alt={effectiveLot.title} />
+                      <>
+                        <div className="guest-lot-drawer__image-wrap">
+                          <img src={displayImage} alt={effectiveLot.title} />
+                        </div>
                         {imageUrls.length > 1 && (
                           <div className="guest-lot-drawer__thumbs">
-                            {imageUrls.slice(0, 5).map((url, i) => (
+                            {imageUrls.map((url, i) => (
                               <button
                                 key={i}
                                 type="button"
@@ -585,7 +591,7 @@ const GuestLotDrawer = ({ lot: initialLot, eventEndTime, eventTitle, eventId, ev
                             ))}
                           </div>
                         )}
-                      </div>
+                      </>
                     ) : (
                       <div className="guest-lot-drawer__placeholder">📷 No image</div>
                     )}
