@@ -1,0 +1,48 @@
+.guest-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+}
+
+/* Floating menu button - only when drawer is closed */
+.guest-drawer-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--color-toggle-bg);
+  border: 1px solid var(--color-toggle-border);
+  border-radius: 8px;
+  color: var(--color-toggle-text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.guest-drawer-toggle:hover {
+  background: rgba(140, 198, 63, 0.2);
+  color: #39AE47;
+  border-color: rgba(140, 198, 63, 0.3);
+}
+
+.guest-main {
+  flex: 1;
+}
+
+/* Shift content right when drawer is open so it's not hidden */
+.guest-layout.drawer-open .guest-main,
+.guest-layout.drawer-open .main-footer {
+  margin-left: 220px;
+}
+
+@media (max-width: 480px) {
+  .guest-layout.drawer-open .guest-main,
+  .guest-layout.drawer-open .main-footer {
+    margin-left: 200px;
+  }
+}

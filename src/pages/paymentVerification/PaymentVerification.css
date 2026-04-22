@@ -1,0 +1,438 @@
+.payment-verification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.verification-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.verification-stat-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.verification-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(140, 198, 63, 0.4);
+    box-shadow: 0 8px 24px rgba(140, 198, 63, 0.15);
+}
+
+.stat-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.5;
+    z-index: 0;
+}
+
+.verification-stat-card > *:not(.stat-background) {
+    position: relative;
+    z-index: 1;
+}
+
+.verification-stat-card .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid;
+}
+
+.verification-stat-card .stat-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.verification-stat-card .stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    flex: 1;
+}
+
+.verification-stat-card .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    line-height: 1;
+}
+
+.verification-stat-card .stat-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.verification-stat-card .stat-sublabel {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 400;
+    margin-top: 0.125rem;
+}
+
+.verification-filters {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.verification-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .verification-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.verification-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.column-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+.column-count {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+}
+
+.column-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.column-hint {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.deposits-list,
+.gateway-logs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.deposit-item,
+.gateway-item {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.deposit-item:hover,
+.gateway-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.deposit-item.active,
+.gateway-item.active {
+    border-color: #3B82F6;
+    background-color: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.deposit-item.mismatched {
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.deposit-item.mismatched:hover {
+    border-color: rgba(245, 158, 11, 0.6);
+}
+
+.deposit-item.mismatched.active {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: #F59E0B;
+}
+
+.deposit-content,
+.gateway-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.deposit-header,
+.gateway-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.deposit-name,
+.gateway-id {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.deposit-date,
+.gateway-time {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+}
+
+.deposit-details {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.deposit-footer,
+.gateway-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.deposit-status,
+.gateway-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.deposit-time {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.deposit-amount,
+.gateway-amount {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #39AE47;
+}
+
+.deposit-amount.mismatched-amount {
+    color: #F59E0B;
+}
+
+.gateway-method {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.status-badge-1 {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge-1.unverified {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3B82F6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.status-badge-1.mismatched {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-badge-1.verified {
+    background-color: rgba(140, 198, 63, 0.15);
+    color: #39AE47;
+    border: 1px solid rgba(140, 198, 63, 0.3);
+}
+
+.status-badge-1.processing {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3B82F6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.status-badge-1.completed {
+    background-color: rgba(140, 198, 63, 0.15);
+    color: #39AE47;
+    border: 1px solid rgba(140, 198, 63, 0.3);
+}
+
+.status-badge-1.failed {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.match-badge {
+    display: inline-block;
+    padding: 0.375rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.match-badge.pending {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3B82F6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.match-badge.matched {
+    background-color: rgba(140, 198, 63, 0.15);
+    color: #39AE47;
+    border: 1px solid rgba(140, 198, 63, 0.3);
+}
+
+.match-badge.mismatched {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.verification-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.verification-actions .action-button {
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.verification-actions .action-button.warning {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.verification-actions .action-button.warning:hover {
+    background-color: rgba(245, 158, 11, 0.25);
+    border-color: #F59E0B;
+    transform: translateY(-2px);
+}
+@media (max-width: 768px) {
+    .verification-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .verification-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .verification-actions .action-button {
+        min-width: 100%;
+        width: 100%;
+    }
+    
+    .deposit-footer,
+    .gateway-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .deposit-amount,
+    .gateway-amount {
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .column-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .column-info {
+        align-items: flex-start;
+    }
+    
+    .details-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .deposit-header,
+    .gateway-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .deposit-date,
+    .gateway-time {
+        align-self: flex-start;
+    }
+}

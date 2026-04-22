@@ -1,0 +1,51 @@
+.manager-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.manager-layout__toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--color-toggle-bg);
+  border: 1px solid var(--color-toggle-border);
+  border-radius: 8px;
+  color: var(--color-toggle-text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.manager-layout__toggle:hover {
+  background: rgba(140, 198, 63, 0.2);
+  color: #39AE47;
+  border-color: rgba(140, 198, 63, 0.3);
+}
+
+.manager-layout__main {
+  flex: 1;
+  min-height: 100vh;
+}
+
+/* When drawer closed: add left padding to clear the hamburger button */
+.manager-layout:not(.drawer-open) .manager-layout__main {
+  padding-left: 5rem;
+}
+
+.manager-layout.drawer-open .manager-layout__main {
+  margin-left: 220px;
+  padding-left: 0;
+}
+
+@media (max-width: 480px) {
+  .manager-layout.drawer-open .manager-layout__main {
+    margin-left: 200px;
+  }
+}

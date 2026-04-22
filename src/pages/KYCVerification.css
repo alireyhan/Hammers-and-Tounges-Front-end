@@ -1,0 +1,458 @@
+.kyc-page {
+  min-height: 100vh;
+  background-color: #000000;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.kyc-header-top {
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.kyc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #39AE47;
+}
+
+.kyc-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.kyc-logo img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.kyc-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 0rem;
+  flex: 1;
+}
+
+
+.kyc-header {
+  margin-bottom: 2rem;
+}
+
+.kyc-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.3px;
+}
+
+.kyc-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.progress-percentage {
+  font-size: 0.875rem;
+  color: #39AE47;
+  font-weight: 600;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #39AE47;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.kyc-content {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.kyc-intro {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.kyc-subtitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+}
+
+.kyc-description {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.kyc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.document-section {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 1.5rem;
+  align-items: start;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.document-preview {
+  width: 120px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.document-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.document-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.document-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.document-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.document-instructions {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.document-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.status-badge.approved {
+  background-color: rgba(140, 198, 63, 0.2);
+  color: #39AE47;
+  border: 1px solid rgba(140, 198, 63, 0.3);
+}
+
+.status-badge.rejected {
+  background-color: rgba(255, 77, 77, 0.2);
+  color: #FF4D4D;
+  border: 1px solid rgba(255, 77, 77, 0.3);
+}
+
+.status-badge.pending {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #FFC107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.rejection-reason {
+  font-size: 0.75rem;
+  color: #FF4D4D;
+  margin: 0;
+  margin-top: 0.25rem;
+}
+
+.document-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.replace-button {
+  padding: 0.5rem 1rem;
+  background-color: #000000;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.replace-button:hover {
+  border-color: #39AE47;
+  color: #39AE47;
+}
+
+.delete-button {
+  padding: 0.5rem;
+  background: none;
+  border: 1px solid rgba(255, 77, 77, 0.3);
+  color: #FF4D4D;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-button:hover {
+  background-color: rgba(255, 77, 77, 0.2);
+  border-color: rgba(255, 77, 77, 0.5);
+}
+
+.document-upload-area {
+  grid-column: 1 / -1;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.document-upload-area:hover {
+  border-color: rgba(140, 198, 63, 0.5);
+  background-color: rgba(140, 198, 63, 0.05);
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.upload-content svg {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.upload-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.upload-instructions {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.browse-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: #000;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+
+.browse-button svg {
+  transition: all 0.2s;
+  color: white;
+}
+
+.browse-button:hover {
+  border-color: #39AE47;
+  color: #39AE47;
+}
+
+.browse-button:hover svg {
+  color: #39AE47;
+}
+
+.kyc-form-actions {
+  padding-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  width: 50%;
+}
+
+.skip-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skip-button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+.skip-button svg {
+  transition: transform 0.2s;
+}
+
+.skip-button:hover svg {
+  transform: translateX(2px);
+}
+
+.submit-verification-button {
+  flex: 1;
+  padding: 0.875rem 2rem;
+  background-color: #39AE47;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submit-verification-button:hover {
+  background-color: #39AE47;
+  box-shadow: 0 6px 20px rgba(140, 198, 63, 0.3);
+}
+
+@media (max-width: 768px) {
+  .kyc-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .kyc-content {
+    padding: 1.5rem;
+  }
+
+  .document-section {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .document-preview {
+    width: 100%;
+    height: 150px;
+  }
+
+  .document-actions {
+    justify-content: flex-start;
+  }
+
+  .document-upload-area {
+    padding: 2rem 1rem;
+  }
+
+  .kyc-form-actions {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+
+  .skip-button,
+  .submit-verification-button {
+    width: 100%;
+  }
+}

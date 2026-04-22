@@ -1,0 +1,241 @@
+/* Compact design - theme-aware (light/dark) */
+.create-category-page {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.create-category-main {
+  padding: 1rem 1.5rem;
+}
+
+.create-category-container {
+  margin: 0 auto;
+}
+
+.add-category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--color-border);
+  gap: 0.75rem;
+}
+
+.add-category-page-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.125rem;
+  letter-spacing: -0.5px;
+}
+
+.add-category-page-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.add-category-secondary-btn {
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-strong);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-category-secondary-btn:hover {
+  border-color: #39AE47;
+  color: #39AE47;
+}
+
+.category-form-section {
+  margin-bottom: 1rem;
+}
+
+.form-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+
+/* Subtle borders - visible in both light and dark mode */
+@media (prefers-color-scheme: light) {
+  .create-category-page .form-card {
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  }
+  .create-category-page .form-input {
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .create-category-page .form-card {
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  }
+  .create-category-page .form-input {
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: none !important;
+  }
+}
+
+html[data-theme="light"] .create-category-page .form-card {
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="light"] .create-category-page .form-input {
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .create-category-page .form-card {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+html[data-theme="dark"] .create-category-page .form-input {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: none !important;
+}
+
+/* Keep headings/labels readable in explicit dark theme */
+html[data-theme="dark"] .create-category-page .add-category-page-title {
+  color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .create-category-page .add-category-page-subtitle,
+html[data-theme="dark"] .create-category-page .form-label {
+  color: var(--color-text-secondary) !important;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: 0.375rem;
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: #EF4444;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 6px;
+  color: var(--color-text);
+  font-size: 0.8rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 2.5rem;
+  box-shadow: 0 1px 2px var(--color-shadow);
+}
+
+.form-input::placeholder {
+  color: var(--color-input-placeholder);
+}
+
+/* Ensure placeholder is readable in light mode - darker for accessibility */
+@media (prefers-color-scheme: light) {
+  .form-input::placeholder {
+    color: #6b7280;
+  }
+}
+
+html[data-theme="light"] .form-input::placeholder {
+  color: #6b7280;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #39AE47;
+}
+
+.form-input.error {
+  border-color: #EF4444;
+}
+
+.error-message {
+  font-size: 0.7rem;
+  color: #EF4444;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.primary-action-btn {
+  padding: 0.5rem 1rem;
+  background: #39AE47;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.primary-action-btn:hover:not(:disabled) {
+  background: #39AE47;
+}
+
+.primary-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary-action-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+@media (max-width: 768px) {
+  .create-category-main {
+    padding: 0.875rem 1rem;
+  }
+
+  .add-category-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .add-category-page-title {
+    font-size: 1.0625rem;
+  }
+}

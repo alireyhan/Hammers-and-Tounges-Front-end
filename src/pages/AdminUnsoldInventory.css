@@ -1,0 +1,237 @@
+.unsold-inventory-dashboard .finance-summary-grid.unsold-inventory-summary {
+  grid-template-columns: minmax(280px, 420px);
+}
+
+.unsold-inventory-header {
+  align-items: flex-end;
+}
+
+.unsold-inventory-error {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.unsold-inventory-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 40vh;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.unsold-inventory-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: #39AE47;
+  border-radius: 50%;
+  animation: unsold-inventory-spin 0.85s linear infinite;
+}
+
+@keyframes unsold-inventory-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.unsold-inventory-section {
+  margin-bottom: 2rem;
+}
+
+.unsold-inventory-chart-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.unsold-inventory-chart {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.unsold-inventory-chart-svg {
+  width: 100%;
+  min-width: 0;
+  display: block;
+}
+
+.unsold-inventory-axis {
+  stroke: var(--color-text-muted);
+  stroke-opacity: 0.55;
+  stroke-width: 1.2;
+}
+
+.unsold-inventory-grid-line {
+  stroke: var(--color-border);
+  stroke-opacity: 0.75;
+  stroke-width: 1;
+}
+
+.unsold-inventory-line {
+  stroke: #39AE47;
+  stroke-width: 2.5;
+}
+
+.unsold-inventory-point {
+  fill: #39AE47;
+}
+
+.unsold-inventory-tick-label,
+.unsold-inventory-x-label {
+  font-size: 10px;
+  fill: var(--color-text-muted);
+}
+
+.unsold-inventory-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 0.875rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  border-radius: 12px;
+}
+
+.unsold-inventory-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.unsold-inventory-filter-item span {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.unsold-inventory-filter-item select {
+  border: 1px solid var(--color-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border-radius: 8px;
+  min-height: 38px;
+  padding: 0 0.75rem;
+  outline: none;
+}
+
+.unsold-inventory-filter-item select:focus {
+  border-color: #39AE47;
+}
+
+.unsold-inventory-age-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.unsold-inventory-age-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.unsold-inventory-age-label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+}
+
+.unsold-inventory-age-name {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+}
+
+.unsold-inventory-age-meta {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.unsold-inventory-age-bar-track {
+  height: 10px;
+  border-radius: 6px;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.unsold-inventory-age-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, rgba(140, 198, 63, 0.35), #39AE47);
+  min-width: 0;
+  transition: width 0.35s ease;
+}
+
+.unsold-inventory-age-bar-fill-count {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.35), #60a5fa);
+}
+
+.unsold-inventory-tables {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.unsold-inventory-lots-scroll {
+  max-height: 540px;
+  overflow: auto;
+}
+
+.unsold-inventory-lots-table {
+  min-width: 1400px;
+}
+
+.unsold-inventory-lots-table th,
+.unsold-inventory-lots-table td {
+  white-space: nowrap;
+}
+
+.unsold-inventory-table th:first-child,
+.unsold-inventory-table td:first-child {
+  text-align: left;
+}
+
+.unsold-inventory-table th:not(:first-child),
+.unsold-inventory-table td:not(:first-child) {
+  text-align: right;
+}
+
+.unsold-inventory-empty-cell {
+  text-align: center !important;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  padding: 2rem 1.5rem !important;
+}
+
+@media (max-width: 768px) {
+  .unsold-inventory-chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .unsold-inventory-header {
+    align-items: flex-start;
+  }
+
+  .unsold-inventory-filters {
+    grid-template-columns: 1fr;
+  }
+}

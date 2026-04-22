@@ -1,0 +1,196 @@
+/* Lot row - shared by guest and buyer event lots */
+.lot-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-surface-elevated);
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background 0.2s;
+  min-height: 88px;
+}
+
+.lot-row:last-child {
+  border-bottom: none;
+}
+
+.lot-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lot-row:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.lot-row__thumb {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-input-bg);
+}
+
+.lot-row__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lot-row__thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: var(--color-input-bg);
+}
+
+.lot-row__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lot-row__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 0.2rem;
+  line-height: 1.3;
+}
+
+.lot-row__lot-no {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ed95b;
+  margin: 0 0 0.25rem;
+}
+
+.lot-row__location {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.5rem;
+}
+
+.lot-row__subcaption {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  opacity: 0.9;
+  margin: -0.35rem 0 0.5rem;
+}
+
+.lot-row__bid {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lot-row__bid-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(249, 115, 22, 0.2);
+  color: #f97316;
+}
+
+.lot-row__bid-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.lot-row__bid-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.lot-row__bid-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.lot-row__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.lot-row__star {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: color 0.2s;
+}
+
+.lot-row__star:hover {
+  color: #39AE47;
+}
+
+.lot-row__star .lot-row__heart-icon {
+  display: block;
+}
+
+.lot-row__time {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.lot-row__time-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.lot-row__time-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #39AE47;
+}
+
+.lot-row__time-value.ended {
+  color: var(--color-text-muted);
+}
+
+.lot-row__time-value--draft {
+  color: #f59e0b;
+}
+
+@media (max-width: 768px) {
+  .lot-row {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .lot-row__info {
+    flex: 1 1 calc(100% - 100px);
+  }
+
+  .lot-row__right {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+}
