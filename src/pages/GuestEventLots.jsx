@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { auctionService } from '../services/interceptors/auction.service';
 import { fetchCategories } from '../store/actions/AuctionsActions';
+import { getMediaUrl } from '../config/api.config';
 import { toast } from 'react-toastify';
 import LotRow from '../components/LotRow';
 import BuyerEventLotsFilterBar from '../components/BuyerEventLotsFilterBar';
@@ -25,6 +26,32 @@ const getStatusModifier = (status) => {
   return '--live';
 };
 
+const formatEventDate = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+};
+
+const resolveEventImage = (event, lots) => {
+  const mediaFile = Array.isArray(event?.media)
+    ? event.media.find((m) => m?.file)?.file
+    : null;
+  const direct =
+    event?.image ||
+    event?.event_image ||
+    event?.cover_image ||
+    event?.banner ||
+    event?.thumbnail ||
+    event?.logo ||
+    mediaFile;
+  if (direct) return getMediaUrl(direct);
+  const lotImage = Array.isArray(lots)
+    ? lots.find((lot) => Array.isArray(lot?.media) && lot.media.find((m) => m?.file))
+    : null;
+  return lotImage ? getMediaUrl(lotImage.media.find((m) => m?.file)?.file) : '';
+};
+
 const GuestEventLots = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -37,6 +64,7 @@ const GuestEventLots = () => {
   const [eventStatus, setEventStatus] = useState(eventFromState?.status ?? 'LIVE');
   const [eventStartTime, setEventStartTime] = useState(eventFromState?.start_time || null);
   const [eventEndTime, setEventEndTime] = useState(eventFromState?.end_time || null);
+  const [eventDetails, setEventDetails] = useState(eventFromState || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -120,6 +148,7 @@ const GuestEventLots = () => {
       try {
         const ev = await auctionService.getEvent(eventId);
         if (!cancelled) {
+          setEventDetails(ev);
           setEventTitle(ev.title || eventTitle);
           setEventStatus(ev.status ?? 'LIVE');
           setEventStartTime(ev.start_time || null);
@@ -185,6 +214,11 @@ const GuestEventLots = () => {
     });
   }, [lots, selectedFilters]);
 
+  const eventImageUrl = useMemo(
+    () => resolveEventImage(eventDetails ?? eventFromState, lots),
+    [eventDetails, eventFromState, lots]
+  );
+
   return (
     <div className={`guest-event-lots ${selectedLot ? 'guest-event-lots--drawer-open' : ''}`}>
       <header className="guest-event-lots__header">
@@ -231,6 +265,21 @@ const GuestEventLots = () => {
         ) : (
           <div className="guest-event-lots__body">
             <div className="guest-event-lots__content">
+              <section className="guest-event-lots__event-summary" aria-label="Event details">
+                {eventImageUrl ? (
+                  <img src={eventImageUrl} alt="" className="guest-event-lots__event-thumb" />
+                ) : (
+                  <div className="guest-event-lots__event-thumb guest-event-lots__event-thumb--placeholder">
+                    No image
+                  </div>
+                )}
+                <div className="guest-event-lots__event-meta">
+                  <p className="guest-event-lots__event-title">{eventTitle}</p>
+                  <p className="guest-event-lots__event-dates">
+                    Start: {formatEventDate(eventStartTime)} | End: {formatEventDate(eventEndTime)}
+                  </p>
+                </div>
+              </section>
               <div className="guest-event-lots__list-header">
                 <p className="guest-event-lots__results-count">
                   Your search returned {filteredLots.length} result{filteredLots.length !== 1 ? 's' : ''}

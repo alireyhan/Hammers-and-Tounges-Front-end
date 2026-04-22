@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { auctionService } from "../services/interceptors/auction.service";
 import { toast } from "react-toastify";
 import { fetchCategories } from "../store/actions/AuctionsActions";
+import { getMediaUrl } from "../config/api.config";
 import BuyerEventLotsFilterBar from "../components/BuyerEventLotsFilterBar";
 import LotRow from "../components/LotRow";
 import GuestLotDrawer from "../components/GuestLotDrawer";
@@ -35,6 +36,32 @@ const getStatusModifier = (status) => {
   }
 };
 
+const formatEventDate = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+};
+
+const resolveEventImage = (event, lots) => {
+  const mediaFile = Array.isArray(event?.media)
+    ? event.media.find((m) => m?.file)?.file
+    : null;
+  const direct =
+    event?.image ||
+    event?.event_image ||
+    event?.cover_image ||
+    event?.banner ||
+    event?.thumbnail ||
+    event?.logo ||
+    mediaFile;
+  if (direct) return getMediaUrl(direct);
+  const lotImage = Array.isArray(lots)
+    ? lots.find((lot) => Array.isArray(lot?.media) && lot.media.find((m) => m?.file))
+    : null;
+  return lotImage ? getMediaUrl(lotImage.media.find((m) => m?.file)?.file) : "";
+};
+
 export default function ClerkEventLots() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -51,6 +78,9 @@ export default function ClerkEventLots() {
   const [lots, setLots] = useState([]);
   const [eventTitle, setEventTitle] = useState(eventFromState?.title || "Event Lots");
   const [eventStatus, setEventStatus] = useState(eventFromState?.status ?? null);
+  const [eventStartTime, setEventStartTime] = useState(eventFromState?.start_time ?? eventFromState?.start_date ?? null);
+  const [eventEndTime, setEventEndTime] = useState(eventFromState?.end_time ?? eventFromState?.end_date ?? null);
+  const [eventDetails, setEventDetails] = useState(eventFromState || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -223,8 +253,11 @@ export default function ClerkEventLots() {
       try {
         const ev = await auctionService.getEvent(id);
         if (!cancelled) {
+          setEventDetails(ev);
           setEventTitle(ev.title || eventTitle);
           setEventStatus(ev.status ?? null);
+          setEventStartTime(ev.start_time ?? ev.start_date ?? null);
+          setEventEndTime(ev.end_time ?? ev.end_date ?? null);
         }
       } catch {
         if (!cancelled) setEventStatus(null);
@@ -293,6 +326,11 @@ export default function ClerkEventLots() {
       return true;
     });
   }, [lots, selectedFilters]);
+
+  const eventImageUrl = useMemo(
+    () => resolveEventImage(eventDetails ?? eventFromState, lots),
+    [eventDetails, eventFromState, lots]
+  );
 
   const eventData = eventFromState || { id, title: eventTitle, status: eventStatus };
 
@@ -377,6 +415,21 @@ export default function ClerkEventLots() {
         ) : (
           <div className="manager-event-lots__body">
             <div className="manager-event-lots__content">
+              <section className="guest-event-lots__event-summary" aria-label="Event details">
+                {eventImageUrl ? (
+                  <img src={eventImageUrl} alt="" className="guest-event-lots__event-thumb" />
+                ) : (
+                  <div className="guest-event-lots__event-thumb guest-event-lots__event-thumb--placeholder">
+                    No image
+                  </div>
+                )}
+                <div className="guest-event-lots__event-meta">
+                  <p className="guest-event-lots__event-title">{eventTitle}</p>
+                  <p className="guest-event-lots__event-dates">
+                    Start: {formatEventDate(eventStartTime)} | End: {formatEventDate(eventEndTime)}
+                  </p>
+                </div>
+              </section>
               {filteredLots.length === 0 ? (
                 <div className="manager-event-lots__empty">
                   <p>No lots match your filters.</p>
