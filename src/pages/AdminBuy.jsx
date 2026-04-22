@@ -12,6 +12,23 @@ const formatPrice = (price) => {
   return parseFloat(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
+const getTimeLeftLabel = (endTime, eventStatus) => {
+  if (!endTime) return '—';
+  const end = new Date(endTime).getTime();
+  const now = Date.now();
+  const diff = end - now;
+  if (diff <= 0) {
+    return (eventStatus || '').toUpperCase() === 'LIVE' ? 'Live' : 'Closed';
+  }
+  const totalSeconds = Math.floor(diff / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+};
+
 const getLotStatusModifier = (status) => {
   const s = (status || '').toUpperCase();
   if (s === 'DRAFT') return '--draft';
@@ -19,6 +36,15 @@ const getLotStatusModifier = (status) => {
   if (s === 'CLOSED' || s === 'COMPLETED') return '--closed';
   if (s === 'PENDING') return '--pending';
   return '--active';
+};
+
+const isClosedLot = (lot) => {
+  const status = String(lot?.event_status ?? lot?.status ?? lot?.listing_status ?? '').toUpperCase();
+  const activeStatuses = ['LIVE', 'ACTIVE', 'APPROVED'];
+  const explicitlyClosed = status ? !activeStatuses.includes(status) : false;
+  const endTime = lot?.end_date ?? lot?.end_time ?? lot?.event_end_time ?? lot?.auction_end_time;
+  const endedByTime = endTime ? new Date(endTime).getTime() <= Date.now() : false;
+  return explicitlyClosed || endedByTime;
 };
 
 const LotCard = ({ lot, onLotClick }) => {
@@ -84,7 +110,9 @@ const LotCard = ({ lot, onLotClick }) => {
           </span>
         </div>
         <div className="guest-buy__card-footer">
-          <span className="guest-buy__card-login-hint">Click to view details</span>
+          <span className="guest-buy__card-login-hint">
+            Time left: {getTimeLeftLabel(lot.end_date ?? lot.end_time ?? lot.event_end_time, lot.event_status ?? lot.status)}
+          </span>
         </div>
       </div>
     </article>
@@ -124,9 +152,9 @@ const AdminBuy = () => {
         page_size: PAGE_SIZE,
       });
       const items = res.results || [];
-      const total = res.count ?? items.length;
-      setLots(items);
-      setTotalCount(total);
+      const openItems = items.filter((lot) => !isClosedLot(lot));
+      setLots(openItems);
+      setTotalCount(openItems.length);
     } catch (err) {
       console.error('Error fetching lots by category:', err);
       setError(err?.message || err?.response?.data?.detail || 'Failed to load lots');

@@ -12,6 +12,15 @@ import './GuestEventLots.css';
 
 const PAGE_SIZE = 12;
 
+const isClosedLot = (lot) => {
+  const status = String(lot?.event_status ?? lot?.status ?? lot?.listing_status ?? '').toUpperCase();
+  const activeStatuses = ['LIVE', 'ACTIVE', 'APPROVED'];
+  const explicitlyClosed = status ? !activeStatuses.includes(status) : false;
+  const endTime = lot?.end_date ?? lot?.end_time ?? lot?.event_end_time ?? lot?.auction_end_time;
+  const endedByTime = endTime ? new Date(endTime).getTime() <= Date.now() : false;
+  return explicitlyClosed || endedByTime;
+};
+
 const BuyerBuy = () => {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
@@ -64,9 +73,9 @@ const BuyerBuy = () => {
         page_size: PAGE_SIZE,
       });
       const items = res.results || [];
-      const total = res.count ?? items.length;
-      setLots(items);
-      setTotalCount(total);
+      const openItems = items.filter((lot) => !isClosedLot(lot));
+      setLots(openItems);
+      setTotalCount(openItems.length);
     } catch (err) {
       console.error('Error fetching lots by category:', err);
       setError(err?.message || err?.response?.data?.detail || 'Failed to load lots');
@@ -147,7 +156,6 @@ const BuyerBuy = () => {
                     showFavorite
                     isFavorite={favoriteIds?.has(lot.id) ?? lot.is_favourite ?? false}
                     onFavoriteToggle={handleFavoriteToggle}
-                    statusOnly
                   />
                 ))}
               </div>
