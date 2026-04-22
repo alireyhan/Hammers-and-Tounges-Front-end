@@ -6,7 +6,7 @@ import Hero from '../components/Hero'
 import EventListingRow from '../components/EventListingRow'
 import './Home.css'
 
-const TAB_UPCOMMING = 'upcomming'
+const TAB_UPCOMING = 'upcoming'
 const TAB_CURRENT = 'current'
 const TAB_PAST = 'past'
 
@@ -45,7 +45,7 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState(TAB_CURRENT)
   const [searchQuery, setSearchQuery] = useState('')
   const timeframe =
-    activeTab === TAB_UPCOMMING ? 'upcomming' : activeTab === TAB_CURRENT ? 'current' : 'past'
+    activeTab === TAB_UPCOMING ? 'upcoming' : activeTab === TAB_CURRENT ? 'current' : 'past'
   const filteredEvents = events || []
 
   useEffect(() => {
@@ -82,10 +82,10 @@ const Home = () => {
           <div className="home-events__tabs-wrap">
             <div className="home-events__tabs">
               <button
-                className={`home-events__tab ${activeTab === TAB_UPCOMMING ? 'active' : ''}`}
-                onClick={() => setActiveTab(TAB_UPCOMMING)}
+                className={`home-events__tab ${activeTab === TAB_UPCOMING ? 'active' : ''}`}
+                onClick={() => setActiveTab(TAB_UPCOMING)}
               >
-                Upcomming
+                Upcoming
               </button>
               <button
                 className={`home-events__tab ${activeTab === TAB_CURRENT ? 'active' : ''}`}
@@ -145,8 +145,8 @@ const Home = () => {
           {!eventsLoading && !eventsError && (eventsCount || 0) === 0 && (
             <div className="home-empty">
               <p>
-                {activeTab === TAB_UPCOMMING
-                  ? 'No upcomming events.'
+                {activeTab === TAB_UPCOMING
+                  ? 'No upcoming events.'
                   : activeTab === TAB_CURRENT
                     ? 'No current events.'
                     : 'No past events.'}

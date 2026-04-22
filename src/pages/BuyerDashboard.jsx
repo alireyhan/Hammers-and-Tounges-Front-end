@@ -20,7 +20,7 @@ const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
 
 StatCard.displayName = 'StatCard';
 
-const TAB_UPCOMMING = 'upcomming';
+const TAB_UPCOMING = 'upcoming';
 const TAB_CURRENT = 'current';
 const TAB_PAST = 'past';
 const ITEMS_PER_PAGE = 15;
@@ -62,7 +62,7 @@ const BuyerDashboard = () => {
   const totalPages = Math.max(1, Math.ceil((eventsCount || 0) / ITEMS_PER_PAGE));
   const paginatedEvents = filteredEvents;
   const timeframe =
-    activeTab === TAB_UPCOMMING ? 'upcomming' : activeTab === TAB_CURRENT ? 'current' : 'past';
+    activeTab === TAB_UPCOMING ? 'upcoming' : activeTab === TAB_CURRENT ? 'current' : 'past';
 
   const handleEventClick = useCallback((event) => {
     navigate(`/buyer/event/${event.id}`, { state: { event } });
@@ -99,8 +99,8 @@ const BuyerDashboard = () => {
         ),
         value: filteredEvents.length.toLocaleString(),
         label:
-          activeTab === TAB_UPCOMMING
-            ? 'Upcomming Events'
+          activeTab === TAB_UPCOMING
+            ? 'Upcoming Events'
             : activeTab === TAB_CURRENT
               ? 'Current Events'
               : 'Past Events',
@@ -134,10 +134,10 @@ const BuyerDashboard = () => {
               <div className="buyer-dashboard-tabs">
                 <button
                   type="button"
-                  className={`buyer-dashboard-tab ${activeTab === TAB_UPCOMMING ? 'active' : ''}`}
-                  onClick={() => setActiveTab(TAB_UPCOMMING)}
+                  className={`buyer-dashboard-tab ${activeTab === TAB_UPCOMING ? 'active' : ''}`}
+                  onClick={() => setActiveTab(TAB_UPCOMING)}
                 >
-                  Upcomming
+                  Upcoming
                 </button>
                 <button
                   type="button"
@@ -160,8 +160,8 @@ const BuyerDashboard = () => {
             </div>
             <div className="buyer-dashboard-card-header-row">
               <h2 className="buyer-dashboard-card-title">
-                {activeTab === TAB_UPCOMMING
-                  ? 'Upcomming Events'
+                {activeTab === TAB_UPCOMING
+                  ? 'Upcoming Events'
                   : activeTab === TAB_CURRENT
                     ? 'Current Events'
                     : 'Past Events'}
@@ -234,15 +234,15 @@ const BuyerDashboard = () => {
                 <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke="#d1d5db" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <h2>
-                {activeTab === TAB_UPCOMMING
-                  ? 'No upcomming events'
+                {activeTab === TAB_UPCOMING
+                  ? 'No upcoming events'
                   : activeTab === TAB_CURRENT
                     ? 'No current events'
                     : 'No past events'}
               </h2>
               <p>
-                {activeTab === TAB_UPCOMMING
-                  ? 'There are no upcomming events at the moment. Check back later.'
+                {activeTab === TAB_UPCOMING
+                  ? 'There are no upcoming events at the moment. Check back later.'
                   : activeTab === TAB_CURRENT
                     ? 'No current events to display.'
                     : 'No past events to display.'}

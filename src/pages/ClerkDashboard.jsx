@@ -8,7 +8,7 @@ import { fetchEvents } from "../store/actions/AuctionsActions";
 import { normalizeEventStatusForFilter } from "../utils/eventStatus";
 import "./ManagerDashboard.css";
 
-const TAB_UPCOMMING = "upcomming";
+const TAB_UPCOMING = "upcoming";
 const TAB_CURRENT = "current";
 const TAB_PAST = "past";
 const TAB_ALL = "all";
@@ -77,8 +77,8 @@ export default function ClerkDashboard() {
   const timeframe =
     activeTab === TAB_ALL
       ? undefined
-      : activeTab === TAB_UPCOMMING
-        ? "upcomming"
+      : activeTab === TAB_UPCOMING
+        ? "upcoming"
         : activeTab === TAB_CURRENT
           ? "current"
           : "past";
@@ -266,10 +266,10 @@ export default function ClerkDashboard() {
               </button>
               <button
                 type="button"
-                className={`buyer-dashboard-tab ${activeTab === TAB_UPCOMMING ? "active" : ""}`}
-                onClick={() => setActiveTab(TAB_UPCOMMING)}
+                className={`buyer-dashboard-tab ${activeTab === TAB_UPCOMING ? "active" : ""}`}
+                onClick={() => setActiveTab(TAB_UPCOMING)}
               >
-                Upcomming
+                Upcoming
               </button>
               <button
                 type="button"
