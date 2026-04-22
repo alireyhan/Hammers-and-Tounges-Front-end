@@ -13,6 +13,9 @@ const initialState = {
   eventsError: null,
   eventsLoaded: false,
   eventsLastFetched: null,
+  eventsCount: 0,
+  eventsNext: null,
+  eventsPrevious: null,
   isLoading: false,
   isPlacingBid: false,
   error: null,
@@ -176,6 +179,9 @@ const buyerSlice = createSlice({
       .addCase(fetchEvents.fulfilled, (state, action) => {
         state.eventsLoading = false;
         state.events = action.payload?.results || [];
+        state.eventsCount = action.payload?.count ?? action.payload?.results?.length ?? 0;
+        state.eventsNext = action.payload?.next ?? null;
+        state.eventsPrevious = action.payload?.previous ?? null;
         state.eventsLoaded = true;
         state.eventsLastFetched = action.payload?.fetchedAt || Date.now();
       })

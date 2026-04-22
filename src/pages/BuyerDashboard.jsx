@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchEvents } from '../store/actions/AuctionsActions';
 import { clearBuyerError } from '../store/slices/buyerSlice';
 import EventListingRow from '../components/EventListingRow';
-import { normalizeEventStatusForFilter } from '../utils/eventStatus';
 import './BuyerDashboard.css';
 
 const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
@@ -21,7 +20,8 @@ const StatCard = React.memo(({ icon: Icon, value, label, colorClass }) => (
 
 StatCard.displayName = 'StatCard';
 
-const TAB_UPCOMING = 'upcoming';
+const TAB_UPCOMMING = 'upcomming';
+const TAB_CURRENT = 'current';
 const TAB_PAST = 'past';
 const ITEMS_PER_PAGE = 15;
 
@@ -55,43 +55,14 @@ const BuyerDashboard = () => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [activeTab, setActiveTab] = useState(TAB_UPCOMING);
+  const [activeTab, setActiveTab] = useState(TAB_CURRENT);
 
-  const { events, eventsLoading, eventsError, eventsLoaded } = useSelector(state => state.buyer);
-
-  // Filter by tab (Upcoming vs Past) - same logic as guest Home
-  const tabFilteredEvents = useMemo(() => {
-    if (!events?.length) return [];
-    const now = new Date();
-    if (activeTab === TAB_UPCOMING) {
-      return events.filter((e) => {
-        const end = e.end_time ? new Date(e.end_time) : null;
-        const status = normalizeEventStatusForFilter(e);
-        if (status === 'CLOSED' || status === 'CLOSING') return false;
-        return !end || end > now;
-      });
-    }
-    return events.filter((e) => {
-      const end = e.end_time ? new Date(e.end_time) : null;
-      const status = normalizeEventStatusForFilter(e);
-      if (status === 'CLOSED' || status === 'CLOSING') return true;
-      return end && end <= now;
-    });
-  }, [events, activeTab]);
-
-  // Search filter
-  const filteredEvents = useMemo(() => {
-    if (!searchQuery.trim()) return tabFilteredEvents;
-    const q = searchQuery.toLowerCase().trim();
-    return tabFilteredEvents.filter(
-      (e) =>
-        (e.title || '').toLowerCase().includes(q)
-    );
-  }, [tabFilteredEvents, searchQuery]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / ITEMS_PER_PAGE));
-  const startIdx = (page - 1) * ITEMS_PER_PAGE;
-  const paginatedEvents = filteredEvents.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  const { events, eventsLoading, eventsError, eventsLoaded, eventsCount } = useSelector(state => state.buyer);
+  const filteredEvents = events || [];
+  const totalPages = Math.max(1, Math.ceil((eventsCount || 0) / ITEMS_PER_PAGE));
+  const paginatedEvents = filteredEvents;
+  const timeframe =
+    activeTab === TAB_UPCOMMING ? 'upcomming' : activeTab === TAB_CURRENT ? 'current' : 'past';
 
   const handleEventClick = useCallback((event) => {
     navigate(`/buyer/event/${event.id}`, { state: { event } });
@@ -102,8 +73,15 @@ const BuyerDashboard = () => {
   }, [searchQuery, activeTab]);
 
   useEffect(() => {
-    dispatch(fetchEvents({}));
-  }, [dispatch]);
+    dispatch(
+      fetchEvents({
+        timeframe,
+        search: searchQuery.trim() || undefined,
+        page,
+        page_size: ITEMS_PER_PAGE,
+      })
+    );
+  }, [dispatch, timeframe, searchQuery, page]);
 
   useEffect(() => {
     return () => {
@@ -120,7 +98,12 @@ const BuyerDashboard = () => {
           </svg>
         ),
         value: filteredEvents.length.toLocaleString(),
-        label: activeTab === TAB_UPCOMING ? 'Upcoming Events' : 'Past Events',
+        label:
+          activeTab === TAB_UPCOMMING
+            ? 'Upcomming Events'
+            : activeTab === TAB_CURRENT
+              ? 'Current Events'
+              : 'Past Events',
         colorClass: 'buyer-dashboard-icon-auctions',
       },
     ],
@@ -151,10 +134,17 @@ const BuyerDashboard = () => {
               <div className="buyer-dashboard-tabs">
                 <button
                   type="button"
-                  className={`buyer-dashboard-tab ${activeTab === TAB_UPCOMING ? 'active' : ''}`}
-                  onClick={() => setActiveTab(TAB_UPCOMING)}
+                  className={`buyer-dashboard-tab ${activeTab === TAB_UPCOMMING ? 'active' : ''}`}
+                  onClick={() => setActiveTab(TAB_UPCOMMING)}
                 >
-                  Upcoming
+                  Upcomming
+                </button>
+                <button
+                  type="button"
+                  className={`buyer-dashboard-tab ${activeTab === TAB_CURRENT ? 'active' : ''}`}
+                  onClick={() => setActiveTab(TAB_CURRENT)}
+                >
+                  Current
                 </button>
                 <button
                   type="button"
@@ -165,17 +155,21 @@ const BuyerDashboard = () => {
                 </button>
               </div>
               <span className="buyer-dashboard-tabs-count">
-                {eventsLoading && !events?.length ? '...' : `${filteredEvents.length} events`}
+                {eventsLoading && !events?.length ? '...' : `${eventsCount || 0} events`}
               </span>
             </div>
             <div className="buyer-dashboard-card-header-row">
               <h2 className="buyer-dashboard-card-title">
-                {activeTab === TAB_UPCOMING ? 'Upcoming Events' : 'Past Events'}
+                {activeTab === TAB_UPCOMMING
+                  ? 'Upcomming Events'
+                  : activeTab === TAB_CURRENT
+                    ? 'Current Events'
+                    : 'Past Events'}
               </h2>
-              {tabFilteredEvents.length > 0 && (
-                <span className="buyer-dashboard-auction-count">({searchQuery.trim() ? filteredEvents.length : tabFilteredEvents.length})</span>
+              {(eventsCount || 0) > 0 && (
+                <span className="buyer-dashboard-auction-count">({eventsCount || 0})</span>
               )}
-              {tabFilteredEvents.length > 0 && (
+              {(eventsCount || 0) > 0 && (
                 <div className="buyer-dashboard-search-wrap">
                   <input
                     type="search"
@@ -217,37 +211,42 @@ const BuyerDashboard = () => {
               </p>
               <button
                 className="auctions-retry-btn"
-                onClick={() => dispatch(fetchEvents({ forceRefresh: true }))}
+                onClick={() =>
+                  dispatch(
+                    fetchEvents({
+                      forceRefresh: true,
+                      timeframe,
+                      search: searchQuery.trim() || undefined,
+                      page,
+                      page_size: ITEMS_PER_PAGE,
+                    })
+                  )
+                }
               >
                 Retry
               </button>
             </div>
           )}
 
-          {!eventsLoading && !eventsError && tabFilteredEvents.length === 0 && (
+          {!eventsLoading && !eventsError && (eventsCount || 0) === 0 && (
             <div className="auctions-empty">
               <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
                 <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke="#d1d5db" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <h2>{activeTab === TAB_UPCOMING ? 'No upcoming events' : 'No past events'}</h2>
+              <h2>
+                {activeTab === TAB_UPCOMMING
+                  ? 'No upcomming events'
+                  : activeTab === TAB_CURRENT
+                    ? 'No current events'
+                    : 'No past events'}
+              </h2>
               <p>
-                {activeTab === TAB_UPCOMING
-                  ? 'There are no upcoming events at the moment. Check back later.'
-                  : 'No past events to display.'}
+                {activeTab === TAB_UPCOMMING
+                  ? 'There are no upcomming events at the moment. Check back later.'
+                  : activeTab === TAB_CURRENT
+                    ? 'No current events to display.'
+                    : 'No past events to display.'}
               </p>
-            </div>
-          )}
-
-          {!eventsLoading && !eventsError && tabFilteredEvents.length > 0 && filteredEvents.length === 0 && (
-            <div className="auctions-empty">
-              <h2>No matching events</h2>
-              <p>Try a different search term or clear your search.</p>
-              <button
-                className="auctions-retry-btn"
-                onClick={() => setSearchQuery('')}
-              >
-                Clear search
-              </button>
             </div>
           )}
 

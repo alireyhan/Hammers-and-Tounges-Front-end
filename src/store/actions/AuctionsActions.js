@@ -53,11 +53,14 @@ export const fetchEvents = createAsyncThunk(
   'events/fetchEvents',
   async (params = {}, { rejectWithValue }) => {
     try {
-      // Guest Home loops with { page: n } — keep single-page responses.
-      // Buyer dashboard uses {} — load every page (matches mobile app).
+      // Query-driven event pages (timeframe/search/page) should always use one paginated API call.
       const hasExplicitPage =
         params != null && Object.prototype.hasOwnProperty.call(params, 'page');
-      if (hasExplicitPage) {
+      const hasServerQuery =
+        hasExplicitPage ||
+        Boolean(params?.timeframe) ||
+        Boolean(params?.search);
+      if (hasServerQuery) {
         const response = await auctionService.getEvents(params);
         return { ...response, fetchedAt: Date.now() };
       }
@@ -90,7 +93,11 @@ export const fetchEvents = createAsyncThunk(
     condition: (params = {}, { getState }) => {
       const hasExplicitPage =
         params != null && Object.prototype.hasOwnProperty.call(params, 'page');
-      if (hasExplicitPage) return true;
+      const hasServerQuery =
+        hasExplicitPage ||
+        Boolean(params?.timeframe) ||
+        Boolean(params?.search);
+      if (hasServerQuery) return true;
       if (params?.forceRefresh) return true;
 
       const buyerState = getState()?.buyer;
