@@ -1,13 +1,13 @@
 [[redirects]]
   from = "/api/*"
-  to = "https://developer.hashverx.com/api/:splat"
+  to = "https://207.180.233.44/api/:splat"
   status = 200
   force = true
 
 
 [[redirects]]
   from = "/media/*"
-  to = "https://developer.hashverx.com/media/:splat"
+  to = "https://207.180.233.44/media/:splat"
   status = 200
   force = true
 

@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://developer.hashverx.com/api/$1"
+      "destination": "https://207.180.233.44/api/$1"
     },
     {
       "source": "/media/(.*)",
-      "destination": "https://developer.hashverx.com/media/$1"
+      "destination": "https://207.180.233.44/media/$1"
     },
     {
       "source": "/(.*)",

@@ -6,9 +6,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://developer.hashverx.com',
+        target: 'https://207.180.233.44',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     },
   },
