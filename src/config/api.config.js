@@ -25,7 +25,7 @@ const getBaseUrl = () => {
   }
 
   // Defaults fallback
-  return 'http://207.180.233.44:8001';
+  return 'http://developer.hashverx.com:8001/api';
 };
 
 const getWebSocketBaseUrl = () => {
