@@ -1,13 +1,13 @@
 [[redirects]]
   from = "/api/*"
-  to = "http://207.180.233.44:8001/api/:splat"
+  to = "http://207.180.233.44:8001/:splat"
   status = 200
   force = true
 
 
 [[redirects]]
   from = "/media/*"
-  to = "http://207.180.233.44:8001/media/:splat"
+  to = "http://207.180.233.44:8001/:splat"
   status = 200
   force = true
 

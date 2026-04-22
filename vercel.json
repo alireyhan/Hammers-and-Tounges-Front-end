@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "http://207.180.233.44:8001/api/$1"
+      "destination": "http://207.180.233.44:8001/$1"
     },
     {
       "source": "/media/(.*)",
-      "destination": "http://207.180.233.44:8001/media/$1"
+      "destination": "http://207.180.233.44:8001/$1"
     },
     {
       "source": "/(.*)",

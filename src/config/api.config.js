@@ -25,7 +25,7 @@ const getBaseUrl = () => {
   }
 
   // Defaults fallback
-  return 'http://207.180.233.44:8001/api';
+  return 'http://207.180.233.44:8001';
 };
 
 const getWebSocketBaseUrl = () => {
