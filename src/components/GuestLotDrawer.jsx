@@ -78,6 +78,7 @@ const GuestLotDrawer = ({
   const [lot, setLot] = useState(initialLot);
   const [loading, setLoading] = useState(!initialLot);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [bids, setBids] = useState([]);
   const [bidsLoading, setBidsLoading] = useState(false);
   const [customBidAmount, setCustomBidAmount] = useState('');
@@ -102,6 +103,14 @@ const GuestLotDrawer = ({
 
   const imageUrls = getLotImageUrls(effectiveLot);
   const displayImage = imageUrls[selectedImage] || imageUrls[0];
+  const goToPrevImage = useCallback(() => {
+    if (!imageUrls.length) return;
+    setSelectedImage((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+  }, [imageUrls.length]);
+  const goToNextImage = useCallback(() => {
+    if (!imageUrls.length) return;
+    setSelectedImage((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+  }, [imageUrls.length]);
 
   // Event status from API is authoritative: when LIVE/ACTIVE, treat as live even if lot end_time suggests otherwise
   const effectiveEventStatus = eventStatus ?? lot?.event_status ?? initialLot?.event_status;
@@ -399,6 +408,7 @@ const GuestLotDrawer = ({
 
   useEffect(() => {
     setSelectedImage(0);
+    setIsImageViewerOpen(false);
   }, [initialLot?.id]);
 
   useEffect(() => {
@@ -654,6 +664,34 @@ const GuestLotDrawer = ({
                       <>
                         <div className="guest-lot-drawer__image-wrap">
                           <img src={displayImage} alt={effectiveLot.title} />
+                          {imageUrls.length > 1 && (
+                            <>
+                              <button
+                                type="button"
+                                className="guest-lot-drawer__image-nav guest-lot-drawer__image-nav--prev"
+                                onClick={goToPrevImage}
+                                aria-label="Previous image"
+                              >
+                                ‹
+                              </button>
+                              <button
+                                type="button"
+                                className="guest-lot-drawer__image-nav guest-lot-drawer__image-nav--next"
+                                onClick={goToNextImage}
+                                aria-label="Next image"
+                              >
+                                ›
+                              </button>
+                            </>
+                          )}
+                          <button
+                            type="button"
+                            className="guest-lot-drawer__image-enlarge"
+                            onClick={() => setIsImageViewerOpen(true)}
+                            aria-label="Enlarge image"
+                          >
+                            Enlarge
+                          </button>
                         </div>
                         {imageUrls.length > 1 && (
                           <div className="guest-lot-drawer__thumbs">
@@ -860,6 +898,47 @@ const GuestLotDrawer = ({
         formatWalletCurrency={formatWalletCurrency}
         onAddBalance={handleInsufficientModalAddBalance}
       />
+      {isImageViewerOpen && Boolean(displayImage) && (
+        <div
+          className="guest-lot-drawer__viewer-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image viewer"
+          onClick={() => setIsImageViewerOpen(false)}
+        >
+          <div className="guest-lot-drawer__viewer" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="guest-lot-drawer__viewer-close"
+              onClick={() => setIsImageViewerOpen(false)}
+              aria-label="Close image viewer"
+            >
+              Close
+            </button>
+            {imageUrls.length > 1 && (
+              <button
+                type="button"
+                className="guest-lot-drawer__viewer-nav guest-lot-drawer__viewer-nav--prev"
+                onClick={goToPrevImage}
+                aria-label="Previous image"
+              >
+                ‹
+              </button>
+            )}
+            <img src={displayImage} alt={effectiveLot.title} className="guest-lot-drawer__viewer-image" />
+            {imageUrls.length > 1 && (
+              <button
+                type="button"
+                className="guest-lot-drawer__viewer-nav guest-lot-drawer__viewer-nav--next"
+                onClick={goToNextImage}
+                aria-label="Next image"
+              >
+                ›
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 };
