@@ -31,7 +31,7 @@ const getWebSocketBaseUrl = () => {
   // If it's a relative path like '/api', keep it (assumes websocket is under same prefix).
   if (envUrl && envUrl.startsWith('/')) return envUrl;
 
-  const base = envUrl || 'http://207.180.233.44:8001';
+  const base = envUrl || 'https://developer.hashverx.com/api';
   const clean = base.replace(/\/$/, '').replace(/^http/, 'ws');
   return clean;
 };
