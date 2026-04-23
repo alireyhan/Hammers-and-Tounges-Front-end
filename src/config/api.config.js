@@ -47,6 +47,15 @@ export const API_CONFIG = {
   APP_ENV: import.meta.env.VITE_APP_ENV || 'development',
 };
 
+console.log('API_CONFIG Initialization:', {
+  BASE_URL: API_CONFIG.BASE_URL,
+  IS_PRODUCTION: API_CONFIG.IS_PRODUCTION,
+  ENV_VARS: {
+    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+    VITE_APP_ENV: import.meta.env.VITE_APP_ENV
+  }
+});
+
 // export const API_CONFIG = {
 //   BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://207.180.233.44:8001/api',
 //   MEDIA_BASE_URL: import.meta.env.VITE_MEDIA_BASE_URL,
