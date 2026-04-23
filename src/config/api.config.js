@@ -4,11 +4,11 @@
 //   TIMEOUT: 30000,
 //   IS_PRODUCTION: import.meta.env.PROD,
 //   IS_DEVELOPMENT: import.meta.env.DEV,
-//   APP_ENV: import.meta.env.VITE_APP_ENV || 'development',jsodjhsdhas
+//   APP_ENV: import.meta.env.VITE_APP_ENV || 'development',,
 // };
 
 const getBaseUrl = () => {
-  // If someone explicitly configured the env var, prefer it (supports both absolute URLs and '/api' style paths).
+  // Use VITE_API_BASE_URL if explicitly set (works in both dev and production)
   const envUrlRaw = import.meta.env.VITE_API_BASE_URL;
   const envUrl = typeof envUrlRaw === 'string' ? envUrlRaw.trim() : '';
 
@@ -16,13 +16,11 @@ const getBaseUrl = () => {
     // If it's already a path (e.g. '/api'), just use it as-is.
     if (envUrl.startsWith('/')) return envUrl;
 
-    // Absolute URL: append '/api' if missing.
-    const base = envUrl;
-    return base.endsWith('/api') ? base : `${base.replace(/\/$/, '')}/api`;
+    // Absolute URL: use as-is (already includes /api suffix from .env.production)
+    return envUrl.replace(/\/$/, '');
   }
 
-  // Defaults
-  if (import.meta.env.PROD) return '/api';
+  // Defaults fallback
   return 'https://developer.hashverx.com/api';
 };
 
@@ -33,7 +31,7 @@ const getWebSocketBaseUrl = () => {
   // If it's a relative path like '/api', keep it (assumes websocket is under same prefix).
   if (envUrl && envUrl.startsWith('/')) return envUrl;
 
-  const base = envUrl || 'https://developer.hashverx.com';
+  const base = envUrl || 'http://207.180.233.44:8001';
   const clean = base.replace(/\/$/, '').replace(/^http/, 'ws');
   return clean;
 };
@@ -72,13 +70,7 @@ export const API_CONFIG = {
 export const getApiUrl = (endpoint) => {
   // Remove leading slash if present to avoid double slashes
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-
-  if (API_CONFIG.IS_PRODUCTION) {
-    // In production, use relative URLs that will be proxied by Netlify
-    return `/${cleanEndpoint}`;
-  }
-
-  // In development, use full URL
+  // BASE_URL is '/api' in production (relative, proxied by Vercel) or full URL in dev
   return `${API_CONFIG.BASE_URL}/${cleanEndpoint}`;
 };
 
@@ -92,6 +84,10 @@ export const getMediaUrl = (mediaPath) => {
   if (path.startsWith('http://207.180.233.44:8001')) {
     // Backwards compatibility for old deployments
     path = path.replace('http://207.180.233.44:8001', '');
+  } else if (path.startsWith('https://207.180.233.44')) {
+    path = path.replace('https://207.180.233.44', '');
+  } else if (path.startsWith('http://207.180.233.44')) {
+    path = path.replace('http://207.180.233.44', '');
   } else if (path.startsWith('https://developer.hashverx.com')) {
     // New API/media host
     path = path.replace('https://developer.hashverx.com', '');
@@ -105,24 +101,15 @@ export const getMediaUrl = (mediaPath) => {
     path = path.slice(1);
   }
 
-  // 4. In production, we want it to be relative to the domain (proxied by Netlify)
-  if (API_CONFIG.IS_PRODUCTION) {
-    // If it already starts with 'media/', just ensure it has a single leading slash
-    if (path.startsWith('media/')) {
-      return `/${path}`;
-    }
-    // Otherwise, prepend '/media/'
-    return `/media/${path}`;
-  }
+  // 4. Use MEDIA_BASE_URL env var ('/media' relative in production, full URL in dev)
+  const mediaBase = (API_CONFIG.MEDIA_BASE_URL || '/media').replace(/\/$/, '');
 
-  // 5. In development, use MEDIA_BASE_URL
-  // If path already starts with 'media/', we might need to be careful.
-  // Assuming MEDIA_BASE_URL is the origin (http://...:8001)
   if (path.startsWith('media/')) {
-    return `${API_CONFIG.MEDIA_BASE_URL || 'http://207.180.233.44:8001'}/${path}`;
+    // path already has 'media/' prefix — strip it so we don't double up
+    path = path.slice('media/'.length);
   }
 
-  return `${API_CONFIG.MEDIA_BASE_URL || 'http://207.180.233.44:8001'}/media/${path}`;
+  return `${mediaBase}/${path}`;
 };
 
 export const API_ROUTES = {
@@ -160,6 +147,7 @@ export const API_ROUTES = {
   ADMIN_USERS_LIST: '/inspections/admin/users/',
   ADMIN_UPDATE_USER: '/users/admin/', // + userId + /update/
   ADMIN_ADD_FUNDS: '/users/admin/add-funds/',
+  ADMIN_DEPOSIT_HISTORY: '/users/admin/deposit-history/',
   ADMIN_CREATE_STAFF: '/users/admin/create-staff/',
   ADMIN_USER_MANAGEMENT: '/inspections/admin/user-management/', // POST create seller, PATCH + id + / for edit
   ADMIN_USER_PERMISSIONS: '/inspections/admin/user-permissions/', // GET/PATCH user feature permissions
