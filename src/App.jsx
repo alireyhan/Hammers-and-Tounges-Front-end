@@ -253,8 +253,8 @@ function App() {
                 <Route path="/manager/deposit-exemption" element={<AdminDepositExemption />} />
                 <Route path="/manager/auction-deposit-override" element={<AdminAuctionDepositOverride />} />
                 <Route path="/manager/goods-received-verification" element={<AdminGoodsReceivedVerification />} />
-                <Route path="/manager/finance/manual-deposits/:depositId" element={<ManualDepositDetail />} />
-                <Route path="/manager/finance" element={<AdminFinance />} />
+                <Route path="/manager/finance/manual-deposits/:depositId" element={<Navigate to="/manager/dashboard" replace />} />
+                <Route path="/manager/finance" element={<Navigate to="/manager/dashboard" replace />} />
                 <Route path="/manager/role-management/:id" element={
                   <>
                     <AdminRoleManagement />
