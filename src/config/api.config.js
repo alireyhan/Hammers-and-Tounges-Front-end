@@ -8,33 +8,43 @@
 // };
 
 const getBaseUrl = () => {
-  // Use VITE_API_BASE_URL if explicitly set (works in both dev and production)
   const envUrlRaw = import.meta.env.VITE_API_BASE_URL;
   const envUrl = typeof envUrlRaw === 'string' ? envUrlRaw.trim() : '';
 
-  if (envUrl) {
-    // If it's already a path (e.g. '/api'), just use it as-is.
-    if (envUrl.startsWith('/')) return envUrl;
-
-    // Absolute URL: use as-is (already includes /api suffix from .env.production)
+  // If we have an absolute URL in env, use it
+  if (envUrl && !envUrl.startsWith('/')) {
     return envUrl.replace(/\/$/, '');
   }
 
-  // Defaults fallback
-  return 'https://developer.hashverx.com/api';
+  // If we are in production, force the absolute backend URL
+  // This bypasses cases where the environment is incorrectly set to "/api"
+  if (import.meta.env.PROD) {
+    return 'https://developer.hashverx.com/api';
+  }
+
+  // Fallback for development (relative path for proxy)
+  return envUrl || '/api';
 };
+
 
 const getWebSocketBaseUrl = () => {
   const envUrlRaw = import.meta.env.VITE_API_BASE_URL;
   const envUrl = typeof envUrlRaw === 'string' ? envUrlRaw.trim() : '';
 
-  // If it's a relative path like '/api', keep it (assumes websocket is under same prefix).
-  if (envUrl && envUrl.startsWith('/')) return envUrl;
+  // If we have an absolute URL, convert it to ws/wss
+  if (envUrl && !envUrl.startsWith('/')) {
+    return envUrl.replace(/\/$/, '').replace(/^http/, 'ws');
+  }
 
-  const base = envUrl || 'https://developer.hashverx.com/api';
-  const clean = base.replace(/\/$/, '').replace(/^http/, 'ws');
-  return clean;
+  // If we are in production, force the absolute backend WebSocket URL
+  if (import.meta.env.PROD) {
+    return 'wss://developer.hashverx.com/api';
+  }
+
+  // Fallback for development
+  return envUrl || '/api';
 };
+
 
 export const API_CONFIG = {
   BASE_URL: getBaseUrl(),
@@ -43,7 +53,8 @@ export const API_CONFIG = {
 
   IS_PRODUCTION: import.meta.env.PROD,
   IS_DEVELOPMENT: import.meta.env.DEV,
-  MEDIA_BASE_URL: import.meta.env.VITE_MEDIA_BASE_URL,
+  MEDIA_BASE_URL: import.meta.env.VITE_MEDIA_BASE_URL || 
+    (import.meta.env.PROD ? 'https://developer.hashverx.com/media' : '/media'),
   APP_ENV: import.meta.env.VITE_APP_ENV || 'development',
 };
 
