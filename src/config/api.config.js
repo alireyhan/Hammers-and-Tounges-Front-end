@@ -4,7 +4,7 @@
 //   TIMEOUT: 30000,
 //   IS_PRODUCTION: import.meta.env.PROD,
 //   IS_DEVELOPMENT: import.meta.env.DEV,
-//   APP_ENV: import.meta.env.VITE_APP_ENV || 'development',
+//   APP_ENV: import.meta.env.VITE_APP_ENV || 'development',jsodjhsdhas
 // };
 
 const getBaseUrl = () => {
